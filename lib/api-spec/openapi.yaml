@@ -1,22 +1,34 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: PaikarMart multi-vendor eCommerce API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: products
+    description: Product operations
+  - name: orders
+    description: Order operations
+  - name: sellers
+    description: Seller operations
+  - name: users
+    description: User operations
+  - name: wallet
+    description: Wallet operations
+  - name: notifications
+    description: Notification operations
+  - name: dashboard
+    description: Dashboard operations
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +36,423 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /products:
+    get:
+      operationId: listProducts
+      tags: [products]
+      summary: List all products
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: vendor_id
+          in: query
+          schema:
+            type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: location
+          in: query
+          schema:
+            type: string
+        - name: min_price
+          in: query
+          schema:
+            type: number
+        - name: max_price
+          in: query
+          schema:
+            type: number
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of products
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductListResponse"
+
+  /products/{id}:
+    get:
+      operationId: getProduct
+      tags: [products]
+      summary: Get product by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Product detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "404":
+          description: Not found
+
+  /products/featured:
+    get:
+      operationId: getFeaturedProducts
+      tags: [products]
+      summary: Get featured products
+      responses:
+        "200":
+          description: Featured products
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductListResponse"
+
+  /products/categories:
+    get:
+      operationId: getCategories
+      tags: [products]
+      summary: Get product categories
+      responses:
+        "200":
+          description: Categories
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CategoryListResponse"
+
+  /sellers:
+    get:
+      operationId: listSellers
+      tags: [sellers]
+      summary: List all sellers
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+        - name: location
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of sellers
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SellerListResponse"
+
+  /sellers/{id}:
+    get:
+      operationId: getSeller
+      tags: [sellers]
+      summary: Get seller by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Seller detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Seller"
+
+  /sellers/{id}/products:
+    get:
+      operationId: getSellerProducts
+      tags: [sellers]
+      summary: Get products by seller
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Seller products
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductListResponse"
+
+  /sellers/{id}/register:
+    post:
+      operationId: registerSeller
+      tags: [sellers]
+      summary: Register as seller
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SellerRegistrationBody"
+      responses:
+        "201":
+          description: Seller registered
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Seller"
+
+  /sellers/{id}/approve:
+    put:
+      operationId: approveSeller
+      tags: [sellers]
+      summary: Approve seller (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Seller approved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Seller"
+
+  /sellers/{id}/dashboard:
+    get:
+      operationId: getSellerDashboard
+      tags: [sellers]
+      summary: Get seller dashboard stats
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SellerDashboard"
+
+  /orders:
+    get:
+      operationId: listOrders
+      tags: [orders]
+      summary: List orders
+      parameters:
+        - name: user_id
+          in: query
+          schema:
+            type: string
+        - name: seller_id
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of orders
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OrderListResponse"
+    post:
+      operationId: createOrder
+      tags: [orders]
+      summary: Place an order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateOrderBody"
+      responses:
+        "201":
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+
+  /orders/{id}:
+    get:
+      operationId: getOrder
+      tags: [orders]
+      summary: Get order by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Order detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+
+  /orders/{id}/status:
+    put:
+      operationId: updateOrderStatus
+      tags: [orders]
+      summary: Update order status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateOrderStatusBody"
+      responses:
+        "200":
+          description: Order updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+
+  /users/{id}:
+    get:
+      operationId: getUser
+      tags: [users]
+      summary: Get user profile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /users/{id}/wallet:
+    get:
+      operationId: getUserWallet
+      tags: [wallet]
+      summary: Get user wallet
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Wallet data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Wallet"
+
+  /notifications:
+    get:
+      operationId: listNotifications
+      tags: [notifications]
+      summary: List notifications
+      parameters:
+        - name: user_id
+          in: query
+          schema:
+            type: string
+        - name: unread_only
+          in: query
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Notifications
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationListResponse"
+
+  /notifications/{id}/read:
+    put:
+      operationId: markNotificationRead
+      tags: [notifications]
+      summary: Mark notification as read
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Notification marked read
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Notification"
+
+  /admin/dashboard:
+    get:
+      operationId: getAdminDashboard
+      tags: [dashboard]
+      summary: Get admin dashboard stats
+      responses:
+        "200":
+          description: Admin dashboard
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminDashboard"
+
+  /admin/market-stats:
+    get:
+      operationId: getMarketStats
+      tags: [dashboard]
+      summary: Get market stats for wallet graph
+      responses:
+        "200":
+          description: Market stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarketStats"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +463,528 @@ components:
       required:
         - status
 
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        category:
+          type: string
+        subcategory:
+          type: string
+        type:
+          type: string
+          enum: [physical, digital, service]
+        price:
+          type: number
+        costPrice:
+          type: number
+        stock:
+          type: integer
+        moq:
+          type: integer
+        description:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+        vendorId:
+          type: string
+        vendorName:
+          type: string
+        location:
+          type: string
+        rating:
+          type: number
+        reviewCount:
+          type: integer
+        priceOnInquiry:
+          type: boolean
+        inStock:
+          type: boolean
+        deliveryDays:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - name
+        - category
+        - type
+        - vendorId
+        - vendorName
+        - inStock
+
+    ProductListResponse:
+      type: object
+      properties:
+        products:
+          type: array
+          items:
+            $ref: "#/components/schemas/Product"
+        total:
+          type: integer
+      required:
+        - products
+        - total
+
+    Category:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        icon:
+          type: string
+        productCount:
+          type: integer
+      required:
+        - id
+        - name
+
+    CategoryListResponse:
+      type: object
+      properties:
+        categories:
+          type: array
+          items:
+            $ref: "#/components/schemas/Category"
+      required:
+        - categories
+
+    Seller:
+      type: object
+      properties:
+        id:
+          type: string
+        shopName:
+          type: string
+        businessType:
+          type: string
+          enum: [wholesaler, retailer, brand_seller, local_shop, dropship, service]
+        status:
+          type: string
+          enum: [pending, approved, active, suspended]
+        phone:
+          type: string
+        email:
+          type: string
+        address:
+          type: string
+        location:
+          type: string
+        district:
+          type: string
+        rating:
+          type: number
+        totalProducts:
+          type: integer
+        totalSales:
+          type: number
+        image:
+          type: string
+        description:
+          type: string
+        deliveryTypes:
+          type: array
+          items:
+            type: string
+        coverageAreas:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - shopName
+        - businessType
+        - status
+
+    SellerListResponse:
+      type: object
+      properties:
+        sellers:
+          type: array
+          items:
+            $ref: "#/components/schemas/Seller"
+        total:
+          type: integer
+      required:
+        - sellers
+        - total
+
+    SellerRegistrationBody:
+      type: object
+      properties:
+        shopName:
+          type: string
+        businessType:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        address:
+          type: string
+        district:
+          type: string
+        categories:
+          type: array
+          items:
+            type: string
+      required:
+        - shopName
+        - businessType
+        - phone
+
+    SellerDashboard:
+      type: object
+      properties:
+        totalProducts:
+          type: integer
+        inStock:
+          type: integer
+        outOfStock:
+          type: integer
+        totalOrders:
+          type: integer
+        pendingOrders:
+          type: integer
+        completedOrders:
+          type: integer
+        totalSales:
+          type: number
+        estimatedProfit:
+          type: number
+        recentOrders:
+          type: array
+          items:
+            $ref: "#/components/schemas/Order"
+      required:
+        - totalProducts
+        - inStock
+        - outOfStock
+        - totalOrders
+        - pendingOrders
+        - completedOrders
+        - totalSales
+        - estimatedProfit
+        - recentOrders
+
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderItem"
+        status:
+          type: string
+          enum: [pending, confirmed, processing, shipped, completed, incomplete]
+        deliveryType:
+          type: string
+          enum: [seller_delivery, platform_delivery, local_delivery, pickup]
+        paymentMethod:
+          type: string
+        totalAmount:
+          type: number
+        deliveryCharge:
+          type: number
+        trackingCode:
+          type: string
+        customerName:
+          type: string
+        customerPhone:
+          type: string
+        customerAddress:
+          type: string
+        district:
+          type: string
+        area:
+          type: string
+        estimatedDelivery:
+          type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - items
+        - status
+        - totalAmount
+        - paymentMethod
+        - createdAt
+
+    OrderItem:
+      type: object
+      properties:
+        productId:
+          type: string
+        productName:
+          type: string
+        vendorId:
+          type: string
+        vendorName:
+          type: string
+        quantity:
+          type: integer
+        price:
+          type: number
+        subtotal:
+          type: number
+      required:
+        - productId
+        - productName
+        - quantity
+        - price
+        - subtotal
+
+    CreateOrderBody:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              productId:
+                type: string
+              quantity:
+                type: integer
+            required:
+              - productId
+              - quantity
+        customerName:
+          type: string
+        customerPhone:
+          type: string
+        customerEmail:
+          type: string
+        customerAddress:
+          type: string
+        district:
+          type: string
+        area:
+          type: string
+        zipCode:
+          type: string
+        deliveryType:
+          type: string
+        paymentMethod:
+          type: string
+      required:
+        - items
+        - customerName
+        - customerPhone
+        - customerAddress
+        - paymentMethod
+
+    UpdateOrderStatusBody:
+      type: object
+      properties:
+        status:
+          type: string
+        trackingCode:
+          type: string
+        estimatedDelivery:
+          type: string
+      required:
+        - status
+
+    OrderListResponse:
+      type: object
+      properties:
+        orders:
+          type: array
+          items:
+            $ref: "#/components/schemas/Order"
+        total:
+          type: integer
+      required:
+        - orders
+        - total
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum: [buyer, seller, admin]
+        district:
+          type: string
+        area:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - role
+
+    Wallet:
+      type: object
+      properties:
+        userId:
+          type: string
+        balance:
+          type: number
+        totalEarned:
+          type: number
+        investmentValue:
+          type: number
+        transactions:
+          type: array
+          items:
+            $ref: "#/components/schemas/WalletTransaction"
+      required:
+        - userId
+        - balance
+        - totalEarned
+        - investmentValue
+        - transactions
+
+    WalletTransaction:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [reward, adjustment]
+        amount:
+          type: number
+        description:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - type
+        - amount
+        - createdAt
+
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        type:
+          type: string
+          enum: [order, delivery, account, seller, system]
+        title:
+          type: string
+        message:
+          type: string
+        read:
+          type: boolean
+        createdAt:
+          type: string
+      required:
+        - id
+        - type
+        - title
+        - message
+        - read
+        - createdAt
+
+    NotificationListResponse:
+      type: object
+      properties:
+        notifications:
+          type: array
+          items:
+            $ref: "#/components/schemas/Notification"
+        unreadCount:
+          type: integer
+      required:
+        - notifications
+        - unreadCount
+
+    AdminDashboard:
+      type: object
+      properties:
+        totalUsers:
+          type: integer
+        totalSellers:
+          type: integer
+        activeSellers:
+          type: integer
+        pendingSellers:
+          type: integer
+        totalOrders:
+          type: integer
+        totalSales:
+          type: number
+        platformProfit:
+          type: number
+        totalCost:
+          type: number
+        recentOrders:
+          type: array
+          items:
+            $ref: "#/components/schemas/Order"
+        recentSellers:
+          type: array
+          items:
+            $ref: "#/components/schemas/Seller"
+      required:
+        - totalUsers
+        - totalSellers
+        - activeSellers
+        - pendingSellers
+        - totalOrders
+        - totalSales
+        - platformProfit
+        - totalCost
+        - recentOrders
+        - recentSellers
+
+    MarketStats:
+      type: object
+      properties:
+        monthly:
+          type: array
+          items:
+            type: object
+            properties:
+              month:
+                type: string
+              sales:
+                type: number
+              cost:
+                type: number
+              profit:
+                type: number
+            required:
+              - month
+              - sales
+              - cost
+              - profit
+        changePercent:
+          type: number
+        trend:
+          type: string
+          enum: [up, down, stable]
+      required:
+        - monthly
+        - changePercent
+        - trend

@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "PaikarMart"
+version = "1.0.0"
+id = "artifacts/paikarmart"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 23749
+
+[services.development]
+run = "pnpm --filter @workspace/paikarmart run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/paikarmart", "run", "build" ]
+publicDir = "artifacts/paikarmart/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23749"
+BASE_PATH = "/"
