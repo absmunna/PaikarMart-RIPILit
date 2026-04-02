@@ -1,4 +1,4 @@
-# Workspace
+# PaikarMart — Multi-Vendor eCommerce Platform (Bangladesh)
 
 ## Overview
 

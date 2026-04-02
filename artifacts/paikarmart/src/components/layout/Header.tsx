@@ -343,20 +343,15 @@ export function Header() {
         </div>
       </header>
 
-      {/* Sidebar */}
+      {/* Sidebar — starts below both headers (mini 30px + main 64px = 94px) */}
       {showSidebar && (
-        <div className="fixed inset-0 z-50 flex">
+        <div className="fixed inset-0 z-50 flex" style={{ top: 0 }}>
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowSidebar(false)} />
-          <div className="relative w-72 bg-white h-full shadow-2xl flex flex-col overflow-hidden" style={{ marginTop: 0 }}>
-            <div className="h-16 flex items-center justify-between px-4 bg-gradient-to-r from-green-700 to-emerald-600">
-              <Link href="/" className="flex items-center gap-2" onClick={() => setShowSidebar(false)}>
-                <div className="h-8 w-8 rounded-lg bg-white/20 flex items-center justify-center">
-                  <span className="text-white font-bold text-xl">P</span>
-                </div>
-                <span className="text-white font-bold text-xl">PaikarMart</span>
-              </Link>
-              <Button variant="ghost" size="icon" onClick={() => setShowSidebar(false)} className="text-white hover:bg-white/20">
-                <X className="h-5 w-5" />
+          <div className="relative w-72 bg-white shadow-2xl flex flex-col overflow-hidden" style={{ marginTop: 94, height: "calc(100vh - 94px)" }}>
+            <div className="px-4 py-3 bg-gradient-to-r from-green-700 to-emerald-600 flex items-center justify-between shrink-0">
+              <span className="text-white font-bold text-base">Menu</span>
+              <Button variant="ghost" size="icon" onClick={() => setShowSidebar(false)} className="text-white hover:bg-white/20 h-8 w-8">
+                <X className="h-4 w-4" />
               </Button>
             </div>
             <nav className="flex-1 overflow-y-auto py-2">
