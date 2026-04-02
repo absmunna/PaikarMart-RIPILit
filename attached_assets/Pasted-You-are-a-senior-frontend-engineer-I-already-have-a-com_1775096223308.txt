@@ -1,0 +1,511 @@
+You are a senior frontend engineer.
+
+I already have a complete multi-vendor eCommerce frontend project called "PaikarMart".
+
+DO NOT rebuild from scratch. ONLY update and fix.
+
+IMPORTANT RULES:
+- Do NOT break existing structure
+- Do NOT remove working features
+- Only enhance UI, UX, and fix issues
+- Maintain mobile-first responsive design
+- Use HTML, CSS, JavaScript only
+- Keep code modular and reusable
+---------------------------------------
+PROJECT STRUCTURE (ALREADY EXISTS)
+---------------------------------------
+
+assets/
+  css/styles.css
+  js/app.js
+  data/mock-data.js
+  img/
+
+pages:
+- index.html
+- product.html
+- cart.html
+- checkout.html
+- login.html
+- buyer-dashboard.html
+- seller-dashboard.html
+- admin-panel.html
+- faq.html
+- terms.html
+
+---------------------------------------
+NOW APPLY THE FOLLOWING UPDATES
+---------------------------------------
+
+
+
+
+---------------------------------------
+PROJECT CONTEXT
+---------------------------------------
+Multi-vendor eCommerce platform with:
+- Buyer, Seller, Admin
+- Cart, Checkout
+- Dashboard
+- Wallet (coming soon)
+
+---------------------------------------
+APPLY ALL UPDATES BELOW
+---------------------------------------
+
+========================================
+1. LOGO DESIGN + CLICK BEHAVIOR
+========================================
+
+- Logo text:
+  "Paikar" → glossy green gradient
+  "Mart" → glossy wine red gradient
+
+- Add logo image placeholder:
+  (admin can replace later)
+
+- Click behavior:
+  - Single click → reload page
+  - Double click → redirect to index.html (home)
+
+========================================
+2. TOP MINI HEADER (NEW)
+========================================
+
+Add a thin top header ABOVE main header:
+
+Left:
+- Download App
+- Help & Support
+
+Right:
+- Become a Seller
+- Login
+- Sign Up
+- Language (EN / BN)
+
+Make it:
+- Sticky
+- Minimal height
+- Clean UI
+
+========================================
+3. ACCOUNT ICON DROPDOWN PANEL
+========================================
+
+On clicking account icon:
+
+IF guest:
+- Show small panel:
+  - Customer Login
+  - Seller Login
+  - Sign Up
+
+IF logged in (Buyer):
+- My Account
+- My Orders
+- Settings
+- Logout
+
+IF logged in (Seller):
+- Seller Dashboard
+- Orders
+- Settings
+- Logout
+
+UI:
+- Slide dropdown panel
+- Smooth animation
+
+========================================
+4. SEARCH SYSTEM FIX
+========================================
+
+Fix search not working.
+
+- Default category:
+  → "All Products"
+
+- Dropdown:
+  → Show all categories
+
+- When typing:
+  → Show suggestions (from mock-data.js)
+
+- Make search responsive:
+  - Full width on mobile
+  - No overflow or cut issue
+
+========================================
+5. HERO SLIDER (IMPORTANT)
+========================================
+
+Convert hero section to SLIDER:
+
+- Multiple banners
+- Auto slide
+- Navigation arrows
+
+Each banner:
+- Clickable → redirect link
+
+Mobile:
+- Reduce height
+- Optimize image
+
+========================================
+6. PROMOTIONAL AD SECTIONS
+========================================
+
+Between sections:
+
+Add small ad containers:
+- 2 or 3 column grid
+
+Use cases:
+- Seller ads
+- Product promotion
+- Google Ads ready
+
+Keep:
+- Compact design
+- Clean spacing
+
+========================================
+7. PRODUCT CLICK FIX (VERY IMPORTANT)
+========================================
+
+ISSUE: product click not opening page
+
+FIX:
+
+- All product cards must link to:
+  → product.html?id=PRODUCT_ID
+
+- Use JS:
+  → read ID from URL
+  → load product details from mock-data.js
+
+Also fix:
+- Vendor name click → open vendor store page
+
+========================================
+8. SIDEBAR FIX + MODERN UI
+========================================
+
+Fix:
+- Sidebar overlapping header
+
+Update:
+- Sidebar should start BELOW header
+
+Design:
+- Glassmorphism style:
+  - blur background
+  - transparency
+  - soft shadow
+
+Apply same style to:
+- cards
+- sections
+- containers
+
+========================================
+9. SIDEBAR LINKS FIX
+========================================
+
+Fix non-working links:
+
+- Retail → retail.html
+- Dropshipping → dropship.html
+- Others → create placeholder pages
+
+Ensure:
+- All menu links open pages
+
+========================================
+10. PRODUCT CARD UPGRADE
+========================================
+
+Add:
+
+- "Buy Now" button (next to Add to Cart)
+- Show:
+  - Original price (strike)
+  - Offer price
+
+- Vendor name clickable
+
+========================================
+11. CART + ORDER UI IMPROVEMENT
+========================================
+
+Redesign:
+
+- Minimal UI
+- Glass style card
+- Soft shadow
+
+Improve:
+- Quantity buttons
+- Total section
+
+========================================
+12. LOGIN SYSTEM UPGRADE
+========================================
+
+Add:
+
+- Password login system
+- OTP login system (optional)
+
+Add:
+- Forgot Password:
+
+Flow:
+- Enter phone/email
+- OTP verify
+- Reset password
+
+========================================
+13. SELLER REG FIX
+========================================
+
+Fix missing field:
+
+- Seller category must show:
+  - Wholesaler
+  - Retailer
+  - Brand Seller
+  - Local Shop
+  - B2B Seller
+
+========================================
+14. CREATE WALLET PAGE
+========================================
+
+Create new page:
+
+→ wallet.html
+
+Include:
+
+- Wallet Balance
+- Earned Rewards
+- Investment Value
+
+Add:
+- Graph placeholder
+- "Coming Soon" label
+
+========================================
+15. MOBILE RESPONSIVE FIX (GLOBAL)
+========================================
+
+Ensure:
+
+- No content cut
+- No overflow
+- Proper spacing
+- Full-width layout
+
+Test:
+- Header
+- Search
+- Cards
+- Slider
+
+==============================
+16. RENAME BUYER DASHBOARD
+==============================
+
+- Rename "buyer-dashboard.html" to:
+  → "my-account.html"
+
+- Update UI:
+  - Add sidebar menu:
+    - Dashboard
+    - Orders
+    - Wishlist
+    - Reviews
+    - Wallet (Coming Soon)
+    - Profile Settings
+
+- Improve design:
+  - Clean card layout
+  - Modern UI (Amazon style)
+  - Mobile responsive
+
+==============================
+17. ADD B2B SELLER SYSTEM
+==============================
+
+Extend seller system:
+
+Add new seller type:
+→ "B2B Seller (PaikarMart Supplier)"
+
+Features:
+- Can buy wholesale products
+- Can resell products
+- Can list products
+
+Update:
+- seller registration form
+- seller dashboard UI
+- seller type badge
+
+Add UI label:
+→ "B2B Supplier"
+
+==============================
+18. LOCATION FILTER IMPROVEMENT
+==============================
+
+Improve header location system:
+
+- Store location in localStorage
+- Filter:
+  - products
+  - vendors
+  - local shops
+
+Add:
+- "Nearby Products" section on homepage
+
+==============================
+19. REVIEW SYSTEM UPGRADE
+==============================
+
+Rules:
+- Only logged-in verified buyers can review
+- Guest users:
+  → Only see rating
+
+Add:
+- Image upload UI
+- Video upload UI (short clip UI only)
+
+Add:
+- "Verified Purchase" badge
+
+==============================
+20. INCOMPLETE ORDER SYSTEM
+==============================
+
+Add new status:
+→ "Incomplete Order"
+
+Conditions:
+- No response
+- Delivery failed
+- Customer rejected
+
+Update:
+- Admin panel
+- Seller dashboard
+
+Add:
+- Separate "Incomplete Orders" list
+
+==============================
+21. SELLER DELIVERY SETTINGS
+==============================
+
+Add inside seller dashboard:
+
+Fields:
+- Delivery charge (fixed/dynamic)
+- Free delivery toggle
+- Minimum order for free delivery
+
+==============================
+22. UI/UX IMPROVEMENTS
+==============================
+
+Apply globally:
+
+- Add loading spinner on buttons
+- Disable button during processing
+- Show toast notifications:
+  - success
+  - error
+
+- Add hover effects:
+  - product cards
+  - buttons
+
+==============================
+23. WALLET SYSTEM (LOCKED)
+==============================
+
+Inside My Account:
+
+Add section:
+→ Wallet (Coming Soon)
+
+Show:
+- Balance
+- Earned Rewards
+- Investment Value (dynamic UI only)
+
+Add graph placeholder:
+- Sales
+- Profit
+- Cost
+
+==============================
+24. SEARCH SYSTEM UPGRADE
+==============================
+
+Improve search:
+
+- Live suggestions
+- Show:
+  - product
+  - category
+  - vendor
+
+Add filter panel:
+- price
+- rating
+- location
+
+==============================
+25. NOTIFICATION SYSTEM UI
+==============================
+
+Add:
+
+Header:
+→ Bell icon
+
+Dropdown:
+- Order update
+- Delivery update
+- Payment update
+
+Add:
+- unread badge
+- mark as read
+
+
+========================================
+FINAL TASK
+========================================
+
+- Update only necessary files & ALL related files correctly 
+- Maintain file structure
+- Fix all broken links
+- Do NOT break navigation
+
+- Keep UI modern (Amazon/Walmart inspired)
+- Use reusable JS functions
+- Ensure everything works in Live Server
+
+- Keep code clean and modular
+- Ensure mobile responsiveness
+- Use reusable JS functions
+
+Return updated files only & where changes are made.
+“Update existing project, do not rebuild from scratch”
