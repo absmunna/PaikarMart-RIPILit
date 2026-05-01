@@ -14,14 +14,34 @@ import {
 
 const router: IRouter = Router();
 
+function normalizeOrderItem(item: Record<string, unknown>) {
+  const price = (item.price as number) ?? 0;
+  const quantity = (item.quantity as number) ?? 1;
+  return {
+    productId: item.productId as string,
+    productName: item.productName as string,
+    vendorId: item.vendorId as string | undefined ?? undefined,
+    vendorName: item.vendorName as string | undefined ?? undefined,
+    quantity,
+    price,
+    subtotal: (item.subtotal as number) ?? price * quantity,
+  };
+}
+
 function normalizeOrder(o: Record<string, unknown>) {
+  const rawItems = Array.isArray(o.items) ? o.items : [];
   return {
     ...o,
+    items: rawItems.map(i => normalizeOrderItem(i as Record<string, unknown>)),
     createdAt: o.createdAt instanceof Date ? (o.createdAt as Date).toISOString() : o.createdAt,
     updatedAt: o.updatedAt instanceof Date ? (o.updatedAt as Date).toISOString() : o.updatedAt,
     trackingCode: o.trackingCode ?? undefined,
     estimatedDelivery: o.estimatedDelivery ?? undefined,
     cancelReason: o.cancelReason ?? undefined,
+    customerName: o.customerName ?? undefined,
+    customerPhone: o.customerPhone ?? undefined,
+    customerAddress: o.customerAddress ?? (o.address as string | null) ?? undefined,
+    district: o.district ?? undefined,
     area: o.area ?? undefined,
   };
 }
@@ -50,6 +70,7 @@ router.get("/orders", async (req, res): Promise<void> => {
 });
 
 router.post("/orders", async (req, res): Promise<void> => {
+  const requestUserId = typeof req.body.userId === "string" ? req.body.userId : undefined;
   const body = CreateOrderBody.safeParse(req.body);
   if (!body.success) {
     res.status(400).json({ error: body.error.message });
@@ -85,7 +106,7 @@ router.post("/orders", async (req, res): Promise<void> => {
   const id = `ORD-${Date.now()}`;
   const [order] = await db.insert(ordersTable).values({
     id,
-    userId: "user-1",
+    userId: requestUserId || "guest",
     items: orderItems,
     status: "pending",
     deliveryType: (body.data.deliveryType as "seller_delivery" | "platform_delivery" | "local_delivery" | "pickup") ?? "seller_delivery",
