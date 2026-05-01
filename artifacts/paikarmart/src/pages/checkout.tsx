@@ -42,21 +42,20 @@ export default function CheckoutPage() {
 
     createOrderMutation.mutate({
       data: {
-        userId: user?.id,
         items: items.map(i => ({
           productId: i.productId,
-          productName: i.productName,
           quantity: i.quantity,
-          price: i.price,
-          vendorId: i.vendorId,
         })),
-        paymentMethod,
-        totalAmount: totalPrice + deliveryCharge,
-        deliveryCharge,
-        deliveryType: "seller_delivery",
-        address,
+        customerName: name,
+        customerPhone: phone,
+        customerAddress: address,
+        district: area || undefined,
         area: area || undefined,
-      },
+        paymentMethod,
+        deliveryType: "seller_delivery",
+        // pass userId outside Zod-validated fields so server can read it
+        ...(user?.id ? { userId: user.id } as Record<string, unknown> : {}),
+      } as Parameters<typeof createOrderMutation.mutate>[0]["data"],
     });
   };
 

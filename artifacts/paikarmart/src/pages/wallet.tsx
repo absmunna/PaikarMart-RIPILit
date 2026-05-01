@@ -34,12 +34,11 @@ function BarGraph({ data, labels }: { data: number[]; labels: string[] }) {
 
 export default function WalletPage() {
   const { user } = useAuth();
+  const { data: wallet, isLoading } = useGetUserWallet(user?.id || "user-1");
 
-  if (user?.id === "guest") {
+  if (!user || user.id === "guest") {
     return <Redirect to="/login" />;
   }
-
-  const { data: wallet, isLoading } = useGetUserWallet(user?.id || "user-1");
 
   if (isLoading) {
     return (
