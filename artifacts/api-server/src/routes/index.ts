@@ -6,9 +6,11 @@ import ordersRouter from "./orders";
 import usersRouter from "./users";
 import notificationsRouter from "./notifications";
 import adminRouter from "./admin";
+import authRouter from "./auth";
 
 const router: IRouter = Router();
 
+router.use(authRouter);
 router.use(healthRouter);
 router.use(productsRouter);
 router.use(sellersRouter);
