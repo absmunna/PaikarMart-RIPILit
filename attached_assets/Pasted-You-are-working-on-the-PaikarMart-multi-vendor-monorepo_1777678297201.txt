@@ -1,0 +1,116 @@
+You are working on the PaikarMart multi-vendor monorepo project.
+
+TASK:
+Prepare the entire project for production deployment and export a clean, deployment-ready ZIP that can be used across:
+- cPanel hosting
+- VPS (Ubuntu/Linux server)
+- Docker deployment
+- Shared hosting (static frontend + separate API)
+- Future remix/reuse into another project
+
+IMPORTANT RULES:
+- Do NOT modify business logic or UI
+- Do NOT refactor code
+- Do NOT fix or improve anything
+- Only prepare build + clean export
+- Ensure everything is production-ready
+
+STEP 1 — CLEAN INSTALL
+Run dependency install for full monorepo:
+pnpm install
+
+STEP 2 — PRODUCTION BUILD
+Build all workspaces:
+
+pnpm run build
+
+This must produce:
+- artifacts/api-server/dist (Express production build)
+- artifacts/paikarmart/dist (Vite frontend build)
+- all generated type packages compiled
+
+STEP 3 — VERIFY OUTPUTS
+Confirm these exist:
+- API: artifacts/api-server/dist/index.cjs
+- Frontend: artifacts/paikarmart/dist/index.html
+- Shared libs build success (no TS errors blocking build)
+
+STEP 4 — CREATE DEPLOY STRUCTURE
+
+Prepare a clean deployment structure:
+
+/deploy/
+  /server/        → artifacts/api-server/dist
+  /client/        → artifacts/paikarmart/dist
+  /shared/        → lib/api-client-react, lib/api-zod (compiled output if needed)
+  package.json (minimal production deps)
+  README-DEPLOY.md
+
+STEP 5 — ADD DEPLOY CONFIGS
+
+Create deployment configs:
+
+A) VPS (Node.js)
+- pm2 ecosystem config (optional)
+- environment variable template (.env.example)
+- start command: node dist/index.cjs
+
+B) cPanel (Node.js App)
+- ensure API server works with PORT env
+- static frontend build ready for public_html
+
+C) Docker
+Create Dockerfile:
+- Node 24 base image
+- install pnpm
+- build monorepo
+- expose API port
+- serve frontend optionally via nginx (optional split mode)
+
+D) Shared Hosting
+- export only frontend build (dist folder)
+- no backend dependency required
+
+Must add:
+
+* dynamic PORT
+* 0.0.0.0 binding
+* env config strict
+* production CORS
+* single entry build (dist/index.cjs)
+* DB reconnect safe logic
+
+STEP 6 — CLEAN ZIP EXPORT
+
+Create final production zip:
+
+paikarmart-production-ready.zip
+
+Include ONLY:
+- artifacts/api-server/dist
+- artifacts/paikarmart/dist
+- lib (only compiled/generated required files)
+- scripts (optional if needed)
+- pnpm-workspace.yaml
+- tsconfig.json
+- tsconfig.base.json
+- root package.json
+- deployment configs (Dockerfile, ecosystem.config.js, .env.example, README-DEPLOY.md)
+
+EXCLUDE:
+- node_modules
+- .git
+- source build caches
+- temporary files
+
+STEP 7 — FINAL OUTPUT CHECK
+
+Confirm:
+- Zero TypeScript blocking errors
+- API build successful
+- Frontend build successful
+- ZIP contains only deployable artifacts
+
+FINAL RESULT:
+Return a single message:
+"PaikarMart is fully production-ready and deployment ZIP is created."
