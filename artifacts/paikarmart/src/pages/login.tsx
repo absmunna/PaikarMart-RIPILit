@@ -59,38 +59,49 @@ export default function LoginPage() {
     }, 1000);
   };
 
-  const verifyOtp = (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      const roleMap: Record<LoginType, { id: string; name: string; role: "buyer" | "seller" | "admin" }> = {
-        buyer: { id: "user-1", name: "Test Buyer", role: "buyer" },
-        seller: { id: "seller-1", name: "Test Seller", role: "seller" },
-        admin: { id: "admin-1", name: "Admin", role: "admin" },
-      };
-      login(roleMap[loginType]);
-      toast.success("Logged in successfully!");
-      navigate(loginType === "seller" ? "/seller/dashboard" : loginType === "admin" ? "/admin/dashboard" : "/");
-    }, 800);
+  const doApiLogin = async (phoneVal: string, emailVal: string, role: LoginType) => {
+    const res = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone: phoneVal || undefined, email: emailVal || undefined, role }),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error((err as { error?: string }).error || "Login failed");
+    }
+    const data = await res.json() as { user: { id: string; name: string; role: "buyer" | "seller" | "admin"; phone?: string; email?: string } };
+    return data.user;
   };
 
-  const handlePasswordLogin = (e: React.FormEvent) => {
+  const verifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const user = await doApiLogin(phone, email, loginType);
+      login(user);
+      toast.success("Logged in successfully!");
+      navigate(user.role === "seller" ? "/seller/dashboard" : user.role === "admin" ? "/admin/dashboard" : "/");
+    } catch (err) {
+      toast.error((err as Error).message || "Login failed");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handlePasswordLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!phone && !email) { toast.error("Enter phone or email"); return; }
-    if (!password) { toast.error("Enter password"); return; }
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      const roleMap: Record<LoginType, { id: string; name: string; role: "buyer" | "seller" | "admin" }> = {
-        buyer: { id: "user-1", name: "Test Buyer", role: "buyer" },
-        seller: { id: "seller-1", name: "Test Seller", role: "seller" },
-        admin: { id: "admin-1", name: "Admin", role: "admin" },
-      };
-      login(roleMap[loginType]);
+    try {
+      const user = await doApiLogin(phone, email, loginType);
+      login(user);
       toast.success("Logged in successfully!");
-      navigate(loginType === "seller" ? "/seller/dashboard" : loginType === "admin" ? "/admin/dashboard" : "/");
-    }, 800);
+      navigate(user.role === "seller" ? "/seller/dashboard" : user.role === "admin" ? "/admin/dashboard" : "/");
+    } catch (err) {
+      toast.error((err as Error).message || "Login failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const sendForgotOtp = (e: React.FormEvent) => {
@@ -216,14 +227,22 @@ export default function LoginPage() {
 
                   {/* Demo Accounts */}
                   <div className="pt-4 border-t border-gray-100">
-                    <p className="text-xs text-gray-400 text-center mb-3">Demo accounts (for testing)</p>
+                    <p className="text-xs text-gray-400 text-center mb-3">Quick login (demo)</p>
                     <div className="grid grid-cols-3 gap-2">
                       {([
-                        { label: "Buyer", onClick: () => { login({ id: "user-1", name: "Test Buyer", role: "buyer" }); navigate("/"); } },
-                        { label: "Seller", onClick: () => { login({ id: "seller-1", name: "Test Seller", role: "seller" }); navigate("/seller/dashboard"); } },
-                        { label: "Admin", onClick: () => { login({ id: "admin-1", name: "Admin", role: "admin" }); navigate("/admin/dashboard"); } },
-                      ] as { label: string; onClick: () => void }[]).map(a => (
-                        <button key={a.label} onClick={a.onClick}
+                        { label: "Buyer", phone: "01811111111", role: "buyer" as LoginType, nav: "/" },
+                        { label: "Seller", phone: "01700000002", role: "seller" as LoginType, nav: "/seller/dashboard" },
+                        { label: "Admin", phone: "01700000001", role: "admin" as LoginType, nav: "/admin/dashboard" },
+                      ]).map(a => (
+                        <button key={a.label}
+                          onClick={async () => {
+                            try {
+                              const user = await doApiLogin(a.phone, "", a.role);
+                              login(user);
+                              toast.success(`Logged in as ${user.name}`);
+                              navigate(a.nav);
+                            } catch { toast.error("Demo login failed"); }
+                          }}
                           className="py-1.5 px-2 rounded-lg border border-gray-200 text-xs font-medium text-gray-600 hover:bg-green-50 hover:border-green-300 hover:text-green-700 transition-all">
                           {a.label}
                         </button>
