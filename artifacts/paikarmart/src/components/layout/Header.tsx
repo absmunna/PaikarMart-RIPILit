@@ -50,7 +50,7 @@ export function Header() {
   const accountRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
 
-  const { data: notifData } = useListNotifications({ user_id: user?.id || "user-1", limit: 5 });
+  const { data: notifData } = useListNotifications({ user_id: user?.id || "user-1" });
   const unread = notifData?.unreadCount || 0;
 
   useEffect(() => {
