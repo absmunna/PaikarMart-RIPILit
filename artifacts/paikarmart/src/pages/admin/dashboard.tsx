@@ -11,12 +11,13 @@ import { Badge } from "@/components/ui/badge";
 
 export default function AdminDashboardPage() {
   const { user } = useAuth();
-  
-  if (user?.role !== "admin") {
+
+  const isAdmin = user?.role === "admin";
+  const { data: dashboard, isLoading } = useGetAdminDashboard({ query: { enabled: isAdmin } });
+
+  if (!isAdmin) {
     return <Redirect to="/login" />;
   }
-
-  const { data: dashboard, isLoading } = useGetAdminDashboard();
 
   if (isLoading) {
     return (
@@ -39,7 +40,7 @@ export default function AdminDashboardPage() {
     { title: "Total Users", value: dashboard?.totalUsers || 0, icon: Users, color: "text-blue-500" },
     { title: "Total Sellers", value: dashboard?.totalSellers || 0, icon: Store, color: "text-purple-500" },
     { title: "Total Orders", value: dashboard?.totalOrders || 0, icon: ShoppingBag, color: "text-orange-500" },
-    { title: "Platform Profit", value: `৳${dashboard?.platformProfit.toLocaleString() || 0}`, icon: DollarSign, color: "text-green-500" },
+    { title: "Platform Profit", value: `৳${(dashboard?.platformProfit ?? 0).toLocaleString()}`, icon: DollarSign, color: "text-green-500" },
   ];
 
   return (
@@ -75,7 +76,7 @@ export default function AdminDashboardPage() {
                     <div key={seller.id} className="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0">
                       <div>
                         <div className="font-medium">{seller.shopName}</div>
-                        <div className="text-sm text-muted-foreground">{seller.businessType.replace('_', ' ')}</div>
+                        <div className="text-sm text-muted-foreground">{seller.businessType?.replace('_', ' ')}</div>
                       </div>
                       <div className="flex gap-2">
                         <Button size="sm" variant="outline" className="text-green-600 hover:text-green-700 hover:bg-green-50"><CheckCircle className="h-4 w-4 mr-1" /> Approve</Button>

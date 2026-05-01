@@ -56,7 +56,7 @@ export default function VendorDetailPage() {
             <div className="flex-1 text-center md:text-left">
               <div className="flex flex-col md:flex-row md:items-center gap-4 mb-2">
                 <h1 className="text-3xl md:text-4xl font-bold">{seller.shopName}</h1>
-                <Badge className="w-fit mx-auto md:mx-0 text-sm capitalize">{seller.businessType.replace('_', ' ')}</Badge>
+                <Badge className="w-fit mx-auto md:mx-0 text-sm capitalize">{seller.businessType?.replace('_', ' ')}</Badge>
               </div>
               
               <p className="text-muted-foreground mb-6 max-w-2xl">
