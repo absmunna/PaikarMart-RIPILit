@@ -262,6 +262,7 @@ function VendorCard({ seller }: { seller: any }) {
 }
 
 export default function Home() {
+  const [, navigate] = useLocation();
   const { data: productsData, isLoading: productsLoading } = useListProducts({ limit: 8 });
   const { data: sellersData, isLoading: sellersLoading } = useListSellers({ status: "active" });
 
@@ -270,6 +271,30 @@ export default function Home() {
 
   return (
     <Layout>
+      {/* Feed / Marketplace Toggle */}
+      <div className="sticky z-30" style={{ top: "94px" }}>
+        <div className="glass border-b" style={{ borderColor: "hsl(42 72% 50% / 0.2)" }}>
+          <div className="container mx-auto px-4">
+            <div className="flex items-center h-11 gap-1">
+              <div className="flex items-center bg-white/60 rounded-full p-1 gold-ring-sm">
+                <button
+                  onClick={() => navigate("/feed")}
+                  className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-medium text-gray-500 hover:text-gray-700 transition-all"
+                >
+                  🏠 Feed
+                </button>
+                <button
+                  className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold text-white transition-all"
+                  style={{ background: "linear-gradient(135deg, hsl(350 55% 28%), hsl(350 55% 38%))" }}
+                >
+                  🛍️ Marketplace
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <HeroSlider />
 
       {/* Promo Banners */}

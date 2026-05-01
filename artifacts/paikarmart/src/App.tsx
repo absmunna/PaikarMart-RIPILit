@@ -7,6 +7,7 @@ import { CartProvider } from "@/hooks/use-cart";
 import NotFound from "@/pages/not-found";
 
 import Home from "@/pages/index";
+import FeedPage from "@/pages/feed";
 import ProductsPage from "@/pages/products/index";
 import ProductDetailPage from "@/pages/products/[id]";
 import CartPage from "@/pages/cart";
@@ -30,6 +31,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
+      <Route path="/feed" component={FeedPage} />
       <Route path="/products" component={ProductsPage} />
       <Route path="/products/:id" component={ProductDetailPage} />
       <Route path="/cart" component={CartPage} />

@@ -104,36 +104,36 @@ export function Header() {
 
   return (
     <>
-      {/* Top Mini Header */}
-      <div className="w-full bg-gray-900 text-gray-300 text-xs py-1.5 px-4 z-50 sticky top-0">
+      {/* Top Mini Header — Wine */}
+      <div className="w-full text-xs py-1.5 px-4 z-50 sticky top-0" style={{ background: "hsl(350 55% 22%)" }}>
         <div className="container mx-auto flex items-center justify-between gap-2">
           <div className="flex items-center gap-4">
-            <a href="#" className="flex items-center gap-1 hover:text-white transition-colors">
+            <a href="#" className="flex items-center gap-1 text-rose-200 hover:text-white transition-colors">
               <Smartphone className="h-3 w-3" /> Download App
             </a>
-            <a href="/faq" className="flex items-center gap-1 hover:text-white transition-colors">
+            <a href="/faq" className="flex items-center gap-1 text-rose-200 hover:text-white transition-colors">
               <HelpCircle className="h-3 w-3" /> Help & Support
             </a>
           </div>
           <div className="flex items-center gap-4">
-            <Link href="/seller/register" className="hover:text-green-400 transition-colors font-medium">Become a Seller</Link>
+            <Link href="/seller/register" className="font-semibold transition-colors" style={{ color: "hsl(42 80% 65%)" }}>Become a Seller</Link>
             {isGuest ? (
               <>
-                <Link href="/login" className="hover:text-white transition-colors">Login</Link>
-                <Link href="/register" className="hover:text-white transition-colors">Sign Up</Link>
+                <Link href="/login" className="text-rose-200 hover:text-white transition-colors">Login</Link>
+                <Link href="/register" className="text-rose-200 hover:text-white transition-colors">Sign Up</Link>
               </>
             ) : (
-              <span className="text-green-400">Welcome, {user.name.split(" ")[0]}</span>
+              <span style={{ color: "hsl(42 80% 65%)" }}>Welcome, {user.name.split(" ")[0]}</span>
             )}
-            <span className="flex items-center gap-1 cursor-pointer hover:text-white transition-colors">
+            <span className="flex items-center gap-1 cursor-pointer text-rose-200 hover:text-white transition-colors">
               <Globe className="h-3 w-3" /> EN / বাংলা
             </span>
           </div>
         </div>
       </div>
 
-      {/* Main Header */}
-      <header className="sticky top-[30px] z-40 w-full border-b bg-white shadow-sm">
+      {/* Main Header — Glass */}
+      <header className="glass sticky top-[30px] z-40 w-full shadow-sm">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-3">
           {/* Left: Hamburger + Logo */}
           <div className="flex items-center gap-3 shrink-0">
@@ -141,23 +141,24 @@ export function Header() {
               <Menu className="h-5 w-5" />
             </Button>
             <Link href="/" className="flex items-center gap-1.5">
-              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-green-600 to-emerald-500 flex items-center justify-center shadow">
-                <span className="text-white font-bold text-xl">P</span>
+              <div className="h-9 w-9 rounded-xl gold-ring flex items-center justify-center shadow-md" style={{ background: "linear-gradient(135deg, hsl(350 55% 22%), hsl(350 55% 35%))" }}>
+                <span className="text-white font-bold text-xl" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.4)" }}>P</span>
               </div>
               <span className="font-bold text-xl hidden sm:inline-block">
-                <span className="bg-gradient-to-r from-green-700 to-emerald-500 bg-clip-text text-transparent">Paikar</span>
-                <span className="bg-gradient-to-r from-red-700 to-rose-500 bg-clip-text text-transparent">Mart</span>
+                <span style={{ background: "linear-gradient(135deg, hsl(350 55% 28%), hsl(350 55% 42%))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Paikar</span>
+                <span style={{ background: "linear-gradient(135deg, hsl(42 72% 40%), hsl(42 80% 58%))", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Mart</span>
               </span>
             </Link>
           </div>
 
           {/* Center: Search */}
-          <form onSubmit={handleSearch} className="flex-1 max-w-2xl hidden md:flex items-center gap-0 border border-gray-200 rounded-full overflow-hidden shadow-sm bg-gray-50 focus-within:ring-2 focus-within:ring-green-500/30 focus-within:border-green-500 transition-all">
+          <form onSubmit={handleSearch} className="flex-1 max-w-2xl hidden md:flex items-center gap-0 rounded-full overflow-hidden shadow-sm bg-white/80 transition-all gold-ring-sm focus-within:shadow-md">
             <div className="relative">
               <select
                 value={searchCategory}
                 onChange={e => setSearchCategory(e.target.value)}
-                className="h-10 pl-3 pr-7 text-sm bg-transparent border-r border-gray-200 text-gray-700 focus:outline-none cursor-pointer appearance-none"
+                className="h-10 pl-3 pr-7 text-sm bg-transparent border-r text-gray-700 focus:outline-none cursor-pointer appearance-none"
+                style={{ borderColor: "hsl(42 72% 50% / 0.3)" }}
               >
                 {SEARCH_CATEGORIES.map(c => <option key={c}>{c}</option>)}
               </select>
@@ -177,18 +178,18 @@ export function Header() {
                 <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl shadow-lg border border-gray-100 z-50 overflow-hidden">
                   {["Electronics", "Fashion", "Grocery"].filter(s => s.toLowerCase().includes(searchQuery.toLowerCase())).map(s => (
                     <div key={s} onClick={() => { setSearchQuery(s); setShowSearchSuggestions(false); }}
-                      className="px-4 py-2.5 hover:bg-green-50 cursor-pointer text-sm flex items-center gap-2">
+                      className="px-4 py-2.5 cursor-pointer text-sm flex items-center gap-2 hover:bg-rose-50">
                       <Search className="h-3 w-3 text-muted-foreground" /> {s}
                     </div>
                   ))}
                   <div onClick={() => { navigate(`/products?q=${encodeURIComponent(searchQuery)}`); setShowSearchSuggestions(false); }}
-                    className="px-4 py-2.5 hover:bg-green-50 cursor-pointer text-sm text-green-600 font-medium flex items-center gap-2">
+                    className="px-4 py-2.5 cursor-pointer text-sm font-medium flex items-center gap-2 hover:bg-rose-50" style={{ color: "hsl(350 55% 32%)" }}>
                     <Search className="h-3 w-3" /> Search for "{searchQuery}"
                   </div>
                 </div>
               )}
             </div>
-            <button type="submit" className="h-10 px-5 bg-green-600 hover:bg-green-700 text-white font-medium transition-colors text-sm rounded-r-full">
+            <button type="submit" className="h-10 px-5 text-white font-medium transition-all text-sm rounded-r-full hover:opacity-90" style={{ background: "linear-gradient(135deg, hsl(350 55% 28%), hsl(350 55% 38%))" }}>
               Search
             </button>
           </form>
@@ -326,7 +327,7 @@ export function Header() {
 
         {/* Mobile Search */}
         <div className="md:hidden px-4 pb-3">
-          <form onSubmit={handleSearch} className="flex items-center gap-0 border border-gray-200 rounded-full overflow-hidden bg-gray-50">
+          <form onSubmit={handleSearch} className="flex items-center gap-0 rounded-full overflow-hidden bg-white/80 gold-ring-sm">
             <div className="relative flex-1">
               <Input
                 type="text"
@@ -336,7 +337,7 @@ export function Header() {
                 className="border-none bg-transparent shadow-none focus-visible:ring-0 h-9 px-4 text-sm"
               />
             </div>
-            <button type="submit" className="h-9 px-4 bg-green-600 text-white rounded-r-full">
+            <button type="submit" className="h-9 px-4 text-white rounded-r-full" style={{ background: "hsl(350 55% 30%)" }}>
               <Search className="h-4 w-4" />
             </button>
           </form>
@@ -348,8 +349,8 @@ export function Header() {
         <div className="fixed inset-0 z-50 flex" style={{ top: 0 }}>
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowSidebar(false)} />
           <div className="relative w-72 bg-white shadow-2xl flex flex-col overflow-hidden" style={{ marginTop: 94, height: "calc(100vh - 94px)" }}>
-            <div className="px-4 py-3 bg-gradient-to-r from-green-700 to-emerald-600 flex items-center justify-between shrink-0">
-              <span className="text-white font-bold text-base">Menu</span>
+            <div className="px-4 py-3 flex items-center justify-between shrink-0" style={{ background: "linear-gradient(135deg, hsl(350 60% 18%), hsl(350 55% 30%))", borderBottom: "1px solid hsl(42 72% 50% / 0.4)" }}>
+              <span className="text-white font-bold text-base tracking-wide">Menu</span>
               <Button variant="ghost" size="icon" onClick={() => setShowSidebar(false)} className="text-white hover:bg-white/20 h-8 w-8">
                 <X className="h-4 w-4" />
               </Button>
@@ -359,8 +360,8 @@ export function Header() {
                 const Icon = link.icon;
                 return (
                   <Link key={link.href} href={link.href} onClick={() => setShowSidebar(false)}>
-                    <div className="flex items-center gap-3 px-4 py-3 hover:bg-green-50 hover:text-green-700 transition-colors text-gray-700">
-                      <Icon className="h-4 w-4 shrink-0 text-green-600" />
+                    <div className="flex items-center gap-3 px-4 py-3 hover:bg-rose-50 transition-colors text-gray-700" style={{ '--hover-color': 'hsl(350 55% 32%)' } as React.CSSProperties}>
+                      <Icon className="h-4 w-4 shrink-0" style={{ color: "hsl(350 55% 32%)" }} />
                       <span className="text-sm font-medium">{link.label}</span>
                     </div>
                   </Link>
@@ -368,16 +369,16 @@ export function Header() {
               })}
               {user?.role === "seller" && (
                 <Link href="/seller/dashboard" onClick={() => setShowSidebar(false)}>
-                  <div className="flex items-center gap-3 px-4 py-3 hover:bg-green-50 hover:text-green-700 transition-colors text-gray-700 border-t">
-                    <LayoutDashboard className="h-4 w-4 shrink-0 text-green-600" />
+                  <div className="flex items-center gap-3 px-4 py-3 hover:bg-rose-50 transition-colors text-gray-700 border-t">
+                    <LayoutDashboard className="h-4 w-4 shrink-0" style={{ color: "hsl(350 55% 32%)" }} />
                     <span className="text-sm font-medium">Seller Dashboard</span>
                   </div>
                 </Link>
               )}
               {user?.role === "admin" && (
                 <Link href="/admin/dashboard" onClick={() => setShowSidebar(false)}>
-                  <div className="flex items-center gap-3 px-4 py-3 hover:bg-green-50 hover:text-green-700 transition-colors text-gray-700 border-t">
-                    <LayoutDashboard className="h-4 w-4 shrink-0 text-green-600" />
+                  <div className="flex items-center gap-3 px-4 py-3 hover:bg-rose-50 transition-colors text-gray-700 border-t">
+                    <LayoutDashboard className="h-4 w-4 shrink-0" style={{ color: "hsl(350 55% 32%)" }} />
                     <span className="text-sm font-medium">Admin Panel</span>
                   </div>
                 </Link>
@@ -387,10 +388,10 @@ export function Header() {
               {isGuest ? (
                 <div className="flex gap-2">
                   <Link href="/login" className="flex-1" onClick={() => setShowSidebar(false)}>
-                    <Button className="w-full bg-green-600 hover:bg-green-700 text-white" size="sm">Login</Button>
+                    <Button className="w-full text-white" size="sm" style={{ background: "hsl(350 55% 30%)" }}>Login</Button>
                   </Link>
                   <Link href="/register" className="flex-1" onClick={() => setShowSidebar(false)}>
-                    <Button variant="outline" className="w-full" size="sm">Register</Button>
+                    <Button variant="outline" className="w-full gold-ring-sm" size="sm">Register</Button>
                   </Link>
                 </div>
               ) : (
