@@ -67,6 +67,40 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+/* BRAND COLORS */
+:root {
+  --wine: 350 55% 28%;
+  --wine-light: 350 55% 38%;
+  --wine-dark: 350 60% 18%;
+  --gold: 42 72% 50%;
+  --gold-light: 42 80% 65%;
+  --gold-ring: 42 72% 50%;
+}
+
+/* GLASS UTILITIES */
+.glass {
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(201, 168, 76, 0.18);
+}
+
+.glass-dark {
+  background: rgba(20, 6, 8, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.gold-ring {
+  border: 1.5px solid hsl(42 72% 50% / 0.55);
+  box-shadow: 0 0 0 1px hsl(42 72% 50% / 0.18), inset 0 0 0 1px hsl(42 72% 50% / 0.10);
+}
+
+.gold-ring-sm {
+  border: 1px solid hsl(42 72% 50% / 0.45);
+  box-shadow: 0 0 0 1px hsl(42 72% 50% / 0.12);
+}
+
 /* LIGHT MODE */
 :root {
   --button-outline: rgba(0,0,0, .10);
