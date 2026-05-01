@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCart } from "@/hooks/use-cart";
 import { useListProducts } from "@workspace/api-client-react";
-import type { Product } from "@workspace/api-zod/src/generated/types";
+import type { Product } from "@workspace/api-client-react";
 import { toast } from "sonner";
 
 const FEED_CATEGORIES = [
@@ -285,13 +285,14 @@ function _OldPostCard_UNUSED({ post: initialPost }: { post: typeof MOCK_POSTS_CO
   };
 
   const handleAddToCart = () => {
-    addItem({
-      id: post.id,
-      name: post.product.title,
+    addToCart({
+      productId: post.id,
+      productName: post.product.title,
       price: post.product.price,
       image: post.product.images[0],
-      sellerId: post.seller.name,
-      sellerName: post.seller.name,
+      vendorId: post.seller.name,
+      vendorName: post.seller.name,
+      quantity: 1,
     });
     toast.success("Cart-এ যোগ হয়েছে!", { duration: 2000 });
   };

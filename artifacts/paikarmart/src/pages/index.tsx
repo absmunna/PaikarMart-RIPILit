@@ -13,7 +13,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCart } from "@/hooks/use-cart";
 import { toast } from "sonner";
-import { Product } from "@workspace/api-zod/src/generated/types";
+import type { Product } from "@workspace/api-client-react";
 
 const HERO_SLIDES = [
   {
