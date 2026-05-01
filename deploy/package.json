@@ -1,0 +1,24 @@
+{
+  "name": "paikarmart-production",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PaikarMart B2B multi-vendor platform — production deployment",
+  "type": "module",
+  "scripts": {
+    "start": "node --enable-source-maps server/index.mjs",
+    "start:cjs": "node server/index.cjs",
+    "start:pm2": "pm2 start ecosystem.config.cjs --env production"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "cors": "^2",
+    "drizzle-orm": "^0.43.1",
+    "express": "^5",
+    "pg": "^8",
+    "pino": "^9",
+    "pino-http": "^10",
+    "pino-pretty": "^13"
+  }
+}
