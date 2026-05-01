@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,17 +9,21 @@ export default function CheckoutPage() {
   const { items, totalPrice, clearCart } = useCart();
   const [, setLocation] = useLocation();
 
+  useEffect(() => {
+    if (items.length === 0) {
+      setLocation("/cart");
+    }
+  }, [items.length, setLocation]);
+
   const handlePlaceOrder = (e: React.FormEvent) => {
     e.preventDefault();
     clearCart();
-    // Simulate order placement
     setTimeout(() => {
       setLocation("/orders");
     }, 1000);
   };
 
   if (items.length === 0) {
-    setLocation("/cart");
     return null;
   }
 
