@@ -51,7 +51,7 @@ export default function VendorsPage() {
                         <div>
                           <h3 className="font-bold text-lg group-hover:text-primary transition-colors">{seller.shopName}</h3>
                           <Badge variant="secondary" className="capitalize mt-1">
-                            {seller.businessType.replace('_', ' ')}
+                            {seller.businessType?.replace('_', ' ')}
                           </Badge>
                         </div>
                       </div>

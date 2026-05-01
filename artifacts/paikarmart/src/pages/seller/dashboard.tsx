@@ -32,12 +32,13 @@ export default function SellerDashboardPage() {
   const [activeTab, setActiveTab] = useState<Tab>("overview");
   const [searchProduct, setSearchProduct] = useState("");
 
-  if (user?.role !== "seller") {
+  const isSeller = user?.role === "seller";
+  const { data: dashboard, isLoading } = useGetSellerDashboard(user?.id || "seller-1", { query: { enabled: isSeller } });
+  const { data: productsData } = useListProducts({ vendor_id: user?.id }, { query: { enabled: isSeller } });
+
+  if (!isSeller) {
     return <Redirect to="/login" />;
   }
-
-  const { data: dashboard, isLoading } = useGetSellerDashboard(user?.id || "seller-1");
-  const { data: productsData } = useListProducts({ vendor_id: user?.id });
   const products = (productsData?.products || []).filter(p =>
     !searchProduct || p.name.toLowerCase().includes(searchProduct.toLowerCase())
   );
