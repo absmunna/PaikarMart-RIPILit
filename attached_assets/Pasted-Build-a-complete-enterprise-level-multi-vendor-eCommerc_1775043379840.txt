@@ -1,0 +1,1259 @@
+Build a complete enterprise-level multi-vendor eCommerce platform called "PaikarMart".
+
+This system must include:
+- Buyer, Seller, Admin roles
+- Full eCommerce system (Product, Cart, Checkout)
+- Multi-vendor system
+- Wallet & investment concept
+- Advanced delivery system
+- Notification system
+- API-ready architecture
+- Mobile app ready UI
+
+IMPORTANT:
+- Use HTML, CSS, JavaScript
+- Clean, modular, scalable code
+- Mobile-first responsive design
+- Professional UI (Amazon/Walmart style)
+- Do NOT skip any section
+- Follow all instructions step by step
+
+==================================================
+START FULL SYSTEM BUILD
+
+PART 1: USER SYSTEM & AUTH
+
+CORE PRINCIPLES
+
+- Clean UI (Amazon/Walmart style)
+- Mobile-first responsive
+- Role-based system (Buyer / Seller / Admin)
+- Secure structure ready for WordPress integration
+- Use HTML, CSS, JavaScript (Frontend)
+
+USER ROLE SYSTEM (VERY IMPORTANT)
+
+Define 3 roles:
+
+1. BUYER (Customer)
+2. SELLER (Vendor)
+3. ADMIN (Platform controller)
+
+------------------------------------------
+ROLE ACCESS CONTROL RULES
+------------------------------------------
+
+BUYER:
+- Can browse products
+- Can place order
+- Can view orders
+- Can give review after delivery
+- Cannot access seller dashboard
+
+SELLER:
+- Can access seller dashboard
+- Can add/manage products
+- Can update delivery & tracking
+- Cannot directly contact customer
+
+ADMIN:
+- Full control
+- Manage sellers, orders, payments
+- Add moderators
+
+REGISTRATION SYSTEM (DETAILED)
+
+Create TWO separate registration flows:
+
+------------------------------------------
+1. BUYER REGISTRATION
+------------------------------------------
+
+Fields:
+- Phone Number (Required)
+- Country Code Selector (Important)
+- Email (Optional for Bangladesh, Required for International)
+
+Logic:
+- Bangladesh:
+  → Phone OTP verification
+
+- International:
+  → Email OTP required
+
+Account Creation:
+- Auto account creation during checkout allowed
+
+------------------------------------------
+2. SELLER REGISTRATION
+------------------------------------------
+
+Fields:
+- Phone (Required)
+- Email (Required for international)
+- Business Type (Select):
+  - Wholesaler
+  - Retailer
+  - Brand Seller
+  - Local Shop
+
+Additional Fields:
+- Shop Name
+- Business Address
+- Product Categories
+- Delivery Capability
+
+Verification (UI Flow):
+- Upload documents (UI only):
+  - NID / Trade License
+  - Brand Authorization (for brand sellers)
+
+Status:
+- Pending → Approved → Active
+
+LOGIN SYSTEM
+
+- Phone login (OTP)
+- Email login (OTP)
+- Auto detect country
+
+USER FLOW (VERY IMPORTANT)
+
+------------------------------------------
+BUYER FLOW:
+------------------------------------------
+Browse → Search → Product → Add to Cart → Checkout → Order → Delivery → Review
+
+------------------------------------------
+SELLER FLOW:
+------------------------------------------
+Register → Submit Documents → Approval → Add Product → Receive Order → Process → Delivery Update
+
+------------------------------------------
+ADMIN FLOW:
+------------------------------------------
+Approve Seller → Monitor Orders → Control Payment → Manage Platform
+
+END PART 1
+==================================================
+
+PART 2: UI, HEADER, HOMEPAGE
+Continue building "PaikarMart" frontend.
+
+GLOBAL UI DESIGN SYSTEM
+
+- Premium green gradient theme
+- Clean spacing, soft shadow
+- Rounded cards
+- Mobile-first responsive
+- Sticky header
+- Smooth animation
+
+HEADER (ALL PAGES - FIXED TOP)
+
+LEFT SECTION:
+- Hamburger menu (opens sidebar)
+- Logo (icon + text: PaikarMart)
+
+CENTER SECTION:
+- Large search bar
+
+Search Features:
+- Category dropdown inside search
+- Placeholder: "Search products, brands, categories..."
+- Auto suggestion dropdown:
+  - Product name
+  - Category
+  - Vendor name
+
+RIGHT SECTION:
+- Location selector button
+- Language switch (BN / EN)
+- Cart icon (with item count badge)
+- Account icon (login/profile)
+
+LOCATION SYSTEM (VERY IMPORTANT)
+
+Trigger:
+- Header location button → opens modal
+
+Fields:
+- District (Dropdown)
+- Area / Thana (Dropdown)
+- Zip Code (Optional input)
+
+Buttons:
+- Save Location
+- Reset
+
+Logic:
+- Save in localStorage
+- Show selected location in header
+- Filter:
+  - Local vendors
+  - Pickup availability
+  - Nearby products
+
+SIDEBAR MENU (LEFT SLIDE)
+
+Categories:
+
+- Home
+- Shop
+- Vendors
+- Wholesale
+- Retail
+- Brand Shops
+- Dropship
+- Services
+- Local Shops
+- Orders
+- Wishlist
+- Account
+- Login/Register
+
+Behavior:
+- Slide animation
+- Overlay background
+
+HOMEPAGE STRUCTURE
+
+------------------------------------------
+SECTION 1: HERO BANNER
+------------------------------------------
+- Large banner image
+- Headline:
+  "Join PaikarMart as Customer or Seller"
+- Subtext:
+  "Buy, sell and grow with trusted marketplace"
+
+Buttons:
+- Shop Now
+- Become Seller
+
+------------------------------------------
+SECTION 2: VENDOR CATEGORY GRID
+------------------------------------------
+Display 6 cards:
+
+- Wholesale
+- Retail
+- Brand Seller
+- Dropship
+- Service
+- Local Shop
+
+Each card:
+- Icon
+- Title
+- Hover effect
+
+------------------------------------------
+SECTION 3: LOCATION-BASED VENDORS
+------------------------------------------
+
+Vendor Card:
+- Store image
+- Store name
+- Seller type badge
+- Location
+- Rating
+- Button: Visit Store
+
+Filter:
+- Based on selected location
+
+------------------------------------------
+SECTION 4: CATEGORY-WISE PRODUCTS
+------------------------------------------
+- Tabs or sections:
+  - Electronics
+  - Fashion
+  - Grocery
+  - Services
+
+Grid:
+- 4 column desktop / 2 mobile
+
+------------------------------------------
+SECTION 5: FEATURED PRODUCTS
+------------------------------------------
+
+PRODUCT CARD DESIGN:
+
+Include:
+- Product image
+- Category label
+- Product name
+- Price
+- Rating (stars)
+- Vendor name (clickable)
+
+Buttons:
+- Add to Cart
+- Buy Now
+
+Hover effect:
+- Shadow + scale
+
+------------------------------------------
+SECTION 6: PROMOTIONAL BANNER
+------------------------------------------
+- Discount / Offer section
+
+------------------------------------------
+SECTION 7: TRUST SECTION
+------------------------------------------
+- Secure payment
+- Verified sellers
+- Fast delivery
+
+------------------------------------------
+SECTION 8: FOOTER
+------------------------------------------
+
+Columns:
+- About PaikarMart
+- Customer Links
+- Seller Links
+- Contact Info
+
+Links:
+- FAQ
+- Terms & Conditions
+- Privacy Policy
+
+SEARCH SYSTEM (ADVANCED UI)
+
+Features:
+- Live typing suggestions
+- Dropdown result box
+- Filter panel:
+  - Category
+  - Price range
+  - Rating
+  - Vendor
+  - Location
+
+RESPONSIVE DESIGN
+
+- Mobile:
+  - Hamburger only
+  - Compact search
+- Tablet:
+  - Adjust grid
+- Desktop:
+  - Full layout
+
+END PART 2
+
+==================================================
+PART 3: PRODUCT, CART, CHECKOUT
+Continue building "PaikarMart" frontend system.
+
+PRODUCT SYSTEM (DETAILED)
+
+PRODUCT TYPES:
+
+1. Physical Product
+2. Digital Product (Downloadable file)
+3. Service Product
+
+------------------------------------------
+PRODUCT DATA STRUCTURE
+------------------------------------------
+
+Each product must include:
+
+- Product ID
+- Product Name
+- Category
+- Subcategory
+- Product Type (Physical / Digital / Service)
+- Price
+- Cost Price (Optional, for seller only)
+- Stock Quantity
+- Description
+- Images (multiple)
+- Vendor Name
+- Vendor ID
+- Location availability
+- Rating
+- Review count
+
+------------------------------------------
+SPECIAL PRODUCT LOGIC
+------------------------------------------
+
+WHOLESALE PRODUCT:
+- No fixed price required
+- Show: "Price on Inquiry"
+- Show MOQ (Minimum Order Quantity)
+
+RETAIL PRODUCT:
+- Fixed price
+- Direct purchase
+
+SERVICE PRODUCT:
+- Option:
+  - Book service
+  - Contact request
+
+DIGITAL PRODUCT:
+- Secure file upload (UI)
+- Download after purchase (UI only)
+
+PRODUCT PAGE (FULL UI)
+
+Layout:
+
+LEFT:
+- Main product image
+- Thumbnail gallery
+
+RIGHT:
+- Product Name
+- Price / Inquiry label
+- Rating (stars)
+- Vendor name (clickable → vendor store)
+- Availability (In stock / Out of stock)
+- Delivery info (estimated time)
+
+Buttons:
+- Add to Cart
+- Buy Now
+
+------------------------------------------
+TABS SECTION:
+------------------------------------------
+- Description
+- Specifications
+- Reviews
+
+REVIEW SYSTEM (STRICT LOGIC)
+
+Rules:
+
+- Only verified buyers can submit full review
+- Guest users:
+  - Can see rating only
+  - Cannot see full review
+
+Review includes:
+- Star rating
+- Text review
+- Image upload
+- Short video upload
+
+CART SYSTEM (JAVASCRIPT LOGIC)
+
+Features:
+
+- Add product to cart
+- Remove product
+- Update quantity
+- Auto total calculation
+
+Cart Data:
+
+- Product name
+- Price
+- Quantity
+- Subtotal
+
+Storage:
+- Use localStorage
+
+------------------------------------------
+CART PAGE UI
+------------------------------------------
+
+- Product list table
+- Quantity +/- buttons
+- Remove button
+- Total summary
+
+Buttons:
+- Continue Shopping
+- Proceed to Checkout
+
+CHECKOUT SYSTEM (DETAILED FLOW)
+
+------------------------------------------
+STEP 1: CUSTOMER INFO
+------------------------------------------
+
+Fields:
+- Full Name
+- Phone (Required)
+- Email (Optional / Required for international)
+- Address
+- District
+- Area / Thana
+- Zip Code
+
+------------------------------------------
+STEP 2: ORDER SUMMARY
+------------------------------------------
+- Show cart items
+- Show total price
+- Show delivery charge (UI)
+
+------------------------------------------
+STEP 3: PAYMENT METHOD
+------------------------------------------
+
+Options:
+
+- Cash on Delivery (Default)
+
+Future (UI only):
+- bKash
+- Nagad
+- Bank/Card
+- PayPal
+- Payoneer
+
+------------------------------------------
+STEP 4: PLACE ORDER
+------------------------------------------
+
+Button:
+- Confirm Order
+
+ORDER CREATION LOGIC
+
+When order is placed:
+
+- Generate Order ID
+- Save order (localStorage)
+- Create buyer account if not registered
+
+Order Status:
+
+- Pending
+- Confirmed
+- Processing
+- Shipped
+- Completed
+- Incomplete
+
+ORDER CONTROL FLOW (IMPORTANT)
+
+1. Order placed → Pending
+2. Admin/Seller confirms → Confirmed
+3. Processing → Delivery in progress
+4. Delivered → Completed
+
+------------------------------------------
+INCOMPLETE ORDER LOGIC
+------------------------------------------
+
+If:
+- Customer does not respond
+→ Mark as Incomplete
+
+DELIVERY SYSTEM (DETAILED)
+
+Delivery Types:
+
+1. Seller Delivery
+2. Platform Delivery
+3. Local Shop Delivery
+4. Store Pickup
+
+------------------------------------------
+DELIVERY TIME
+------------------------------------------
+
+- Standard: 3–7 days
+- Wholesale: Custom time by seller
+
+------------------------------------------
+STORE PICKUP SYSTEM
+------------------------------------------
+
+- Customer selects "Pickup"
+- After order:
+  - Invoice generated (UI)
+  - Customer shows invoice at shop
+  - Product collected
+
+------------------------------------------
+LOCAL SHOP DELIVERY
+------------------------------------------
+
+- Same day delivery possible
+- Based on location
+
+TRACKING SYSTEM
+
+Seller can update:
+
+- Delivery status
+- Tracking code
+
+Customer can see:
+
+- Order status
+- Tracking number
+
+END PART 3
+
+==================================================
+PART 4: SELLER DASHBOARD & ADMIN PANEL
+Continue building "PaikarMart" frontend system.
+
+SELLER DASHBOARD (FULL SYSTEM)
+
+Create a complete seller dashboard UI with multiple sections.
+
+------------------------------------------
+DASHBOARD OVERVIEW
+------------------------------------------
+
+Show:
+
+- Total Products
+- In Stock / Out of Stock
+- Total Orders
+- Pending Orders
+- Completed Orders
+- Total Sales Amount
+- Estimated Profit (based on cost price)
+
+------------------------------------------
+INVENTORY MANAGEMENT
+------------------------------------------
+
+Each product must show:
+
+- Product Name
+- Category
+- Stock Quantity
+- Cost Price (Optional)
+- Selling Price
+- Total Value (Stock × Cost)
+
+Functions:
+
+- Add Product
+- Edit Product
+- Delete Product
+- Update Stock
+
+------------------------------------------
+PRODUCT ADD FORM (IMPORTANT)
+------------------------------------------
+
+Fields:
+
+- Product Name
+- Category
+- Product Type:
+  - Physical
+  - Digital
+  - Service
+
+- Price
+- Cost Price (Optional but recommended)
+- Stock Quantity
+- MOQ (for wholesaler)
+- Description
+- Upload Images
+- Upload File (for digital product)
+
+Logic:
+
+- Cost price used for profit calculation
+- Optional field (not visible to buyer)
+
+------------------------------------------
+ORDER MANAGEMENT (SELLER SIDE)
+------------------------------------------
+
+Order Categories:
+
+- Pending
+- Processing
+- Completed
+- Incomplete
+- Pickup Orders
+
+Each Order shows:
+
+- Order ID
+- Product List
+- Customer Info (limited view)
+- Delivery Type
+- Payment Type
+
+------------------------------------------
+ORDER ACTIONS
+------------------------------------------
+
+Seller can:
+
+- Accept / Reject Order
+- Update Status
+- Add Tracking Code
+- Update Delivery Time
+- Mark as Completed
+
+------------------------------------------
+DELIVERY CONTROL
+------------------------------------------
+
+Seller must define:
+
+- Delivery method:
+  - Own delivery
+  - Platform delivery
+
+- Delivery charge
+- Delivery time
+- Coverage area
+
+------------------------------------------
+PICKUP SYSTEM (SELLER SIDE)
+------------------------------------------
+
+- Enable/Disable store pickup
+- Show pickup location
+- Verify order via invoice
+
+SELLER TYPES BEHAVIOR LOGIC
+
+------------------------------------------
+WHOLESALER
+------------------------------------------
+- No fixed price
+- MOQ required
+- Price based on inquiry
+
+------------------------------------------
+RETAILER
+------------------------------------------
+- Fixed price
+- Can resell products
+
+------------------------------------------
+BRAND SELLER
+------------------------------------------
+- Must follow official price
+- Can add discount
+
+------------------------------------------
+LOCAL SHOP
+------------------------------------------
+- Location based
+- Same-day delivery
+- Pickup option
+
+ADMIN PANEL (FULL CONTROL SYSTEM)
+
+------------------------------------------
+ADMIN DASHBOARD OVERVIEW
+------------------------------------------
+
+Show:
+
+- Total Users
+- Total Sellers
+- Total Orders
+- Total Sales
+- Platform Profit
+- Active Vendors
+
+------------------------------------------
+SELLER MANAGEMENT
+------------------------------------------
+
+Admin can:
+
+- Approve Seller
+- Reject Seller
+- Suspend Seller
+- Assign Seller Type
+
+------------------------------------------
+ORDER CONTROL
+------------------------------------------
+
+Admin can:
+
+- View all orders
+- Override order status
+- Cancel orders
+- Mark incomplete orders
+
+------------------------------------------
+PAYMENT CONTROL
+------------------------------------------
+
+Rules:
+
+- All payments go through platform
+- Seller does NOT receive direct payment
+
+Admin can:
+
+- Hold payment
+- Release payment
+- Manage payment cycle
+
+------------------------------------------
+MODERATOR SYSTEM
+------------------------------------------
+
+Admin can:
+
+- Add moderators
+- Assign limited roles:
+  - Order control
+  - Seller verification
+  - Customer support
+
+ADVANCED CONTROL (IMPORTANT)
+
+Admin can manually input:
+
+- Product cost
+- Platform cost
+- Extra investment
+
+Purpose:
+
+- Calculate real profit/loss
+- Avoid calculation errors
+
+DATA TRACKING SYSTEM
+
+Admin must track:
+
+- Total sales
+- Total cost
+- Net profit
+
+Display:
+
+- Summary panel
+- Table view
+
+SECURITY & CONTROL RULES
+
+- Seller cannot contact customer directly
+- All communication controlled by platform
+- Prevent fraud
+- Ensure trust
+
+END PART 4
+
+==================================================
+PART 5: WALLET, FAQ, TERMS
+Continue building "PaikarMart" frontend system.
+
+WALLET & INVESTMENT SYSTEM (ADVANCED CONCEPT)
+
+IMPORTANT:
+This is NOT a direct investment system.
+Customers cannot manually deposit or invest money.
+
+------------------------------------------
+CORE LOGIC
+------------------------------------------
+
+- Customers earn rewards from purchases
+- Reward = 2% to 3% of product profit margin
+- Reward added to PaikarMart e-wallet
+
+------------------------------------------
+WALLET FEATURES (UI)
+------------------------------------------
+
+Show in dashboard:
+
+- Wallet Balance
+- Earned Amount (Rewards)
+- Investment Value (Dynamic)
+
+Label:
+- "Coming Soon" (locked feature)
+
+------------------------------------------
+INVESTMENT VALUE SYSTEM (CONCEPT)
+------------------------------------------
+
+- Wallet balance behaves like investment value
+- Value may increase or decrease based on:
+
+  - Total sales
+  - Total cost
+  - Net profit of platform
+
+------------------------------------------
+PRIVATE MARKET SYSTEM (SIMULATION UI)
+------------------------------------------
+
+Create a graph section:
+
+- Show:
+  - Sales
+  - Cost
+  - Profit
+
+- Add visual indicators:
+  - Up arrow (profit)
+  - Down arrow (loss)
+
+- Show percentage change
+
+Purpose:
+- Users understand platform growth
+- Build trust and transparency
+
+CUSTOMER WALLET DASHBOARD
+
+Sections:
+
+- Current Balance
+- Total Earned
+- Estimated Investment Value
+- Graph view (market style)
+
+Note:
+- No withdrawal option (for now)
+- No manual deposit
+
+FULL FAQ PAGE (BN + EN)
+
+------------------------------------------
+CUSTOMER FAQ
+------------------------------------------
+
+Q: অর্ডার কিভাবে করবো?
+A: আপনি Checkout করলে স্বয়ংক্রিয়ভাবে একটি অ্যাকাউন্ট তৈরি হবে। পরে আপনি সেটি আপডেট করতে পারবেন।
+
+Q: Delivery time কত?
+A: সাধারণত ৩–৭ দিনের মধ্যে ডেলিভারি সম্পন্ন হয়। হোলসেল পণ্যের ক্ষেত্রে সময় ভিন্ন হতে পারে।
+
+Q: Payment method কী?
+A: বর্তমানে Cash on Delivery চালু আছে। অনলাইন পেমেন্ট শীঘ্রই যুক্ত হবে।
+
+Q: Return policy কী?
+A: ডেলিভারি নেওয়ার সময় পণ্য চেক করতে হবে। ড্যামেজ থাকলে তাৎক্ষণিক জানাতে হবে।
+
+------------------------------------------
+WHOLESALER FAQ
+------------------------------------------
+
+Q: পাইকার হিসেবে কীভাবে কাজ করবো?
+A: আপনি আপনার পণ্য লিস্ট করে অনলাইনেও বিক্রি করতে পারবেন।
+
+Q: দাম কীভাবে নির্ধারণ করবো?
+A: বাজারদরের উপর ভিত্তি করে ইনকোয়ারি অনুযায়ী দাম জানাতে হবে।
+
+Q: কী কী তথ্য দিতে হবে?
+A:
+- MOQ
+- Delivery time
+- Product category
+- Stock capacity
+
+------------------------------------------
+RETAILER FAQ
+------------------------------------------
+
+Q: রিটেইলার হিসেবে কীভাবে কাজ করবো?
+A: রেজিস্ট্রেশন করে যাচাই শেষে আপনি পণ্য বিক্রি করতে পারবেন।
+
+Q: নিজের দোকান না থাকলে?
+A: হোলসেলার থেকে পণ্য নিয়ে বিক্রি করতে পারবেন।
+
+------------------------------------------
+BRAND SELLER FAQ
+------------------------------------------
+
+Q: ব্র্যান্ড সেলার কীভাবে হবো?
+A: ডকুমেন্ট সাবমিট করে যাচাই শেষে অনুমোদন নিতে হবে।
+
+Q: দাম নির্ধারণ?
+A: অফিসিয়াল প্রাইস মেনে চলতে হবে।
+
+------------------------------------------
+DELIVERY FAQ
+------------------------------------------
+
+Q: ডেলিভারি কীভাবে হবে?
+A:
+- Seller delivery
+- Platform delivery
+
+Q: Pickup কি আছে?
+A: হ্যাঁ, invoice দেখিয়ে দোকান থেকে সংগ্রহ করা যাবে।
+
+------------------------------------------
+PAYMENT FAQ
+------------------------------------------
+
+Q: পেমেন্ট কীভাবে হবে?
+A: সব পেমেন্ট প্ল্যাটফর্মের মাধ্যমে প্রসেস হবে।
+
+Q: Seller কি সরাসরি পেমেন্ট পাবে?
+A: না, নির্দিষ্ট সাইকেলে পেমেন্ট দেওয়া হবে।
+
+TERMS & CONDITIONS (FULL RULES)
+
+------------------------------------------
+GENERAL RULES
+------------------------------------------
+
+- PaikarMart acts as a controlled marketplace
+- All orders processed through platform
+
+------------------------------------------
+CUSTOMER RULES
+------------------------------------------
+
+- Must provide valid information
+- Must check product during delivery
+- Cannot return after delivery confirmation
+
+------------------------------------------
+SELLER RULES
+------------------------------------------
+
+- Must provide accurate product details
+- Cannot contact customers directly
+- Must follow platform policies
+
+------------------------------------------
+PAYMENT RULES
+------------------------------------------
+
+- All payments go through PaikarMart
+- Sellers receive payment after verification
+
+------------------------------------------
+REVIEW POLICY
+------------------------------------------
+
+- Only verified buyers can review
+- Fake reviews strictly prohibited
+
+------------------------------------------
+SECURITY RULES
+------------------------------------------
+
+- Platform controls communication
+- Prevent fraud
+- Ensure safe transactions
+
+END PART 5
+
+==================================================
+PART 6: API, NOTIFICATION, MOBILE APP
+Continue building "PaikarMart" system with advanced future-ready architecture.
+
+NOTIFICATION SYSTEM (MULTI-CHANNEL)
+
+Implement a notification system (UI + logic simulation).
+
+------------------------------------------
+NOTIFICATION TYPES
+------------------------------------------
+
+1. Order Notifications
+2. Delivery Updates
+3. Account Notifications
+4. Seller Notifications
+5. System Announcements
+
+------------------------------------------
+CHANNELS
+------------------------------------------
+
+- Website Notification (Bell icon)
+- SMS Notification (UI placeholder)
+- Email Notification (UI placeholder)
+
+------------------------------------------
+WEBSITE NOTIFICATION UI
+------------------------------------------
+
+- Bell icon in header
+- Dropdown panel
+
+Show:
+- Order placed
+- Order confirmed
+- Shipped
+- Delivered
+- Payment update
+
+Features:
+- Mark as read
+- Unread badge count
+
+------------------------------------------
+SELLER NOTIFICATIONS
+------------------------------------------
+
+Seller receives:
+- New order alert
+- Order status updates
+- Payment update
+
+------------------------------------------
+ADMIN NOTIFICATIONS
+------------------------------------------
+
+Admin receives:
+- New seller request
+- Order issue alert
+- System warnings
+
+API STRUCTURE (FUTURE BACKEND READY)
+
+Design API endpoints structure (UI simulation only).
+
+------------------------------------------
+AUTH API
+------------------------------------------
+- POST /api/register
+- POST /api/login
+- POST /api/verify-otp
+
+------------------------------------------
+PRODUCT API
+------------------------------------------
+- GET /api/products
+- GET /api/product/{id}
+- POST /api/product/add
+- PUT /api/product/update
+
+------------------------------------------
+ORDER API
+------------------------------------------
+- POST /api/order/create
+- GET /api/order/list
+- GET /api/order/{id}
+- PUT /api/order/update
+
+------------------------------------------
+USER API
+------------------------------------------
+- GET /api/user/profile
+- PUT /api/user/update
+
+------------------------------------------
+SELLER API
+------------------------------------------
+- GET /api/seller/dashboard
+- POST /api/seller/product
+
+------------------------------------------
+WALLET API
+------------------------------------------
+- GET /api/wallet
+- GET /api/wallet/history
+
+DATA FLOW SYSTEM (IMPORTANT)
+
+Frontend (HTML/JS)
+→ API Layer (future backend)
+→ Database (future)
+
+Use mock JSON data for simulation.
+
+MOBILE APP SYSTEM (IMPORTANT)
+
+Prepare structure for mobile app integration.
+
+------------------------------------------
+APP FEATURES
+------------------------------------------
+
+- Homepage
+- Product browsing
+- Add to cart
+- Checkout
+- Order tracking
+- Seller dashboard (separate login)
+
+------------------------------------------
+APP DESIGN RULE
+------------------------------------------
+
+- Same UI as website
+- Mobile-first layout
+- Touch-friendly buttons
+
+------------------------------------------
+APP AUTH SYSTEM
+------------------------------------------
+
+- Phone OTP login
+- Email OTP (international)
+
+------------------------------------------
+APP NOTIFICATION
+------------------------------------------
+
+- Push notification (UI simulation)
+- Order updates
+- Delivery alerts
+
+API INTEGRATION READY UI
+
+All UI components must be ready to connect with API:
+
+- Forms use structured data
+- Buttons trigger JS functions
+- Data fetched from mock JSON
+
+THIRD PARTY INTEGRATION (PLACEHOLDER)
+
+Payment (future):
+- bKash
+- Nagad
+- SSLCommerz
+- PayPal
+- Payoneer
+
+SMS API (future):
+- OTP send
+
+Email API:
+- Order confirmation
+
+SECURITY STRUCTURE (BASIC FRONTEND)
+
+- Input validation
+- Required fields check
+- Prevent empty submission
+- Role-based UI protection
+
+PERFORMANCE & UX
+
+- Fast loading UI
+- Lazy loading images
+- Smooth transitions
+
+FINAL SYSTEM INTEGRATION VIEW
+
+User → UI → API → Database → Notification
+
+END PART 6
+
+FINAL INSTRUCTION
+
+- Generate all pages as separate files
+- Maintain clean file structure
+- Use reusable components
+- Ensure all systems are connected logically
+- Use mock JSON data where needed
+- Ensure no feature is skipped
+- Make it ready for WordPress conversion
+
+END OF FULL SYSTEM
