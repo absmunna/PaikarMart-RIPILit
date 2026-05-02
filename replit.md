@@ -94,3 +94,34 @@ Generated React Query hooks and fetch client from the OpenAPI spec (e.g. `useHea
 ### `scripts` (`@workspace/scripts`)
 
 Utility scripts package. Each script is a `.ts` file in `src/` with a corresponding npm script in `package.json`. Run scripts via `pnpm --filter @workspace/scripts run <script>`. Scripts can import any workspace package (e.g., `@workspace/db`) by adding it as a dependency in `scripts/package.json`.
+
+### `artifacts/paikarmart` (`@workspace/paikarmart`)
+
+React + Vite frontend. Dark-themed Bangladesh-focused multi-vendor marketplace.
+
+**Design tokens**: bg `hsl(160 28% 5%)`, primary `hsl(145 65% 38%)`, purple `hsl(265 55% 58%)`. CSS utilities: `.glass`, `.glass-card`, `.glow-green`, `.text-gradient-green`.
+
+**Key directories:**
+- `src/pages/` — route-level pages (products, cart, checkout, orders, vendors, feed, categories, profile, wallet, notifications, faq, terms)
+- `src/pages/seller/` — seller sub-pages (dashboard, products, product-form, profile, verification, analytics, orders, register)
+- `src/pages/admin/` — admin sub-pages (dashboard, settings, registry, changes, users)
+- `src/seller/` — SellerContext (local state, seed data) + types
+- `src/context/` — WishlistContext, LocationContext, PKCoinContext, VideoUnlockContext
+- `src/config/` — feature.flags.ts, delivery.config.ts, profitShare.config.ts, payment.config.ts
+- `src/features/registry/aiLogger.ts` — localStorage-backed admin change log
+- `src/hooks/` — useAuth (null default, clears "user-1"/"guest" legacy data), useCart
+- `src/components/ui/GlassCard.tsx` — shared glass-morphism card with optional hoverEffect
+- `src/lib/format.ts` — formatBDT, discountPercent utils
+- `src/routes/index.tsx` — AppRouter with RequireAuth/RequireSeller/RequireAdmin guards
+
+**Auth note:** `use-auth.tsx` clears legacy fake user IDs ("user-1", "guest") from localStorage on load. Default user is `null` (not logged in). Login page has quick demo buttons for Buyer/Seller/Admin roles.
+
+**Footer:** desktop-only; mobile uses BottomNav with `pb-20`.
+
+**Seller pages:** Use SellerContext (local state, no backend yet). SellerContext is seeded with 3 sample products and 4 sample orders.
+
+**CategoryListResponse** shape: `{ categories: Category[] }` — always destructure `.categories` before mapping.
+
+**Pre-existing TypeScript issues (safe to ignore):**
+- `TS6305` — lib dist files not built (resolved at runtime by Vite)
+- `TS7006` — implicit `any` in older pages (pre-existing)

@@ -22,7 +22,10 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(() => {
     const savedUser = localStorage.getItem("paikarmart_user");
-    return savedUser ? JSON.parse(savedUser) : { id: "user-1", name: "Guest Buyer", role: "buyer" as UserRole };
+    if (!savedUser) return null;
+    const parsed = JSON.parse(savedUser);
+    if (parsed?.id === "user-1" || parsed?.id === "guest") return null;
+    return parsed;
   });
 
   useEffect(() => {
@@ -34,10 +37,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [user]);
 
   const login = (newUser: User) => setUser(newUser);
-  const logout = () => setUser({ id: "guest", name: "Guest", role: "buyer" as UserRole });
+  const logout = () => setUser(null);
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isLoggedIn: !!user && user.id !== "guest", role: user?.role || "buyer" }}>
+    <AuthContext.Provider value={{ user, login, logout, isLoggedIn: !!user, role: user?.role || "buyer" }}>
       {children}
     </AuthContext.Provider>
   );

@@ -4,6 +4,11 @@ import { Toaster } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/use-auth";
 import { CartProvider } from "@/hooks/use-cart";
+import { WishlistProvider } from "@/context/WishlistContext";
+import { LocationProvider } from "@/context/LocationContext";
+import { PKCoinProvider } from "@/context/PKCoinContext";
+import { VideoUnlockProvider } from "@/context/VideoUnlockContext";
+import { SellerProvider } from "@/seller/SellerContext";
 import { AppRouter } from "@/routes/index";
 
 const queryClient = new QueryClient({
@@ -19,14 +24,24 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <CartProvider>
-          <TooltipProvider>
-            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-              <AppRouter />
-            </WouterRouter>
-            <Toaster position="top-right" richColors />
-          </TooltipProvider>
-        </CartProvider>
+        <LocationProvider>
+          <PKCoinProvider>
+            <VideoUnlockProvider>
+              <WishlistProvider>
+                <SellerProvider>
+                  <CartProvider>
+                    <TooltipProvider>
+                      <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+                        <AppRouter />
+                      </WouterRouter>
+                      <Toaster position="top-right" richColors />
+                    </TooltipProvider>
+                  </CartProvider>
+                </SellerProvider>
+              </WishlistProvider>
+            </VideoUnlockProvider>
+          </PKCoinProvider>
+        </LocationProvider>
       </AuthProvider>
     </QueryClientProvider>
   );

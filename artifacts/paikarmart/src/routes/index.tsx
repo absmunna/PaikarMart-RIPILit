@@ -14,9 +14,20 @@ import VendorsPage from "@/pages/vendors/index";
 import VendorDetailPage from "@/pages/vendors/[id]";
 import LoginPage from "@/pages/login";
 import RegisterPage from "@/pages/register";
+import CategoriesPage from "@/pages/categories";
 import SellerRegisterPage from "@/pages/seller/register";
 import SellerDashboardPage from "@/pages/seller/dashboard";
+import SellerProductsPage from "@/pages/seller/products";
+import SellerProductFormPage from "@/pages/seller/product-form";
+import SellerProfilePage from "@/pages/seller/profile";
+import SellerVerificationPage from "@/pages/seller/verification";
+import SellerAnalyticsPage from "@/pages/seller/analytics";
+import SellerOrdersPage from "@/pages/seller/orders";
 import AdminDashboardPage from "@/pages/admin/dashboard";
+import AdminSettingsPage from "@/pages/admin/settings";
+import AdminRegistryPage from "@/pages/admin/registry";
+import AdminChangesPage from "@/pages/admin/changes";
+import AdminUsersPage from "@/pages/admin/users";
 import WalletPage from "@/pages/wallet";
 import NotificationsPage from "@/pages/notifications";
 import FAQPage from "@/pages/faq";
@@ -47,6 +58,7 @@ function RequireAdmin({ children }: { children: ReactNode }) {
 export function AppRouter() {
   return (
     <Switch>
+      {/* Public routes */}
       <Route path="/" component={Home} />
       <Route path="/feed" component={FeedPage} />
       <Route path="/products" component={ProductsPage} />
@@ -58,7 +70,9 @@ export function AppRouter() {
       <Route path="/terms" component={TermsPage} />
       <Route path="/vendors" component={VendorsPage} />
       <Route path="/vendors/:id" component={VendorDetailPage} />
+      <Route path="/categories" component={CategoriesPage} />
 
+      {/* Auth-required routes */}
       <Route path="/checkout">
         <RequireAuth><CheckoutPage /></RequireAuth>
       </Route>
@@ -80,11 +94,48 @@ export function AppRouter() {
       <Route path="/seller/register">
         <RequireAuth><SellerRegisterPage /></RequireAuth>
       </Route>
+
+      {/* Seller routes */}
       <Route path="/seller/dashboard">
         <RequireSeller><SellerDashboardPage /></RequireSeller>
       </Route>
+      <Route path="/seller/products">
+        <RequireSeller><SellerProductsPage /></RequireSeller>
+      </Route>
+      <Route path="/seller/products/new">
+        <RequireSeller><SellerProductFormPage /></RequireSeller>
+      </Route>
+      <Route path="/seller/products/:id/edit">
+        {() => <RequireSeller><SellerProductFormPage /></RequireSeller>}
+      </Route>
+      <Route path="/seller/profile">
+        <RequireSeller><SellerProfilePage /></RequireSeller>
+      </Route>
+      <Route path="/seller/verification">
+        <RequireSeller><SellerVerificationPage /></RequireSeller>
+      </Route>
+      <Route path="/seller/analytics">
+        <RequireSeller><SellerAnalyticsPage /></RequireSeller>
+      </Route>
+      <Route path="/seller/orders">
+        <RequireSeller><SellerOrdersPage /></RequireSeller>
+      </Route>
+
+      {/* Admin routes */}
       <Route path="/admin/dashboard">
         <RequireAdmin><AdminDashboardPage /></RequireAdmin>
+      </Route>
+      <Route path="/admin/settings">
+        <RequireAdmin><AdminSettingsPage /></RequireAdmin>
+      </Route>
+      <Route path="/admin/registry">
+        <RequireAdmin><AdminRegistryPage /></RequireAdmin>
+      </Route>
+      <Route path="/admin/changes">
+        <RequireAdmin><AdminChangesPage /></RequireAdmin>
+      </Route>
+      <Route path="/admin/users">
+        <RequireAdmin><AdminUsersPage /></RequireAdmin>
       </Route>
 
       <Route component={NotFound} />
