@@ -1,34 +1,37 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useLocation } from "wouter";
 import { useListProducts } from "@workspace/api-client-react";
-import { Layout } from "@/components/layout/Layout";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
+import { BottomNav } from "@/components/layout/BottomNav";
 import { GlassCard } from "@/components/ui/GlassCard";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useCart } from "@/hooks/use-cart";
 import { useWishlist } from "@/context/WishlistContext";
 import { useUserLocation } from "@/context/LocationContext";
+import { useAuth } from "@/hooks/use-auth";
 import { formatBDT } from "@/lib/format";
 import { toast } from "sonner";
 import type { Product } from "@workspace/api-zod/src/generated/types";
 import {
-  Store, Tag, Package, Star, ShoppingCart, Zap,
-  ChevronLeft, ChevronRight, ShieldCheck, CreditCard,
-  Truck, Award, MapPin, Heart, MessageCircle, Share2,
-  Bookmark, ArrowRight, Sparkles, SlidersHorizontal,
-  TrendingUp, Filter, ChevronDown, BadgeCheck,
+  Menu, Search, MapPin, ShoppingCart, X, ChevronRight,
+  Home, Package, Store, Tag, TrendingUp, HeadphonesIcon,
+  Building2, ShoppingBag, HelpCircle, Star, Heart,
+  MessageCircle, Share2, Bookmark, Zap, BadgeCheck,
+  Sun, Moon, Globe, ChevronLeft, ChevronDown, Plus,
+  ShieldCheck, CreditCard, Truck, Award, Sparkles, ArrowRight,
 } from "lucide-react";
 
-/* ─── Static Data ──────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════
+   STATIC DATA
+═══════════════════════════════════════════════════════════════ */
 
 const HERO_SLIDES = [
   {
     id: 1,
     gradient: "from-emerald-900 via-teal-900 to-[hsl(160_28%_5%)]",
-    glowColor: "rgba(16,185,129,0.3)",
+    glow: "rgba(16,185,129,0.28)",
     eyebrow: "Welcome to PaikarMart",
     headline: "Bangladesh's Premium Marketplace",
-    sub: "Connect with wholesalers, brands, and local shops. Best prices, reliable delivery.",
+    sub: "Connect with wholesalers, brands & local shops.",
     cta1: { label: "Start Shopping", href: "/products" },
     cta2: { label: "Become a Seller", href: "/seller/register" },
     badge: "🚀 10,000+ Products Listed",
@@ -37,7 +40,7 @@ const HERO_SLIDES = [
   {
     id: 2,
     gradient: "from-violet-900 via-purple-900 to-[hsl(160_28%_5%)]",
-    glowColor: "rgba(139,92,246,0.3)",
+    glow: "rgba(139,92,246,0.28)",
     eyebrow: "Wholesale Marketplace",
     headline: "Buy in Bulk, Save More",
     sub: "Access thousands of wholesale suppliers. MOQ as low as 10 units.",
@@ -49,10 +52,10 @@ const HERO_SLIDES = [
   {
     id: 3,
     gradient: "from-slate-900 via-emerald-950 to-[hsl(160_28%_5%)]",
-    glowColor: "rgba(20,184,166,0.3)",
+    glow: "rgba(20,184,166,0.28)",
     eyebrow: "Digital & Services",
     headline: "Software, Services & Digital",
-    sub: "Professional services, digital downloads, and software licenses — all in one place.",
+    sub: "Professional services, digital downloads — all in one place.",
     cta1: { label: "Explore Services", href: "/vendors?type=service" },
     cta2: { label: "List Your Service", href: "/seller/register" },
     badge: "⚡ Instant Digital Delivery",
@@ -60,7 +63,17 @@ const HERO_SLIDES = [
   },
 ];
 
-const CATEGORIES_NAV = [
+const STORIES = [
+  { id: "s1", name: "TechZone", emoji: "📱", ring: "from-emerald-400 to-teal-500" },
+  { id: "s2", name: "Fashion", emoji: "👗", ring: "from-purple-400 to-pink-500" },
+  { id: "s3", name: "Grocery", emoji: "🛒", ring: "from-orange-400 to-red-500" },
+  { id: "s4", name: "HomeDeco", emoji: "🏡", ring: "from-blue-400 to-cyan-500" },
+  { id: "s5", name: "Sports", emoji: "⚽", ring: "from-green-400 to-emerald-500" },
+  { id: "s6", name: "Beauty", emoji: "💄", ring: "from-pink-400 to-rose-500" },
+  { id: "s7", name: "Books", emoji: "📚", ring: "from-yellow-400 to-amber-500" },
+];
+
+const CATEGORIES = [
   { name: "Electronics", emoji: "📱", href: "/products?category=Electronics", color: "from-blue-500/20 to-blue-600/5", border: "border-blue-500/20", text: "text-blue-400" },
   { name: "Fashion", emoji: "👗", href: "/products?category=Fashion", color: "from-purple-500/20 to-purple-600/5", border: "border-purple-500/20", text: "text-purple-400" },
   { name: "Grocery", emoji: "🛒", href: "/products?category=Grocery", color: "from-green-500/20 to-green-600/5", border: "border-green-500/20", text: "text-green-400" },
@@ -69,45 +82,366 @@ const CATEGORIES_NAV = [
   { name: "Wholesale", emoji: "📦", href: "/vendors?type=wholesale", color: "from-teal-500/20 to-teal-600/5", border: "border-teal-500/20", text: "text-teal-400" },
 ];
 
-const STORY_SELLERS = [
-  { id: "s1", name: "TechZone BD", emoji: "📱", ring: "from-emerald-400 to-teal-500" },
-  { id: "s2", name: "Fashion Hub", emoji: "👗", ring: "from-purple-400 to-pink-500" },
-  { id: "s3", name: "Grocery King", emoji: "🛒", ring: "from-orange-400 to-red-500" },
-  { id: "s4", name: "HomeDeco", emoji: "🏡", ring: "from-blue-400 to-cyan-500" },
-  { id: "s5", name: "SportsGear", emoji: "⚽", ring: "from-green-400 to-emerald-500" },
-  { id: "s6", name: "BeautyShop", emoji: "💄", ring: "from-pink-400 to-rose-500" },
-  { id: "s7", name: "BookWorld", emoji: "📚", ring: "from-yellow-400 to-amber-500" },
-  { id: "s8", name: "ToolMart", emoji: "🔨", ring: "from-red-400 to-orange-500" },
+const SIDEBAR_LINKS = [
+  { href: "/", label: "Home", icon: Home },
+  { href: "/products", label: "All Products", icon: ShoppingBag },
+  { href: "/vendors", label: "All Vendors", icon: Store },
+  { href: "/vendors?type=wholesale", label: "Wholesale Hub", icon: Package },
+  { href: "/vendors?type=retail", label: "Retail Shops", icon: Tag },
+  { href: "/vendors?type=brand_seller", label: "Brand Shops", icon: Building2 },
+  { href: "/vendors?type=dropship", label: "Dropship", icon: TrendingUp },
+  { href: "/vendors?type=service", label: "Services", icon: HeadphonesIcon },
+  { href: "/orders", label: "My Orders", icon: Package },
+  { href: "/faq", label: "Help & FAQ", icon: HelpCircle },
 ];
-
-const TRUST_FEATURES = [
-  { icon: ShieldCheck, title: "Verified Sellers", desc: "Every seller KYC verified.", color: "text-emerald-400", bg: "bg-emerald-500/10 border-emerald-500/20" },
-  { icon: CreditCard, title: "Secure Payments", desc: "bKash, Nagad, Card & COD.", color: "text-blue-400", bg: "bg-blue-500/10 border-blue-500/20" },
-  { icon: Truck, title: "Fast Delivery", desc: "Across all of Bangladesh.", color: "text-orange-400", bg: "bg-orange-500/10 border-orange-500/20" },
-  { icon: Award, title: "Quality Assured", desc: "Products meet our standards.", color: "text-purple-400", bg: "bg-purple-500/10 border-purple-500/20" },
-];
-
-/* ─── Mock feed posts (no feed API yet) ────────────────────────── */
 
 const FEED_POSTS = [
-  { id: "f1", shopName: "TechZone BD", shopVerified: true, shopEmoji: "📱", timeAgo: "2m", tag: "Wholesale", tagColor: "bg-orange-500/90", productName: "Samsung 65W Super Fast Charger – USB-C", price: 1250, compareAt: 1800, image: "https://images.unsplash.com/photo-1604671368394-2240d0b1bb6c?w=600&q=80", rating: 4.8, sold: 312, location: "Mirpur, Dhaka", likes: 148, comments: 23, distance: "1.2 km" },
-  { id: "f2", shopName: "Fashion Hub", shopVerified: true, shopEmoji: "👗", timeAgo: "15m", tag: "Retail", tagColor: "bg-blue-500/90", productName: "Premium Linen Kurta Set — Navy Blue (M–XXL)", price: 890, compareAt: 1400, image: "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=600&q=80", rating: 4.6, sold: 87, location: "Gulshan, Dhaka", likes: 89, comments: 11, distance: "3.4 km" },
-  { id: "f3", shopName: "HomeDeco BD", shopVerified: false, shopEmoji: "🏡", timeAgo: "42m", tag: "Retail", tagColor: "bg-blue-500/90", productName: "Handwoven Cotton Throw Blanket – Artisan Made", price: 2100, compareAt: 2900, image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=80", rating: 4.9, sold: 56, location: "Dhanmondi, Dhaka", likes: 213, comments: 34, distance: "5.1 km" },
-  { id: "f4", shopName: "Grocery King", shopVerified: true, shopEmoji: "🛒", timeAgo: "1h", tag: "Service", tagColor: "bg-purple-500/90", productName: "Organic Basmati Rice 5kg – Farm Direct", price: 650, compareAt: 850, image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&q=80", rating: 4.7, sold: 1243, location: "Uttara, Dhaka", likes: 67, comments: 8, distance: "2.7 km" },
-  { id: "f5", shopName: "SportsGear BD", shopVerified: true, shopEmoji: "⚽", timeAgo: "2h", tag: "Wholesale", tagColor: "bg-orange-500/90", productName: "Professional Football – FIFA Quality Pro", price: 3500, compareAt: 4800, image: "https://images.unsplash.com/photo-1614632537239-e2258e9dd771?w=600&q=80", rating: 4.5, sold: 29, location: "Banani, Dhaka", likes: 44, comments: 6, distance: "4.8 km" },
-  { id: "f6", shopName: "BeautyShop BD", shopVerified: true, shopEmoji: "💄", timeAgo: "3h", tag: "Retail", tagColor: "bg-blue-500/90", productName: "Korean Skin Care Bundle – 5 Step Routine", price: 1890, compareAt: 2800, image: "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=600&q=80", rating: 4.9, sold: 445, location: "Tejgaon, Dhaka", likes: 302, comments: 51, distance: "6.2 km" },
+  { id: "f1", shopName: "TechZone BD", shopVerified: true, shopEmoji: "📱", timeAgo: "2m", tag: "Wholesale", tagColor: "bg-orange-500", productName: "Samsung 65W USB-C Super Fast Charger", price: 1250, compareAt: 1800, image: "https://images.unsplash.com/photo-1604671368394-2240d0b1bb6c?w=600&q=80", rating: 4.8, sold: 312, location: "Mirpur, Dhaka", likes: 148, comments: 23, distance: "1.2 km" },
+  { id: "f2", shopName: "Fashion Hub", shopVerified: true, shopEmoji: "👗", timeAgo: "15m", tag: "Retail", tagColor: "bg-blue-500", productName: "Premium Linen Kurta Set — Navy Blue", price: 890, compareAt: 1400, image: "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=600&q=80", rating: 4.6, sold: 87, location: "Gulshan, Dhaka", likes: 89, comments: 11, distance: "3.4 km" },
+  { id: "f3", shopName: "HomeDeco BD", shopVerified: false, shopEmoji: "🏡", timeAgo: "42m", tag: "Retail", tagColor: "bg-blue-500", productName: "Handwoven Cotton Throw Blanket – Artisan", price: 2100, compareAt: 2900, image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=80", rating: 4.9, sold: 56, location: "Dhanmondi, Dhaka", likes: 213, comments: 34, distance: "5.1 km" },
+  { id: "f4", shopName: "Grocery King", shopVerified: true, shopEmoji: "🛒", timeAgo: "1h", tag: "Service", tagColor: "bg-purple-500", productName: "Organic Basmati Rice 5kg – Farm Direct", price: 650, compareAt: 850, image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&q=80", rating: 4.7, sold: 1243, location: "Uttara, Dhaka", likes: 67, comments: 8, distance: "2.7 km" },
+  { id: "f5", shopName: "BeautyShop BD", shopVerified: true, shopEmoji: "💄", timeAgo: "3h", tag: "Retail", tagColor: "bg-blue-500", productName: "Korean Skin Care Bundle – 5 Step Routine", price: 1890, compareAt: 2800, image: "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=600&q=80", rating: 4.9, sold: 445, location: "Tejgaon, Dhaka", likes: 302, comments: 51, distance: "6.2 km" },
 ];
 
-const SORT_OPTIONS = [
-  { value: "", label: "Recommended" },
-  { value: "price_asc", label: "Price: Low to High" },
-  { value: "price_desc", label: "Price: High to Low" },
-  { value: "rating", label: "Top Rated" },
+const DISTRICTS = [
+  "Dhaka", "Chittagong", "Sylhet", "Rajshahi", "Khulna",
+  "Barisal", "Rangpur", "Mymensingh", "Comilla", "Gazipur",
 ];
 
-const FILTER_CATEGORIES = ["All", "Electronics", "Fashion", "Grocery", "Home", "Services"];
+/* ═══════════════════════════════════════════════════════════════
+   COMPACT HEADER
+═══════════════════════════════════════════════════════════════ */
 
-/* ─── Hero Slider ──────────────────────────────────────────────── */
+function CompactHeader({
+  onMenuOpen,
+  lang,
+  onLangToggle,
+  darkMode,
+  onDarkToggle,
+}: {
+  onMenuOpen: () => void;
+  lang: "EN" | "বাং";
+  onLangToggle: () => void;
+  darkMode: boolean;
+  onDarkToggle: () => void;
+}) {
+  const { totalItems } = useCart();
+  const { location: userLoc } = useUserLocation();
+  const [, navigate] = useLocation();
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showLocPicker, setShowLocPicker] = useState(false);
+  const [locInput, setLocInput] = useState(() => localStorage.getItem("pm_district") || "");
+  const inputRef = useRef<HTMLInputElement>(null);
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  /* auto-close search after 4 s of empty input */
+  useEffect(() => {
+    if (searchOpen && !searchQuery) {
+      searchTimerRef.current = setTimeout(() => setSearchOpen(false), 4000);
+    }
+    return () => { if (searchTimerRef.current) clearTimeout(searchTimerRef.current); };
+  }, [searchOpen, searchQuery]);
+
+  useEffect(() => {
+    if (searchOpen) inputRef.current?.focus();
+  }, [searchOpen]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/products?q=${encodeURIComponent(searchQuery)}`);
+      setSearchOpen(false);
+      setSearchQuery("");
+    }
+  };
+
+  const saveLocation = (district: string) => {
+    localStorage.setItem("pm_district", district);
+    setLocInput(district);
+    setShowLocPicker(false);
+    toast.success(`Location set to ${district}`);
+  };
+
+  const locLabel = locInput || userLoc.city || "Location";
+
+  return (
+    <header className="sticky top-0 z-40 w-full">
+      {/* ── Main bar ── */}
+      <div
+        className="flex items-center h-[52px] px-3 gap-2"
+        style={{
+          background: "rgba(6,18,14,0.92)",
+          backdropFilter: "blur(20px)",
+          borderBottom: "1px solid rgba(16,185,129,0.1)",
+        }}
+      >
+        {/* Hamburger */}
+        <button
+          onClick={onMenuOpen}
+          className="h-8 w-8 rounded-xl flex items-center justify-center text-white/60 hover:text-white hover:bg-white/8 transition-all shrink-0"
+          aria-label="Menu"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+
+        {/* Logo — center */}
+        <div className="flex-1 flex justify-center">
+          <Link href="/">
+            <span className="font-extrabold text-lg tracking-tight cursor-pointer select-none">
+              <span className="text-gradient-green">Paikar</span>
+              <span className="text-gradient-purple">Mart</span>
+            </span>
+          </Link>
+        </div>
+
+        {/* Right icons */}
+        <div className="flex items-center gap-1 shrink-0">
+          {/* Location */}
+          <button
+            onClick={() => setShowLocPicker(v => !v)}
+            className="h-8 px-2 rounded-xl flex items-center gap-1 text-white/50 hover:text-emerald-400 hover:bg-white/5 transition-all"
+          >
+            <MapPin className="h-4 w-4" />
+            <span className="text-[10px] max-w-[56px] truncate hidden sm:inline">{locLabel}</span>
+          </button>
+
+          {/* Search */}
+          <button
+            onClick={() => setSearchOpen(v => !v)}
+            className="h-8 w-8 rounded-xl flex items-center justify-center text-white/50 hover:text-white hover:bg-white/8 transition-all"
+            aria-label="Search"
+          >
+            <Search className="h-4 w-4" />
+          </button>
+
+          {/* Cart */}
+          <Link href="/cart">
+            <button className="relative h-8 w-8 rounded-xl flex items-center justify-center text-white/50 hover:text-white hover:bg-white/8 transition-all">
+              <ShoppingCart className="h-4 w-4" />
+              {totalItems > 0 && (
+                <span className="absolute top-0.5 right-0.5 h-4 w-4 rounded-full bg-emerald-500 text-white text-[9px] font-bold flex items-center justify-center">
+                  {totalItems > 9 ? "9+" : totalItems}
+                </span>
+              )}
+            </button>
+          </Link>
+        </div>
+      </div>
+
+      {/* ── Slide-down search bar ── */}
+      <div
+        className="overflow-hidden transition-all duration-300 ease-in-out"
+        style={{
+          maxHeight: searchOpen ? "60px" : "0px",
+          background: "rgba(6,18,14,0.95)",
+          backdropFilter: "blur(20px)",
+          borderBottom: searchOpen ? "1px solid rgba(16,185,129,0.1)" : "none",
+        }}
+      >
+        <form onSubmit={handleSearch} className="flex items-center gap-2 px-3 py-2">
+          <Search className="h-4 w-4 text-white/30 shrink-0" />
+          <input
+            ref={inputRef}
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            placeholder="Search products, sellers, brands..."
+            className="flex-1 bg-transparent text-sm text-white placeholder:text-white/30 outline-none"
+          />
+          {searchQuery ? (
+            <button type="submit" className="text-[10px] font-semibold text-emerald-400 px-2">
+              Go
+            </button>
+          ) : (
+            <button type="button" onClick={() => setSearchOpen(false)} className="text-white/30 hover:text-white/60 transition-colors">
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </form>
+      </div>
+
+      {/* ── Location picker dropdown ── */}
+      {showLocPicker && (
+        <div
+          className="absolute top-full left-0 right-0 z-50 mx-3 mt-1 rounded-2xl shadow-2xl overflow-hidden"
+          style={{ background: "rgba(8,22,16,0.98)", border: "1px solid rgba(16,185,129,0.15)" }}
+        >
+          <div className="p-3 border-b border-white/5">
+            <p className="text-xs text-white/40 font-medium">Select District</p>
+          </div>
+          <div className="grid grid-cols-2 gap-1 p-2 max-h-48 overflow-y-auto">
+            {DISTRICTS.map(d => (
+              <button key={d} onClick={() => saveLocation(d)}
+                className={`text-left px-3 py-2 rounded-xl text-xs transition-all ${locInput === d ? "bg-emerald-500/20 text-emerald-400 font-semibold" : "text-white/60 hover:bg-white/5 hover:text-white"}`}>
+                {d}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </header>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   HAMBURGER SIDE DRAWER
+═══════════════════════════════════════════════════════════════ */
+
+function SideDrawer({
+  open,
+  onClose,
+  lang,
+  onLangToggle,
+  darkMode,
+  onDarkToggle,
+}: {
+  open: boolean;
+  onClose: () => void;
+  lang: "EN" | "বাং";
+  onLangToggle: () => void;
+  darkMode: boolean;
+  onDarkToggle: () => void;
+}) {
+  const { user, logout } = useAuth();
+  const [, navigate] = useLocation();
+
+  /* close on route change */
+  const handleLink = (href: string) => {
+    onClose();
+    navigate(href);
+  };
+
+  /* trap scroll when open */
+  useEffect(() => {
+    if (open) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "";
+    return () => { document.body.style.overflow = ""; };
+  }, [open]);
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div
+        onClick={onClose}
+        className="fixed inset-0 z-50 transition-all duration-300"
+        style={{
+          background: open ? "rgba(0,0,0,0.6)" : "transparent",
+          backdropFilter: open ? "blur(4px)" : "none",
+          pointerEvents: open ? "auto" : "none",
+        }}
+      />
+
+      {/* Drawer panel */}
+      <div
+        className="fixed top-0 left-0 bottom-0 z-50 w-72 flex flex-col transition-transform duration-300 ease-out"
+        style={{
+          background: "rgba(6,18,14,0.97)",
+          backdropFilter: "blur(24px)",
+          borderRight: "1px solid rgba(16,185,129,0.12)",
+          transform: open ? "translateX(0)" : "translateX(-100%)",
+        }}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
+          <span className="font-extrabold text-xl tracking-tight">
+            <span className="text-gradient-green">Paikar</span>
+            <span className="text-gradient-purple">Mart</span>
+          </span>
+          <button onClick={onClose} className="h-8 w-8 rounded-xl flex items-center justify-center text-white/40 hover:text-white hover:bg-white/8 transition-all">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        {/* User greeting */}
+        {user && user.id !== "guest" ? (
+          <div className="px-5 py-4 border-b border-white/5">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-500/30 to-purple-500/20 border border-white/10 flex items-center justify-center text-lg">
+                {user.name?.[0]?.toUpperCase() ?? "U"}
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-white">{user.name}</p>
+                <p className="text-[10px] text-white/40 capitalize">{user.role}</p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="px-5 py-4 border-b border-white/5 flex gap-2">
+            <button onClick={() => handleLink("/login")}
+              className="flex-1 py-2 rounded-xl border border-emerald-500/30 text-emerald-400 text-xs font-semibold hover:bg-emerald-500/10 transition-all">
+              Login
+            </button>
+            <button onClick={() => handleLink("/register")}
+              className="flex-1 py-2 rounded-xl bg-emerald-500/20 text-emerald-400 text-xs font-semibold hover:bg-emerald-500/30 transition-all">
+              Sign Up
+            </button>
+          </div>
+        )}
+
+        {/* Nav links */}
+        <nav className="flex-1 overflow-y-auto py-3 px-3">
+          {SIDEBAR_LINKS.map(item => (
+            <button key={item.href} onClick={() => handleLink(item.href)}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all text-left group">
+              <item.icon className="h-4 w-4 text-white/30 group-hover:text-emerald-400 transition-colors" />
+              {item.label}
+              <ChevronRight className="h-3.5 w-3.5 ml-auto text-white/20 group-hover:text-white/40" />
+            </button>
+          ))}
+
+          {/* Become a seller */}
+          <div className="mt-3 mx-1">
+            <button onClick={() => handleLink("/seller/register")}
+              className="w-full flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-all"
+              style={{ background: "linear-gradient(135deg, hsl(145 65% 28%), hsl(265 55% 38%))" }}>
+              <Sparkles className="h-4 w-4" /> Become a Seller
+            </button>
+          </div>
+        </nav>
+
+        {/* Bottom toggles */}
+        <div className="px-5 py-4 border-t border-white/5 space-y-3">
+          {/* Language toggle */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm text-white/50">
+              <Globe className="h-4 w-4" /> Language
+            </div>
+            <button onClick={onLangToggle}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-white/10 text-xs font-semibold text-white/70 hover:border-emerald-500/30 hover:text-emerald-400 transition-all bg-white/5">
+              {lang === "EN" ? "🇬🇧 English" : "🇧🇩 বাংলা"}
+            </button>
+          </div>
+
+          {/* Dark/Light mode */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm text-white/50">
+              {darkMode ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+              {darkMode ? "Dark Mode" : "Light Mode"}
+            </div>
+            <button onClick={onDarkToggle}
+              className={`relative h-6 w-11 rounded-full border transition-all ${darkMode ? "bg-emerald-500/30 border-emerald-500/40" : "bg-white/10 border-white/20"}`}>
+              <span className={`absolute top-0.5 h-5 w-5 rounded-full transition-all duration-300 flex items-center justify-center text-[10px] ${darkMode ? "left-5 bg-emerald-400" : "left-0.5 bg-white/50"}`}>
+                {darkMode ? "🌙" : "☀️"}
+              </span>
+            </button>
+          </div>
+
+          {/* Logout */}
+          {user && user.id !== "guest" && (
+            <button onClick={() => { logout(); onClose(); }}
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-red-400/70 hover:text-red-400 hover:bg-red-500/10 transition-all">
+              <X className="h-3.5 w-3.5" /> Sign Out
+            </button>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   HERO SLIDER (compact)
+═══════════════════════════════════════════════════════════════ */
 
 function HeroSlider() {
   const [current, setCurrent] = useState(0);
@@ -118,82 +452,71 @@ function HeroSlider() {
     return () => clearInterval(t);
   }, []);
 
-  const slide = HERO_SLIDES[current];
+  const s = HERO_SLIDES[current];
 
   return (
-    <section className={`relative bg-gradient-to-br ${slide.gradient} text-white overflow-hidden transition-all duration-700`}>
-      <div className="absolute inset-0 transition-all duration-700"
-        style={{ background: `radial-gradient(ellipse 70% 60% at 80% 50%, ${slide.glowColor}, transparent)` }} />
-      <div className="absolute inset-0 opacity-[0.03]"
-        style={{ backgroundImage: "repeating-linear-gradient(0deg,white 0,white 1px,transparent 1px,transparent 40px),repeating-linear-gradient(90deg,white 0,white 1px,transparent 1px,transparent 40px)" }} />
-
-      <div className="container mx-auto px-4 py-6 sm:py-10 lg:py-16 flex flex-col lg:flex-row items-center justify-between gap-4 lg:gap-8 relative z-10">
-        <div className="flex-1 text-center lg:text-left w-full">
-          <div className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-sm text-white text-[10px] sm:text-xs font-semibold px-3 py-1 rounded-full mb-2.5 border border-white/20">
-            <Sparkles className="h-2.5 w-2.5" /> {slide.badge}
+    <section className={`relative bg-gradient-to-br ${s.gradient} text-white overflow-hidden`}
+      style={{ minHeight: "180px" }}>
+      <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse 80% 70% at 80% 50%, ${s.glow}, transparent)` }} />
+      <div className="px-4 py-5 relative z-10 flex flex-col lg:flex-row items-center gap-4">
+        <div className="flex-1 w-full">
+          <div className="inline-flex items-center gap-1 bg-white/10 backdrop-blur-sm text-white text-[10px] font-semibold px-2.5 py-0.5 rounded-full mb-2 border border-white/20">
+            <Sparkles className="h-2.5 w-2.5" /> {s.badge}
           </div>
-          <p className="text-white/60 font-medium text-[10px] sm:text-xs mb-1 uppercase tracking-widest">{slide.eyebrow}</p>
-          <h1 className="text-2xl sm:text-3xl lg:text-5xl font-extrabold mb-2 sm:mb-3 leading-tight">{slide.headline}</h1>
-          <p className="text-white/70 text-xs sm:text-sm lg:text-base mb-4 sm:mb-6 max-w-md mx-auto lg:mx-0 line-clamp-2 sm:line-clamp-none">{slide.sub}</p>
-          <div className="flex flex-row items-center justify-center lg:justify-start gap-2 sm:gap-3">
-            <button onClick={() => navigate(slide.cta1.href)}
-              className="flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-white text-gray-900 hover:bg-white/90 transition-all shadow-lg">
-              {slide.cta1.label} <ArrowRight className="h-3.5 w-3.5 inline ml-1" />
+          <h2 className="text-xl sm:text-2xl font-extrabold mb-1.5 leading-tight">{s.headline}</h2>
+          <p className="text-white/65 text-xs mb-3 line-clamp-2">{s.sub}</p>
+          <div className="flex gap-2">
+            <button onClick={() => navigate(s.cta1.href)}
+              className="px-4 py-1.5 rounded-xl font-bold text-xs bg-white text-gray-900 hover:bg-white/90 transition-all shadow">
+              {s.cta1.label} <ArrowRight className="h-3 w-3 inline ml-0.5" />
             </button>
-            <button onClick={() => navigate(slide.cta2.href)}
-              className="flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl font-semibold text-xs sm:text-sm bg-white/12 border border-white/25 hover:bg-white/20 text-white backdrop-blur-sm transition-all">
-              {slide.cta2.label}
+            <button onClick={() => navigate(s.cta2.href)}
+              className="px-4 py-1.5 rounded-xl font-semibold text-xs bg-white/12 border border-white/25 hover:bg-white/20 text-white backdrop-blur-sm transition-all">
+              {s.cta2.label}
             </button>
           </div>
         </div>
-        <div className="hidden lg:block w-72 h-56 rounded-2xl overflow-hidden shadow-2xl border border-white/15 shrink-0">
-          <img src={slide.img} alt={slide.headline} className="w-full h-full object-cover" />
+        <div className="hidden sm:block w-44 h-32 rounded-xl overflow-hidden border border-white/15 shrink-0 shadow-xl">
+          <img src={s.img} alt={s.headline} className="w-full h-full object-cover" />
         </div>
       </div>
-
-      <div className="flex items-center justify-center gap-2 pb-3 relative z-20">
-        <button onClick={() => setCurrent(c => (c - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)}
-          className="h-6 w-6 rounded-full bg-white/15 hover:bg-white/30 flex items-center justify-center border border-white/20 transition-all">
-          <ChevronLeft className="h-3 w-3 text-white" />
-        </button>
+      {/* Dots */}
+      <div className="flex justify-center gap-1.5 pb-2.5 relative z-10">
         {HERO_SLIDES.map((_, i) => (
           <button key={i} onClick={() => setCurrent(i)}
-            className={`rounded-full transition-all duration-300 ${i === current ? "w-6 h-1.5 bg-white" : "w-1.5 h-1.5 bg-white/40"}`} />
+            className={`rounded-full transition-all duration-300 ${i === current ? "w-5 h-1 bg-white" : "w-1 h-1 bg-white/35"}`} />
         ))}
-        <button onClick={() => setCurrent(c => (c + 1) % HERO_SLIDES.length)}
-          className="h-6 w-6 rounded-full bg-white/15 hover:bg-white/30 flex items-center justify-center border border-white/20 transition-all">
-          <ChevronRight className="h-3 w-3 text-white" />
-        </button>
       </div>
     </section>
   );
 }
 
-/* ─── Stories Row ──────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════
+   STORIES ROW
+═══════════════════════════════════════════════════════════════ */
 
 function StoriesRow() {
   const [viewed, setViewed] = useState<Set<string>>(new Set());
   return (
-    <div className="flex gap-3 overflow-x-auto scrollbar-hide py-2 px-4">
-      {/* Add Story */}
-      <div className="flex flex-col items-center gap-1.5 shrink-0 cursor-pointer">
-        <div className="h-14 w-14 rounded-2xl flex items-center justify-center border-2 border-dashed border-emerald-500/30 bg-emerald-500/5 hover:border-emerald-400/60 transition-colors">
-          <span className="text-xl">+</span>
+    <div className="flex gap-3 overflow-x-auto scrollbar-hide py-3 px-4">
+      <div className="flex flex-col items-center gap-1 shrink-0 cursor-pointer">
+        <div className="h-11 w-11 rounded-xl border-2 border-dashed border-emerald-500/30 bg-emerald-500/5 flex items-center justify-center hover:border-emerald-400/60 transition-colors">
+          <Plus className="h-4 w-4 text-emerald-500/60" />
         </div>
-        <span className="text-[10px] text-white/40 font-medium w-14 text-center">Your Story</span>
+        <span className="text-[9px] text-white/35 font-medium">Add</span>
       </div>
-      {STORY_SELLERS.map(seller => {
-        const seen = viewed.has(seller.id);
+      {STORIES.map(s => {
+        const seen = viewed.has(s.id);
         return (
-          <div key={seller.id} onClick={() => setViewed(v => new Set([...v, seller.id]))}
-            className="flex flex-col items-center gap-1.5 shrink-0 cursor-pointer group">
-            <div className={`p-[2px] rounded-2xl bg-gradient-to-br ${seller.ring} transition-opacity ${seen ? "opacity-40" : ""}`}>
-              <div className="h-12 w-12 rounded-[14px] flex items-center justify-center text-2xl"
+          <div key={s.id} onClick={() => setViewed(v => new Set([...v, s.id]))}
+            className="flex flex-col items-center gap-1 shrink-0 cursor-pointer group">
+            <div className={`p-[2px] rounded-xl bg-gradient-to-br ${s.ring} transition-opacity ${seen ? "opacity-40" : ""}`}>
+              <div className="h-10 w-10 rounded-[10px] flex items-center justify-center text-xl"
                 style={{ background: "hsl(160 28% 7%)" }}>
-                {seller.emoji}
+                {s.emoji}
               </div>
             </div>
-            <span className="text-[10px] text-white/60 group-hover:text-white/90 font-medium w-14 text-center truncate transition-colors">{seller.name}</span>
+            <span className="text-[9px] text-white/50 group-hover:text-white/80 font-medium w-11 text-center truncate transition-colors">{s.name}</span>
           </div>
         );
       })}
@@ -201,16 +524,18 @@ function StoriesRow() {
   );
 }
 
-/* ─── Category Quick-Nav ───────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════
+   CATEGORY NAV
+═══════════════════════════════════════════════════════════════ */
 
 function CategoryNav() {
   return (
-    <div className="flex gap-3 overflow-x-auto scrollbar-hide py-2 px-4">
-      {CATEGORIES_NAV.map(cat => (
+    <div className="flex gap-2 overflow-x-auto scrollbar-hide py-2 px-4">
+      {CATEGORIES.map(cat => (
         <Link key={cat.name} href={cat.href}>
-          <div className={`shrink-0 flex items-center gap-2 px-3.5 py-2 rounded-2xl border bg-gradient-to-br ${cat.color} ${cat.border} hover:opacity-90 transition-all cursor-pointer`}>
-            <span className="text-base">{cat.emoji}</span>
-            <span className={`text-xs font-semibold whitespace-nowrap ${cat.text}`}>{cat.name}</span>
+          <div className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl border bg-gradient-to-br ${cat.color} ${cat.border} hover:opacity-90 transition-all cursor-pointer`}>
+            <span className="text-sm">{cat.emoji}</span>
+            <span className={`text-[11px] font-semibold whitespace-nowrap ${cat.text}`}>{cat.name}</span>
           </div>
         </Link>
       ))}
@@ -218,16 +543,18 @@ function CategoryNav() {
   );
 }
 
-/* ─── Unified Product Card (1:1) ───────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════
+   COMPACT PRODUCT CARD (1:1)
+═══════════════════════════════════════════════════════════════ */
 
-interface UnifiedCardProps {
+interface CardProps {
   id: string;
   image: string;
   tag: string;
   tagColor: string;
   name: string;
   shopName: string;
-  shopVerified: boolean;
+  shopVerified?: boolean;
   price: number;
   compareAt?: number;
   rating: number;
@@ -236,228 +563,197 @@ interface UnifiedCardProps {
   inStock?: boolean;
   moq?: number;
   priceOnInquiry?: boolean;
-  onAddToCart?: (e: React.MouseEvent) => void;
+  onCart?: (e: React.MouseEvent) => void;
   href?: string;
 }
 
-function ProductCardUnified({
-  id, image, tag, tagColor, name, shopName, shopVerified,
-  price, compareAt, rating, sold, distance, inStock = true,
-  moq, priceOnInquiry, onAddToCart, href,
-}: UnifiedCardProps) {
+function CompactCard(props: CardProps) {
   const { has, toggle } = useWishlist();
-  const isWishlisted = has(id);
-
-  const discount = compareAt && compareAt > price
-    ? Math.round(((compareAt - price) / compareAt) * 100)
+  const isWishlisted = has(props.id);
+  const discount = props.compareAt && props.compareAt > props.price
+    ? Math.round(((props.compareAt - props.price) / props.compareAt) * 100)
     : null;
 
-  const card = (
-    <div className="glass-card rounded-2xl overflow-hidden group cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-primary/10 h-full flex flex-col">
-      {/* ── 1:1 Image ── */}
+  const inner = (
+    <div className="glass-card rounded-xl overflow-hidden group cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/10 h-full flex flex-col">
+      {/* Image 1:1 */}
       <div className="relative overflow-hidden bg-white/5" style={{ aspectRatio: "1/1" }}>
-        {image ? (
-          <img src={image} alt={name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+        {props.image ? (
+          <img src={props.image} alt={props.name}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-400" />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-white/20">
-            <Package className="h-10 w-10" />
+          <div className="w-full h-full flex items-center justify-center text-white/15">
+            <Package className="h-8 w-8" />
           </div>
         )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
 
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-70" />
-
-        {/* Top-left: badge */}
-        <div className="absolute top-2 left-2 flex flex-col gap-1">
-          <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-md text-white ${tagColor}`}>{tag}</span>
+        {/* Top-left: type badge + discount */}
+        <div className="absolute top-1.5 left-1.5 flex flex-col gap-1">
+          <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded-md text-white ${props.tagColor}`}>{props.tag}</span>
           {discount !== null && (
-            <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-red-500 text-white">-{discount}%</span>
+            <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-md bg-red-500 text-white">-{discount}%</span>
           )}
         </div>
 
-        {/* Top-right: wishlist heart */}
+        {/* Top-right: wishlist */}
         <button
           onClick={e => {
             e.preventDefault(); e.stopPropagation();
-            toggle({ productId: id, title: name, price, imageUrl: image });
-            toast(isWishlisted ? "Removed from wishlist" : "Added to wishlist ❤️");
+            toggle({ productId: props.id, title: props.name, price: props.price, imageUrl: props.image });
+            toast(isWishlisted ? "Removed" : "Saved ❤️");
           }}
-          className="absolute top-2 right-2 h-7 w-7 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center border border-white/20 transition-all hover:scale-110">
-          <Heart className={`h-3.5 w-3.5 transition-colors ${isWishlisted ? "fill-rose-400 text-rose-400" : "text-white/70"}`} />
+          className="absolute top-1.5 right-1.5 h-6 w-6 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center border border-white/15 transition-all hover:scale-110">
+          <Heart className={`h-3 w-3 ${isWishlisted ? "fill-rose-400 text-rose-400" : "text-white/70"}`} />
         </button>
 
         {/* Bottom-right: distance */}
-        {distance && (
-          <div className="absolute bottom-2 right-2 flex items-center gap-1 bg-black/60 backdrop-blur-sm px-1.5 py-0.5 rounded-full border border-white/10">
-            <MapPin className="h-2.5 w-2.5 text-emerald-400" />
-            <span className="text-[9px] text-white/80 font-medium">{distance}</span>
+        {props.distance && (
+          <div className="absolute bottom-1.5 right-1.5 flex items-center gap-0.5 bg-black/60 backdrop-blur-sm px-1.5 py-0.5 rounded-full border border-white/10">
+            <MapPin className="h-2 w-2 text-emerald-400" />
+            <span className="text-[8px] text-white/80 font-medium">{props.distance}</span>
           </div>
         )}
 
-        {/* Out of stock overlay */}
-        {!inStock && (
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex items-center justify-center">
-            <span className="text-xs font-semibold text-white/80 border border-white/30 px-3 py-1 rounded-full">Out of Stock</span>
+        {!props.inStock && (
+          <div className="absolute inset-0 bg-black/55 backdrop-blur-[2px] flex items-center justify-center">
+            <span className="text-[10px] font-semibold text-white/80 border border-white/20 px-2 py-0.5 rounded-full">Out of Stock</span>
           </div>
         )}
       </div>
 
-      {/* ── Content ── */}
-      <div className="p-3 flex flex-col flex-1 gap-1.5">
-        {/* Shop name + verified */}
+      {/* Content */}
+      <div className="p-2.5 flex flex-col flex-1 gap-1">
+        {/* Shop */}
         <div className="flex items-center gap-1">
-          <Store className="h-3 w-3 text-white/30 shrink-0" />
-          <span className="text-[10px] text-white/50 truncate flex-1">{shopName}</span>
-          {shopVerified && <BadgeCheck className="h-3 w-3 text-emerald-400 shrink-0" />}
+          <span className="text-[9px] text-white/40 truncate flex-1">{props.shopName}</span>
+          {props.shopVerified && <BadgeCheck className="h-2.5 w-2.5 text-emerald-400 shrink-0" />}
         </div>
 
-        {/* Title */}
-        <h3 className="font-semibold text-sm text-white/90 line-clamp-2 leading-snug group-hover:text-emerald-300 transition-colors flex-1">
-          {name}
+        {/* Name */}
+        <h3 className="font-semibold text-[11px] text-white/90 line-clamp-2 leading-snug flex-1 group-hover:text-emerald-300 transition-colors">
+          {props.name}
         </h3>
 
-        {/* Stars + sold */}
-        <div className="flex items-center gap-1.5">
-          <div className="flex items-center gap-0.5">
-            {[1, 2, 3, 4, 5].map(s => (
-              <Star key={s} className={`h-2.5 w-2.5 ${s <= Math.round(rating) ? "text-yellow-400 fill-yellow-400" : "text-white/15"}`} />
+        {/* Rating */}
+        <div className="flex items-center gap-1">
+          <div className="flex">
+            {[1,2,3,4,5].map(s => (
+              <Star key={s} className={`h-2 w-2 ${s <= Math.round(props.rating) ? "text-yellow-400 fill-yellow-400" : "text-white/15"}`} />
             ))}
           </div>
-          <span className="text-[10px] text-white/40">{rating.toFixed(1)}</span>
-          <span className="text-[10px] text-white/30">·</span>
-          <span className="text-[10px] text-white/40">{sold >= 1000 ? `${(sold / 1000).toFixed(1)}k` : sold} sold</span>
+          <span className="text-[9px] text-white/35">{props.sold >= 1000 ? `${(props.sold/1000).toFixed(1)}k` : props.sold} sold</span>
         </div>
 
         {/* Price */}
-        <div>
-          {priceOnInquiry ? (
-            <span className="text-sm font-bold text-orange-400">Price on Request</span>
+        <div className="flex items-center justify-between gap-1">
+          {props.priceOnInquiry ? (
+            <span className="text-[10px] font-bold text-orange-400">On Request</span>
           ) : (
-            <div className="flex items-baseline gap-2">
-              <span className="font-bold text-base text-emerald-400">{formatBDT(price)}</span>
-              {compareAt && compareAt > price && (
-                <span className="text-[11px] text-white/30 line-through">{formatBDT(compareAt)}</span>
+            <div className="flex items-baseline gap-1">
+              <span className="font-bold text-sm text-emerald-400">{formatBDT(props.price)}</span>
+              {props.compareAt && props.compareAt > props.price && (
+                <span className="text-[9px] text-white/30 line-through">{formatBDT(props.compareAt)}</span>
               )}
             </div>
           )}
-          {moq && moq > 1 && (
-            <p className="text-[10px] text-orange-400 mt-0.5">MOQ: {moq} units</p>
+          {props.onCart && (
+            <button onClick={props.onCart} disabled={props.inStock === false}
+              className="h-6 w-6 rounded-lg bg-primary/20 hover:bg-primary/30 border border-primary/30 text-primary flex items-center justify-center transition-all disabled:opacity-40 shrink-0">
+              <ShoppingCart className="h-3 w-3" />
+            </button>
           )}
         </div>
 
-        {/* Add to cart */}
-        {onAddToCart && (
-          <button
-            onClick={onAddToCart}
-            disabled={!inStock}
-            className="mt-auto w-full py-1.5 rounded-lg text-xs font-semibold bg-primary/20 hover:bg-primary/30 border border-primary/30 text-primary transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-1.5">
-            <ShoppingCart className="h-3 w-3" />
-            Add to Cart
-          </button>
+        {props.moq && props.moq > 1 && (
+          <p className="text-[9px] text-orange-400">MOQ: {props.moq} units</p>
         )}
       </div>
     </div>
   );
 
-  return href ? <Link href={href}>{card}</Link> : card;
+  return props.href ? <Link href={props.href}>{inner}</Link> : inner;
 }
 
-/* ─── Social Feed Post ─────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════
+   FEED POST CARD
+═══════════════════════════════════════════════════════════════ */
 
 type FeedPost = typeof FEED_POSTS[0];
 
-function FeedPost({ post }: { post: FeedPost }) {
+function FeedPostCard({ post }: { post: FeedPost }) {
   const [liked, setLiked] = useState(false);
+  const [likes, setLikes] = useState(post.likes);
   const [saved, setSaved] = useState(false);
-  const [likeCount, setLikeCount] = useState(post.likes);
   const { has, toggle } = useWishlist();
   const { addToCart } = useCart();
   const isWishlisted = has(post.id);
-
-  const handleLike = () => {
-    setLiked(l => {
-      setLikeCount(c => l ? c - 1 : c + 1);
-      return !l;
-    });
-  };
 
   const discount = post.compareAt > post.price
     ? Math.round(((post.compareAt - post.price) / post.compareAt) * 100)
     : null;
 
   return (
-    <GlassCard className="overflow-hidden">
+    <GlassCard className="overflow-hidden rounded-2xl">
       {/* Post header */}
-      <div className="px-4 pt-4 pb-3 flex items-center gap-3">
-        <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-white/10 to-white/5 border border-white/10 flex items-center justify-center text-xl shrink-0">
-          {post.shopEmoji}
-        </div>
+      <div className="px-3.5 pt-3.5 pb-2.5 flex items-center gap-2.5">
+        <div className="h-9 w-9 rounded-xl bg-white/8 border border-white/10 flex items-center justify-center text-lg shrink-0">{post.shopEmoji}</div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5">
-            <span className="text-sm font-semibold text-white truncate">{post.shopName}</span>
-            {post.shopVerified && <BadgeCheck className="h-3.5 w-3.5 text-emerald-400 shrink-0" />}
+            <span className="text-xs font-semibold text-white truncate">{post.shopName}</span>
+            {post.shopVerified && <BadgeCheck className="h-3 w-3 text-emerald-400 shrink-0" />}
           </div>
-          <div className="flex items-center gap-2 text-[10px] text-white/40">
-            <MapPin className="h-2.5 w-2.5 text-white/30" />
-            <span>{post.location}</span>
-            <span>·</span>
-            <span>{post.timeAgo} ago</span>
+          <div className="flex items-center gap-1.5 text-[9px] text-white/35">
+            <MapPin className="h-2 w-2" />{post.location} · {post.timeAgo} ago
           </div>
         </div>
         <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full text-white ${post.tagColor}`}>{post.tag}</span>
       </div>
 
-      {/* Product image 1:1 */}
+      {/* Image 1:1 */}
       <div className="relative" style={{ aspectRatio: "1/1" }}>
         <img src={post.image} alt={post.productName} className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent" />
 
-        {/* Discount badge */}
         {discount && (
-          <div className="absolute top-3 left-3">
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-lg bg-red-500 text-white">-{discount}% OFF</span>
+          <div className="absolute top-2.5 left-2.5">
+            <span className="text-[9px] font-bold px-2 py-0.5 rounded-lg bg-red-500 text-white">-{discount}% OFF</span>
           </div>
         )}
 
-        {/* Wishlist */}
         <button
           onClick={() => {
             toggle({ productId: post.id, title: post.productName, price: post.price, imageUrl: post.image });
-            toast(isWishlisted ? "Removed from wishlist" : "Saved to wishlist ❤️");
+            toast(isWishlisted ? "Removed" : "Saved ❤️");
           }}
-          className="absolute top-3 right-3 h-8 w-8 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center border border-white/20 transition-all hover:scale-110">
-          <Heart className={`h-4 w-4 transition-colors ${isWishlisted ? "fill-rose-400 text-rose-400" : "text-white/80"}`} />
+          className="absolute top-2.5 right-2.5 h-7 w-7 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center border border-white/15 transition-all hover:scale-110">
+          <Heart className={`h-3.5 w-3.5 ${isWishlisted ? "fill-rose-400 text-rose-400" : "text-white/70"}`} />
         </button>
 
-        {/* Distance badge */}
-        <div className="absolute bottom-3 right-3 flex items-center gap-1 bg-black/60 backdrop-blur-sm px-2 py-1 rounded-full border border-white/10">
-          <MapPin className="h-3 w-3 text-emerald-400" />
-          <span className="text-[10px] text-white/80 font-medium">{post.distance}</span>
+        <div className="absolute bottom-2.5 right-2.5 flex items-center gap-1 bg-black/60 backdrop-blur-sm px-1.5 py-0.5 rounded-full border border-white/10">
+          <MapPin className="h-2.5 w-2.5 text-emerald-400" />
+          <span className="text-[9px] text-white/80 font-medium">{post.distance}</span>
         </div>
 
-        {/* Product info overlay */}
-        <div className="absolute bottom-3 left-3 right-14">
-          <p className="text-white font-semibold text-sm line-clamp-1 drop-shadow">{post.productName}</p>
+        <div className="absolute bottom-2.5 left-2.5 right-14">
+          <p className="text-white font-semibold text-xs line-clamp-1 drop-shadow">{post.productName}</p>
         </div>
       </div>
 
-      {/* Price + CTA */}
-      <div className="px-4 py-3 flex items-center justify-between gap-3">
+      {/* Price + Buy */}
+      <div className="px-3.5 py-2.5 flex items-center justify-between gap-2">
         <div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-lg font-bold text-emerald-400">{formatBDT(post.price)}</span>
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-base font-bold text-emerald-400">{formatBDT(post.price)}</span>
             {post.compareAt > post.price && (
-              <span className="text-xs text-white/35 line-through">{formatBDT(post.compareAt)}</span>
+              <span className="text-[10px] text-white/30 line-through">{formatBDT(post.compareAt)}</span>
             )}
           </div>
-          <div className="flex items-center gap-1.5 mt-0.5">
-            <div className="flex">
-              {[1, 2, 3, 4, 5].map(s => (
-                <Star key={s} className={`h-2.5 w-2.5 ${s <= Math.round(post.rating) ? "text-yellow-400 fill-yellow-400" : "text-white/15"}`} />
-              ))}
-            </div>
-            <span className="text-[10px] text-white/40">{post.rating} · {post.sold} sold</span>
+          <div className="flex items-center gap-1 mt-0.5">
+            {[1,2,3,4,5].map(s => (
+              <Star key={s} className={`h-2 w-2 ${s <= Math.round(post.rating) ? "text-yellow-400 fill-yellow-400" : "text-white/15"}`} />
+            ))}
+            <span className="text-[9px] text-white/35 ml-0.5">{post.rating} · {post.sold} sold</span>
           </div>
         </div>
         <button
@@ -465,265 +761,205 @@ function FeedPost({ post }: { post: FeedPost }) {
             addToCart({ productId: post.id, productName: post.productName, vendorId: post.id, vendorName: post.shopName, price: post.price, quantity: 1, image: post.image });
             toast.success("Added to cart!");
           }}
-          className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-white text-xs font-bold hover:bg-primary/90 transition-all shrink-0">
-          <Zap className="h-3.5 w-3.5" /> Buy Now
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white transition-all hover:opacity-90 shrink-0"
+          style={{ background: "linear-gradient(135deg, hsl(145 65% 32%), hsl(265 55% 44%))" }}>
+          <Zap className="h-3 w-3" /> Buy Now
         </button>
       </div>
 
       {/* Social actions */}
-      <div className="px-4 pb-4 flex items-center gap-1 border-t border-white/5 pt-3">
-        <button onClick={handleLike}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${liked ? "text-rose-400 bg-rose-500/10" : "text-white/50 hover:text-white/80 hover:bg-white/5"}`}>
-          <Heart className={`h-3.5 w-3.5 ${liked ? "fill-rose-400" : ""}`} /> {likeCount}
+      <div className="px-3.5 pb-3 flex items-center gap-0.5 border-t border-white/5 pt-2.5">
+        <button onClick={() => { setLiked(l => { setLikes(c => l ? c - 1 : c + 1); return !l; }); }}
+          className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-all ${liked ? "text-rose-400 bg-rose-500/10" : "text-white/45 hover:text-white/70 hover:bg-white/5"}`}>
+          <Heart className={`h-3 w-3 ${liked ? "fill-rose-400" : ""}`} /> {likes}
         </button>
-        <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-white/50 hover:text-white/80 hover:bg-white/5 transition-all">
-          <MessageCircle className="h-3.5 w-3.5" /> {post.comments}
+        <button className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium text-white/45 hover:text-white/70 hover:bg-white/5 transition-all">
+          <MessageCircle className="h-3 w-3" /> {post.comments}
         </button>
-        <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium text-white/50 hover:text-white/80 hover:bg-white/5 transition-all">
-          <Share2 className="h-3.5 w-3.5" /> Share
+        <button className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium text-white/45 hover:text-white/70 hover:bg-white/5 transition-all">
+          <Share2 className="h-3 w-3" /> Share
         </button>
         <button onClick={() => setSaved(s => !s)}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-medium transition-all ml-auto ${saved ? "text-emerald-400 bg-emerald-500/10" : "text-white/50 hover:text-white/80 hover:bg-white/5"}`}>
-          <Bookmark className={`h-3.5 w-3.5 ${saved ? "fill-emerald-400" : ""}`} />
+          className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-all ml-auto ${saved ? "text-emerald-400 bg-emerald-500/10" : "text-white/45 hover:text-white/70 hover:bg-white/5"}`}>
+          <Bookmark className={`h-3 w-3 ${saved ? "fill-emerald-400" : ""}`} />
         </button>
       </div>
     </GlassCard>
   );
 }
 
-/* ─── Social Feed Tab ──────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════
+   PRODUCT GRID SECTION
+═══════════════════════════════════════════════════════════════ */
 
-function SocialFeedTab() {
-  return (
-    <div className="flex flex-col gap-4 max-w-xl mx-auto">
-      {FEED_POSTS.map(post => (
-        <FeedPost key={post.id} post={post} />
-      ))}
-      {/* Infinite scroll sentinel placeholder */}
-      <div className="text-center py-6">
-        <span className="text-xs text-white/30 px-4 py-2 rounded-full border border-white/10">Loading more...</span>
-      </div>
-    </div>
-  );
-}
-
-/* ─── Marketplace Tab ──────────────────────────────────────────── */
-
-function MarketplaceTab() {
+function ProductGrid() {
   const { addToCart } = useCart();
-  const { location } = useUserLocation();
-  const [category, setCategory] = useState("All");
-  const [sort, setSort] = useState("");
-  const [showFilters, setShowFilters] = useState(false);
+  const { data, isLoading } = useListProducts({});
+  const products = (data as any)?.products ?? [];
 
-  const { data, isLoading } = useListProducts(
-    category !== "All" ? { category } : {},
-  );
-  const products = data?.products ?? [];
+  const typeLabel = (t?: string) => t === "service" ? "Service" : t === "digital" ? "Digital" : "Retail";
+  const typeColor = (t?: string) => t === "service" ? "bg-purple-500" : "bg-blue-500";
 
-  const sorted = [...products].sort((a, b) => {
-    if (sort === "price_asc") return (a.price ?? 0) - (b.price ?? 0);
-    if (sort === "price_desc") return (b.price ?? 0) - (a.price ?? 0);
-    if (sort === "rating") return (b.rating ?? 0) - (a.rating ?? 0);
-    return 0;
-  });
-
-  const handleAddToCart = useCallback((p: Product) => (e: React.MouseEvent) => {
+  const handleCart = useCallback((p: Product) => (e: React.MouseEvent) => {
     e.preventDefault(); e.stopPropagation();
     addToCart({ productId: p.id, productName: p.name, vendorId: p.vendorId, vendorName: p.vendorName, price: p.price ?? 0, quantity: 1, image: p.images?.[0] ?? "" });
     toast.success("Added to cart!");
   }, [addToCart]);
 
-  const typeLabel = (t?: string) => {
-    if (t === "service") return "Service";
-    if (t === "digital") return "Digital";
-    return "Retail";
-  };
-  const typeColor = (t?: string) => {
-    if (t === "service") return "bg-purple-500/90";
-    if (t === "digital") return "bg-blue-500/90";
-    return "bg-blue-500/90";
-  };
-
-  return (
-    <div>
-      {/* Filter bar */}
-      <div className="sticky top-[72px] z-30 glass-card border-b border-white/5 px-4 py-3">
-        <div className="flex items-center gap-2">
-          {/* Category chips */}
-          <div className="flex gap-2 overflow-x-auto scrollbar-hide flex-1">
-            {FILTER_CATEGORIES.map(cat => (
-              <button key={cat} onClick={() => setCategory(cat)}
-                className={`shrink-0 px-3 py-1 rounded-full text-xs font-semibold border transition-all ${
-                  category === cat
-                    ? "bg-primary text-white border-primary shadow-lg shadow-primary/20"
-                    : "bg-white/5 text-white/60 border-white/10 hover:border-white/20 hover:text-white/80"
-                }`}>
-                {cat}
-              </button>
-            ))}
-          </div>
-
-          {/* Sort + filter */}
-          <div className="flex gap-2 shrink-0">
-            <div className="relative">
-              <select value={sort} onChange={e => setSort(e.target.value)}
-                className="appearance-none bg-white/5 border border-white/10 text-white/70 text-xs rounded-xl px-3 py-1.5 pr-6 cursor-pointer hover:border-white/20 focus:outline-none focus:border-primary/50 transition-all">
-                {SORT_OPTIONS.map(o => <option key={o.value} value={o.value} className="bg-[#0d1f1a] text-white">{o.label}</option>)}
-              </select>
-              <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 h-3 w-3 text-white/40 pointer-events-none" />
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 px-4">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="glass-card rounded-xl overflow-hidden">
+            <Skeleton className="aspect-square w-full" />
+            <div className="p-2.5 space-y-1.5">
+              <Skeleton className="h-2.5 w-2/3" />
+              <Skeleton className="h-3.5 w-full" />
+              <Skeleton className="h-3 w-1/2" />
             </div>
-            <button onClick={() => setShowFilters(!showFilters)}
-              className={`h-7 w-7 rounded-xl border flex items-center justify-center transition-all ${showFilters ? "bg-primary/20 border-primary/40 text-primary" : "bg-white/5 border-white/10 text-white/50 hover:text-white/80"}`}>
-              <SlidersHorizontal className="h-3.5 w-3.5" />
-            </button>
           </div>
-        </div>
-
-        {/* Location nearby info */}
-        {location.source !== "none" && (
-          <div className="flex items-center gap-1.5 mt-2 text-[10px] text-white/40">
-            <MapPin className="h-3 w-3 text-emerald-400" />
-            <span>Showing products near <span className="text-emerald-400">{location.city ?? "your location"}</span></span>
-          </div>
-        )}
-      </div>
-
-      {/* Grid */}
-      <div className="px-4 pt-4">
-        {isLoading ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="glass-card rounded-2xl overflow-hidden">
-                <Skeleton className="aspect-square w-full" />
-                <div className="p-3 space-y-2">
-                  <Skeleton className="h-3 w-2/3" />
-                  <Skeleton className="h-4 w-full" />
-                  <Skeleton className="h-3 w-1/2" />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : sorted.length === 0 ? (
-          <div className="py-16 text-center">
-            <Package className="h-12 w-12 text-white/15 mx-auto mb-3" />
-            <p className="text-white/40 text-sm">No products found in this category.</p>
-            <button onClick={() => setCategory("All")} className="mt-3 text-xs text-primary hover:underline">Show all</button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-            {sorted.map(p => (
-              <ProductCardUnified
-                key={p.id}
-                id={p.id}
-                image={p.images?.[0] ?? ""}
-                tag={p.moq && p.moq > 1 ? "Wholesale" : typeLabel(p.type)}
-                tagColor={p.moq && p.moq > 1 ? "bg-orange-500/90" : typeColor(p.type)}
-                name={p.name}
-                shopName={p.vendorName}
-                shopVerified={true}
-                price={p.price ?? 0}
-                compareAt={p.price ? Math.round(p.price * 1.2) : undefined}
-                rating={p.rating ?? 4.5}
-                sold={p.reviewCount ? p.reviewCount * 3 : 12}
-                distance={p.location ? `${Math.round(Math.random() * 8 + 1) * 0.5} km` : undefined}
-                inStock={p.inStock}
-                moq={p.moq}
-                priceOnInquiry={p.priceOnInquiry}
-                onAddToCart={handleAddToCart(p)}
-                href={`/products/${p.id}`}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-/* ─── Dual Feed Tabs ───────────────────────────────────────────── */
-
-type TabKey = "feed" | "market";
-
-function DualFeedSection() {
-  const [tab, setTab] = useState<TabKey>("feed");
-
-  return (
-    <div>
-      {/* Sticky tab bar */}
-      <div className="sticky top-[56px] z-30 glass-card border-b border-white/5 px-4">
-        <div className="flex gap-1 py-2">
-          <TabButton active={tab === "feed"} onClick={() => setTab("feed")} icon="🏠" label="Social Feed" />
-          <TabButton active={tab === "market"} onClick={() => setTab("market")} icon="🛍️" label="Marketplace" />
-        </div>
-      </div>
-
-      <div className="py-4">
-        {tab === "feed" ? (
-          <div className="px-4">
-            <SocialFeedTab />
-          </div>
-        ) : (
-          <MarketplaceTab />
-        )}
-      </div>
-    </div>
-  );
-}
-
-function TabButton({ active, onClick, icon, label }: { active: boolean; onClick: () => void; icon: string; label: string }) {
-  return (
-    <button onClick={onClick}
-      className={`flex-1 flex items-center justify-center gap-2 py-2 px-4 rounded-xl text-sm font-semibold transition-all duration-200 ${
-        active
-          ? "bg-primary text-white shadow-lg shadow-primary/20"
-          : "text-white/50 hover:text-white/80 hover:bg-white/5"
-      }`}>
-      <span>{icon}</span>
-      <span>{label}</span>
-    </button>
-  );
-}
-
-/* ─── Trust Section ────────────────────────────────────────────── */
-
-function TrustSection() {
-  return (
-    <section className="px-4 py-6">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {TRUST_FEATURES.map(f => (
-          <GlassCard key={f.title} className={`p-4 flex flex-col gap-2 border ${f.bg}`}>
-            <f.icon className={`h-5 w-5 ${f.color}`} />
-            <div className="font-semibold text-sm text-white">{f.title}</div>
-            <div className="text-xs text-white/50">{f.desc}</div>
-          </GlassCard>
         ))}
       </div>
-    </section>
+    );
+  }
+
+  if (!products.length) return null;
+
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 px-4">
+      {products.map((p: Product) => (
+        <CompactCard
+          key={p.id}
+          id={p.id}
+          image={p.images?.[0] ?? ""}
+          tag={p.moq && p.moq > 1 ? "Wholesale" : typeLabel(p.type)}
+          tagColor={p.moq && p.moq > 1 ? "bg-orange-500" : typeColor(p.type)}
+          name={p.name}
+          shopName={p.vendorName}
+          shopVerified={true}
+          price={p.price ?? 0}
+          compareAt={p.price ? Math.round(p.price * 1.2) : undefined}
+          rating={p.rating ?? 4.5}
+          sold={p.reviewCount ? p.reviewCount * 3 : 12}
+          distance={p.location ? `${(Math.random() * 8 + 0.5).toFixed(1)} km` : undefined}
+          inStock={p.inStock}
+          moq={p.moq}
+          priceOnInquiry={p.priceOnInquiry}
+          onCart={handleCart(p)}
+          href={`/products/${p.id}`}
+        />
+      ))}
+    </div>
   );
 }
 
-/* ─── Main Page ────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════
+   TRUST STRIP
+═══════════════════════════════════════════════════════════════ */
+
+const TRUST = [
+  { icon: ShieldCheck, label: "Verified Sellers", color: "text-emerald-400" },
+  { icon: CreditCard, label: "Secure Payments", color: "text-blue-400" },
+  { icon: Truck, label: "Fast Delivery", color: "text-orange-400" },
+  { icon: Award, label: "Quality Assured", color: "text-purple-400" },
+];
+
+function TrustStrip() {
+  return (
+    <div className="flex gap-3 overflow-x-auto scrollbar-hide px-4 py-4">
+      {TRUST.map(t => (
+        <div key={t.label} className="shrink-0 flex items-center gap-2 px-3.5 py-2 rounded-xl glass-card">
+          <t.icon className={`h-4 w-4 ${t.color} shrink-0`} />
+          <span className="text-[11px] font-medium text-white/70 whitespace-nowrap">{t.label}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SECTION HEADER
+═══════════════════════════════════════════════════════════════ */
+
+function SectionHeader({ title, href }: { title: string; href?: string }) {
+  return (
+    <div className="flex items-center justify-between px-4 pt-5 pb-2">
+      <h2 className="text-sm font-bold text-white">{title}</h2>
+      {href && (
+        <Link href={href}>
+          <span className="text-[11px] text-emerald-400 font-medium flex items-center gap-0.5 hover:text-emerald-300 transition-colors cursor-pointer">
+            See all <ChevronRight className="h-3 w-3" />
+          </span>
+        </Link>
+      )}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MAIN PAGE
+═══════════════════════════════════════════════════════════════ */
 
 export default function HomePage() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [lang, setLang] = useState<"EN" | "বাং">("EN");
+  const [darkMode, setDarkMode] = useState(true);
+
   return (
-    <Layout>
-      {/* Hero */}
-      <HeroSlider />
+    <div className="min-h-[100dvh] flex flex-col bg-background">
+      {/* Custom compact header */}
+      <CompactHeader
+        onMenuOpen={() => setMenuOpen(true)}
+        lang={lang}
+        onLangToggle={() => setLang(l => l === "EN" ? "বাং" : "EN")}
+        darkMode={darkMode}
+        onDarkToggle={() => setDarkMode(d => !d)}
+      />
 
-      {/* Stories + Category nav */}
-      <div className="py-3 border-b border-white/5 space-y-1">
-        <StoriesRow />
-        <CategoryNav />
-      </div>
+      {/* Hamburger drawer */}
+      <SideDrawer
+        open={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        lang={lang}
+        onLangToggle={() => setLang(l => l === "EN" ? "বাং" : "EN")}
+        darkMode={darkMode}
+        onDarkToggle={() => setDarkMode(d => !d)}
+      />
 
-      {/* Dual Feed Tabs (main content) */}
-      <DualFeedSection />
+      {/* Scrollable main content */}
+      <main className="flex-1 pb-24 overflow-y-auto">
+        {/* Hero */}
+        <HeroSlider />
 
-      {/* Trust badges */}
-      <div className="border-t border-white/5">
-        <TrustSection />
-      </div>
-    </Layout>
+        {/* Stories + Categories */}
+        <div className="border-b border-white/5">
+          <StoriesRow />
+          <CategoryNav />
+        </div>
+
+        {/* Social Feed */}
+        <SectionHeader title="🔥 Live Feed" />
+        <div className="px-4 flex flex-col gap-3 max-w-xl mx-auto lg:max-w-none">
+          {FEED_POSTS.map(post => (
+            <FeedPostCard key={post.id} post={post} />
+          ))}
+        </div>
+
+        {/* Marketplace Grid */}
+        <SectionHeader title="🛍️ Marketplace" href="/products" />
+        <ProductGrid />
+
+        {/* Trust strip */}
+        <div className="mt-4 border-t border-white/5">
+          <TrustStrip />
+        </div>
+
+        {/* Bottom spacer */}
+        <div className="h-4" />
+      </main>
+
+      {/* Bottom nav */}
+      <BottomNav />
+    </div>
   );
 }
