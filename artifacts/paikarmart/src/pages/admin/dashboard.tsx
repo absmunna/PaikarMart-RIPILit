@@ -1,125 +1,150 @@
-import React, { useState } from "react";
-import { Layout } from "@/components/layout/Layout";
-import { useAuth } from "@/hooks/use-auth";
-import { Redirect } from "wouter";
+import React from "react";
+import { Link } from "wouter";
+import { AdminLayout } from "@/components/layout/AdminLayout";
 import { useGetAdminDashboard } from "@workspace/api-client-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Users, Store, ShoppingBag, DollarSign, CheckCircle, XCircle, AlertCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { Users, Store, ShoppingBag, TrendingUp, CheckCircle, Clock, XCircle, ArrowUpRight, AlertCircle } from "lucide-react";
+
+const GLOW = "#00FF9C"; const RED = "#FF3B3B"; const TEXT = "#E8F5EE"; const MUTED = "#A3C9B8"; const GOLD = "#f59e0b";
+
+function GCard({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return <div className={className} style={{ background: "linear-gradient(145deg,rgba(255,255,255,0.06),rgba(255,255,255,0.025))", border: "1px solid rgba(255,255,255,0.10)", borderRadius: 16, boxShadow: "0 4px 20px rgba(0,0,0,0.3)" }}>{children}</div>;
+}
+
+const STATUS_CFG: Record<string, { color: string; bg: string; icon: React.ElementType }> = {
+  pending:    { color: GOLD,      bg: "rgba(245,158,11,0.12)", icon: Clock       },
+  processing: { color: "#60a5fa", bg: "rgba(96,165,250,0.12)", icon: AlertCircle },
+  delivered:  { color: GLOW,      bg: "rgba(0,255,156,0.12)",  icon: CheckCircle },
+  cancelled:  { color: RED,       bg: "rgba(255,59,59,0.12)",  icon: XCircle     },
+};
+
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 export default function AdminDashboardPage() {
-  const { user } = useAuth();
-
-  const isAdmin = user?.role === "admin";
-  const { data: dashboard, isLoading } = useGetAdminDashboard({ query: { enabled: isAdmin } });
-
-  if (!isAdmin) {
-    return <Redirect to="/login" />;
-  }
-
-  if (isLoading) {
-    return (
-      <Layout>
-        <div className="container mx-auto px-4 py-8">
-          <Skeleton className="h-8 w-48 mb-8" />
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-32 w-full rounded-xl" />)}
-          </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <Skeleton className="h-96 w-full rounded-xl" />
-            <Skeleton className="h-96 w-full rounded-xl" />
-          </div>
-        </div>
-      </Layout>
-    );
-  }
+  const { data, isLoading } = useGetAdminDashboard();
+  const d = data;
 
   const stats = [
-    { title: "Total Users", value: dashboard?.totalUsers || 0, icon: Users, color: "text-blue-500" },
-    { title: "Total Sellers", value: dashboard?.totalSellers || 0, icon: Store, color: "text-purple-500" },
-    { title: "Total Orders", value: dashboard?.totalOrders || 0, icon: ShoppingBag, color: "text-orange-500" },
-    { title: "Platform Profit", value: `৳${(dashboard?.platformProfit ?? 0).toLocaleString()}`, icon: DollarSign, color: "text-green-500" },
+    { label: "Total Revenue",   value: d ? `৳ ${(d.totalRevenue ?? 0).toLocaleString()}` : "—",  icon: TrendingUp, color: GLOW       },
+    { label: "Total Users",     value: d ? String(d.totalUsers ?? 0)                       : "—",  icon: Users,      color: "#60a5fa"  },
+    { label: "Active Sellers",  value: d ? String(d.activeSellers ?? 0)                    : "—",  icon: Store,      color: GOLD       },
+    { label: "Total Orders",    value: d ? String(d.totalOrders ?? 0)                      : "—",  icon: ShoppingBag,color: "#8b5cf6"  },
   ];
 
+  const orders = d?.recentOrders ?? [];
+  const monthly = d?.monthlyRevenue ?? [];
+  const maxRev = Math.max(...monthly.map((m: Record<string,unknown>) => m.revenue as number ?? 0), 1);
+
   return (
-    <Layout>
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
-        
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {stats.map((stat, i) => (
-            <Card key={i}>
-              <CardContent className="p-6 flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted-foreground mb-1">{stat.title}</p>
-                  <h3 className="text-2xl font-bold">{stat.value}</h3>
+    <AdminLayout title="Admin Dashboard">
+      <div className="max-w-5xl mx-auto space-y-5">
+
+        {/* Stats */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {stats.map(s => (
+            <GCard key={s.label} className="p-4">
+              {isLoading ? (
+                <div className="space-y-2 animate-pulse">
+                  <div className="h-9 w-9 rounded-xl" style={{ background: "rgba(255,255,255,0.07)" }} />
+                  <div className="h-3 rounded w-20" style={{ background: "rgba(255,255,255,0.07)" }} />
+                  <div className="h-5 rounded w-16" style={{ background: "rgba(255,255,255,0.10)" }} />
                 </div>
-                <div className={`h-12 w-12 rounded-full bg-muted flex items-center justify-center ${stat.color}`}>
-                  <stat.icon className="h-6 w-6" />
-                </div>
-              </CardContent>
-            </Card>
+              ) : (
+                <>
+                  <div className="h-9 w-9 rounded-xl flex items-center justify-center mb-3" style={{ background: `${s.color}18` }}>
+                    <s.icon className="h-[18px] w-[18px]" style={{ color: s.color }} />
+                  </div>
+                  <p className="text-[11px] font-medium mb-0.5" style={{ color: MUTED }}>{s.label}</p>
+                  <p className="font-bold text-lg" style={{ color: TEXT }}>{s.value}</p>
+                </>
+              )}
+            </GCard>
           ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Seller Applications</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {dashboard?.recentSellers?.length ? (
-                <div className="space-y-4">
-                  {dashboard.recentSellers.map(seller => (
-                    <div key={seller.id} className="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0">
-                      <div>
-                        <div className="font-medium">{seller.shopName}</div>
-                        <div className="text-sm text-muted-foreground">{seller.businessType?.replace('_', ' ')}</div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+          {/* Recent Orders */}
+          <GCard className="lg:col-span-2">
+            <div className="flex items-center justify-between px-4 pt-4 pb-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+              <h2 className="font-semibold text-sm" style={{ color: TEXT }}>Recent Orders</h2>
+              <Link href="/admin/orders"><span className="text-xs font-medium flex items-center gap-1 cursor-pointer" style={{ color: RED }}>View All <ArrowUpRight className="h-3 w-3" /></span></Link>
+            </div>
+            {isLoading ? (
+              <div className="p-4 space-y-3 animate-pulse">{[1,2,3].map(i => <div key={i} className="h-14 rounded-xl" style={{ background: "rgba(255,255,255,0.04)" }} />)}</div>
+            ) : orders.length === 0 ? (
+              <div className="py-12 flex flex-col items-center gap-2"><ShoppingBag className="h-10 w-10 opacity-20" style={{ color: MUTED }} /><p className="text-sm" style={{ color: MUTED }}>No orders yet</p></div>
+            ) : (
+              <div>
+                {orders.slice(0, 6).map((o: Record<string, unknown>) => {
+                  const status = String(o.status ?? "pending").toLowerCase();
+                  const cfg = STATUS_CFG[status] ?? STATUS_CFG.pending;
+                  const Ic = cfg.icon;
+                  return (
+                    <div key={String(o.id)} className="px-4 py-3 flex items-center gap-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
+                      <div className="flex-1 min-w-0">
+                        <span className="text-xs font-bold" style={{ color: RED }}>#{String(o.id).slice(-6).toUpperCase()}</span>
+                        <p className="text-xs" style={{ color: MUTED }}>{String(o.customerName ?? "")}</p>
                       </div>
-                      <div className="flex gap-2">
-                        <Button size="sm" variant="outline" className="text-green-600 hover:text-green-700 hover:bg-green-50"><CheckCircle className="h-4 w-4 mr-1" /> Approve</Button>
-                        <Button size="sm" variant="outline" className="text-red-600 hover:text-red-700 hover:bg-red-50"><XCircle className="h-4 w-4 mr-1" /> Reject</Button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-muted-foreground">No recent applications.</div>
-              )}
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Orders</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {dashboard?.recentOrders?.length ? (
-                <div className="space-y-4">
-                  {dashboard.recentOrders.map(order => (
-                    <div key={order.id} className="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0">
-                      <div>
-                        <div className="font-medium">Order #{order.id}</div>
-                        <div className="text-sm text-muted-foreground">{new Date(order.createdAt).toLocaleDateString()}</div>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-bold">৳{order.totalAmount.toLocaleString()}</div>
-                        <Badge variant={order.status === "completed" ? "default" : "secondary"} className="mt-1">
-                          {order.status}
-                        </Badge>
+                      <div className="text-right shrink-0">
+                        <p className="text-xs font-bold mb-1" style={{ color: TEXT }}>৳ {Number(o.totalAmount ?? 0).toLocaleString()}</p>
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold" style={{ background: cfg.bg, color: cfg.color }}>
+                          <Ic className="h-2.5 w-2.5" /> {status}
+                        </span>
                       </div>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-muted-foreground">No recent orders.</div>
-              )}
-            </CardContent>
-          </Card>
+                  );
+                })}
+              </div>
+            )}
+          </GCard>
+
+          {/* Quick actions */}
+          <GCard>
+            <div className="px-4 pt-4 pb-3" style={{ borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+              <h2 className="font-semibold text-sm" style={{ color: TEXT }}>Admin Controls</h2>
+            </div>
+            <div className="p-3 space-y-2">
+              {[
+                { href: "/admin/sellers",  label: "Seller Approvals", color: GOLD },
+                { href: "/admin/users",    label: "Manage Users",     color: GLOW },
+                { href: "/admin/products", label: "Moderate Products",color: "#8b5cf6" },
+                { href: "/admin/orders",   label: "All Orders",       color: "#60a5fa" },
+                { href: "/admin/commission",label:"Commission Setup",  color: RED  },
+              ].map(link => (
+                <Link key={link.href} href={link.href}>
+                  <button className="w-full h-9 rounded-xl text-xs font-semibold text-left px-3 flex items-center gap-2 transition-all hover:bg-white/5" style={{ color: link.color, border: `1px solid ${link.color}30`, background: `${link.color}08` }}>
+                    <ArrowUpRight className="h-3 w-3" /> {link.label}
+                  </button>
+                </Link>
+              ))}
+            </div>
+          </GCard>
         </div>
+
+        {/* Monthly Chart */}
+        {monthly.length > 0 && (
+          <GCard className="p-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-semibold text-sm" style={{ color: TEXT }}>Platform Revenue</h2>
+              <span className="text-xs font-semibold px-2 py-0.5 rounded-full" style={{ background: "rgba(255,59,59,0.10)", color: RED }}>Last {monthly.length} months</span>
+            </div>
+            <div className="flex items-end gap-2 h-28">
+              {monthly.map((m: Record<string, unknown>, i: number) => {
+                const h = Math.round(((m.revenue as number ?? 0) / maxRev) * 100);
+                const isLast = i === monthly.length - 1;
+                const month = MONTHS[(m.month as number ?? 1) - 1] ?? String(m.month);
+                return (
+                  <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                    <div className="w-full rounded-t-lg" style={{ height: `${Math.max(h, 4)}%`, background: isLast ? `linear-gradient(180deg,${RED},rgba(255,59,59,0.4))` : "rgba(255,255,255,0.07)", boxShadow: isLast ? `0 0 12px rgba(255,59,59,0.3)` : "none" }} />
+                    <span className="text-[9px]" style={{ color: MUTED }}>{month}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </GCard>
+        )}
+
       </div>
-    </Layout>
+    </AdminLayout>
   );
 }
