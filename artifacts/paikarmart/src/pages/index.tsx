@@ -109,7 +109,6 @@ function HeroSlider() {
   return (
     <section
       className={`relative bg-gradient-to-br ${slide.gradient} text-white overflow-hidden transition-all duration-700`}
-      style={{ minHeight: 400 }}
     >
       {/* Radial glow */}
       <div
@@ -121,24 +120,24 @@ function HeroSlider() {
         style={{ backgroundImage: "repeating-linear-gradient(0deg,white 0,white 1px,transparent 1px,transparent 40px),repeating-linear-gradient(90deg,white 0,white 1px,transparent 1px,transparent 40px)" }}
       />
 
-      <div className="container mx-auto px-4 py-12 lg:py-16 flex flex-col lg:flex-row items-center justify-between gap-8 relative z-10">
-        <div className="flex-1 text-center lg:text-left">
-          <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white text-xs font-semibold px-4 py-1.5 rounded-full mb-4 border border-white/20">
-            <Sparkles className="h-3 w-3" /> {slide.badge}
+      <div className="container mx-auto px-4 py-6 sm:py-10 lg:py-16 flex flex-col lg:flex-row items-center justify-between gap-4 lg:gap-8 relative z-10">
+        <div className="flex-1 text-center lg:text-left w-full">
+          <div className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-sm text-white text-[10px] sm:text-xs font-semibold px-3 py-1 rounded-full mb-2.5 border border-white/20">
+            <Sparkles className="h-2.5 w-2.5" /> {slide.badge}
           </div>
-          <p className="text-white/60 font-medium text-xs mb-2 uppercase tracking-widest">{slide.eyebrow}</p>
-          <h1 className="text-3xl lg:text-5xl font-extrabold mb-4 leading-tight">{slide.headline}</h1>
-          <p className="text-white/70 text-sm lg:text-base mb-8 max-w-md">{slide.sub}</p>
-          <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3">
+          <p className="text-white/60 font-medium text-[10px] sm:text-xs mb-1 uppercase tracking-widest">{slide.eyebrow}</p>
+          <h1 className="text-2xl sm:text-3xl lg:text-5xl font-extrabold mb-2 sm:mb-3 leading-tight">{slide.headline}</h1>
+          <p className="text-white/70 text-xs sm:text-sm lg:text-base mb-4 sm:mb-6 max-w-md mx-auto lg:mx-0 line-clamp-2 sm:line-clamp-none">{slide.sub}</p>
+          <div className="flex flex-row items-center justify-center lg:justify-start gap-2 sm:gap-3">
             <button
               onClick={() => navigate(slide.cta1.href)}
-              className="w-full sm:w-auto px-6 py-2.5 rounded-xl font-bold text-sm bg-white text-gray-900 hover:bg-white/90 transition-all shadow-lg"
+              className="flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl font-bold text-xs sm:text-sm bg-white text-gray-900 hover:bg-white/90 transition-all shadow-lg"
             >
-              {slide.cta1.label} <ArrowRight className="h-4 w-4 inline ml-1" />
+              {slide.cta1.label} <ArrowRight className="h-3.5 w-3.5 inline ml-1" />
             </button>
             <button
               onClick={() => navigate(slide.cta2.href)}
-              className="w-full sm:w-auto px-6 py-2.5 rounded-xl font-semibold text-sm bg-white/12 border border-white/25 hover:bg-white/20 text-white backdrop-blur-sm transition-all"
+              className="flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-2.5 rounded-xl font-semibold text-xs sm:text-sm bg-white/12 border border-white/25 hover:bg-white/20 text-white backdrop-blur-sm transition-all"
             >
               {slide.cta2.label}
             </button>
@@ -150,25 +149,25 @@ function HeroSlider() {
       </div>
 
       {/* Slide dots */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-20">
+      <div className="flex items-center justify-center gap-2 pb-3 relative z-20">
         <button
           onClick={() => setCurrent(c => (c - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)}
-          className="h-7 w-7 rounded-full bg-white/15 hover:bg-white/30 flex items-center justify-center border border-white/20 transition-all"
+          className="h-6 w-6 rounded-full bg-white/15 hover:bg-white/30 flex items-center justify-center border border-white/20 transition-all"
         >
-          <ChevronLeft className="h-3.5 w-3.5 text-white" />
+          <ChevronLeft className="h-3 w-3 text-white" />
         </button>
         {HERO_SLIDES.map((_, i) => (
           <button
             key={i}
             onClick={() => setCurrent(i)}
-            className={`rounded-full transition-all duration-300 ${i === current ? "w-7 h-2 bg-white" : "w-2 h-2 bg-white/40"}`}
+            className={`rounded-full transition-all duration-300 ${i === current ? "w-6 h-1.5 bg-white" : "w-1.5 h-1.5 bg-white/40"}`}
           />
         ))}
         <button
           onClick={() => setCurrent(c => (c + 1) % HERO_SLIDES.length)}
-          className="h-7 w-7 rounded-full bg-white/15 hover:bg-white/30 flex items-center justify-center border border-white/20 transition-all"
+          className="h-6 w-6 rounded-full bg-white/15 hover:bg-white/30 flex items-center justify-center border border-white/20 transition-all"
         >
-          <ChevronRight className="h-3.5 w-3.5 text-white" />
+          <ChevronRight className="h-3 w-3 text-white" />
         </button>
       </div>
     </section>
