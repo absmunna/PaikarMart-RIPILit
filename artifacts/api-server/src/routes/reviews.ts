@@ -41,7 +41,7 @@ function normalizeReview(r: Record<string, unknown>) {
 
 router.get("/reviews", async (req, res): Promise<void> => {
   const params = ListReviewsQuery.safeParse(req.query);
-  if (!params.success) { res.status(400).json({ error: params.error.message }); return; }
+  if (!params.success) { res.status(400).json({ error: params.error.issues }); return; }
 
   const conditions: SQL[] = [];
   if (params.data.product_id) conditions.push(eq(reviewsTable.productId, params.data.product_id));
@@ -65,7 +65,7 @@ router.get("/reviews/:id", async (req, res): Promise<void> => {
 
 router.post("/reviews", requireAuth, async (req, res): Promise<void> => {
   const body = CreateReviewBody.safeParse(req.body);
-  if (!body.success) { res.status(400).json({ error: body.error.message }); return; }
+  if (!body.success) { res.status(400).json({ error: body.error.issues }); return; }
 
   const [product] = await db.select().from(productsTable).where(eq(productsTable.id, body.data.productId));
   if (!product) { res.status(404).json({ error: "Product not found" }); return; }
@@ -101,6 +101,19 @@ router.delete("/reviews/:id", requireAuth, async (req, res): Promise<void> => {
     return;
   }
   await db.delete(reviewsTable).where(eq(reviewsTable.id, id));
+
+  const remaining = await db.select().from(reviewsTable).where(eq(reviewsTable.productId, review.productId));
+  if (remaining.length > 0) {
+    const avg = remaining.reduce((s, r) => s + r.rating, 0) / remaining.length;
+    await db.update(productsTable)
+      .set({ rating: Math.round(avg * 10) / 10, reviewCount: remaining.length })
+      .where(eq(productsTable.id, review.productId));
+  } else {
+    await db.update(productsTable)
+      .set({ reviewCount: 0 })
+      .where(eq(productsTable.id, review.productId));
+  }
+
   res.json({ deleted: true });
 });
 
