@@ -188,7 +188,7 @@ function CompactHeader({
           <Link href="/">
             <span className="font-extrabold text-xl tracking-tight cursor-pointer select-none shrink-0">
               <span className="text-gradient-green">Paikar</span>
-              <span className="text-gradient-purple">Mart</span>
+              <span style={{ color: "#9B1942" }}>Mart</span>
             </span>
           </Link>
 
@@ -289,7 +289,7 @@ function CompactHeader({
             <Link href="/">
               <span className="font-extrabold text-2xl tracking-tight cursor-pointer select-none">
                 <span className="text-gradient-green">Paikar</span>
-                <span className="text-gradient-purple">Mart</span>
+                <span style={{ color: "#9B1942" }}>Mart</span>
               </span>
             </Link>
           </div>
@@ -421,7 +421,7 @@ function SideDrawer({
         <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
           <span className="font-extrabold text-xl tracking-tight">
             <span className="text-gradient-green">Paikar</span>
-            <span className="text-gradient-purple">Mart</span>
+            <span style={{ color: "#9B1942" }}>Mart</span>
           </span>
           <button onClick={onClose} className="h-8 w-8 rounded-xl flex items-center justify-center text-white/40 hover:text-white hover:bg-white/8 transition-all">
             <X className="h-4 w-4" />
