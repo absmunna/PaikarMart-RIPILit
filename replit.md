@@ -77,7 +77,13 @@ New Phase 2 routes (all with inline Zod validation):
 - `GET /milestones/:seller_id` (requireAuth); `POST /milestones` (requireAdmin) — create; `PUT /milestones/:seller_id/progress` (requireAdmin) — bulk update
 - `GET /affiliate` (requireAuth) — list user links; `POST /affiliate` (requireAuth) — create with auto-generated code; `GET /affiliate/track/:code` — public click tracker
 
-**Auth middleware pattern:** `x-user-id` header → DB user lookup → role assertion. Frontend must send header on authenticated requests. Existing routes NOT yet guarded (backward-compatible). Phase 3 will add JWT + guard existing admin/seller routes.
+**Auth middleware pattern:** `x-user-id` header → DB user lookup → role assertion. Frontend automatically sends this header via `customFetch` when user is logged in (wired through `use-auth.tsx` → `setUserId`).
+
+**Product CRUD routes (May 2026):**
+- `POST /products` (requireSeller) — create product; auto-resolves `vendorId`/`vendorName` from authenticated seller
+- `PUT /products/:id` (requireSeller) — update product (own or admin)
+- `DELETE /products/:id` (requireSeller) — delete product (own or admin)
+All routes use inline Zod validation and return `GetProductResponse` shape.
 
 ### `lib/db` (`@workspace/db`)
 
@@ -128,6 +134,8 @@ Generated Zod schemas from the OpenAPI spec (e.g. `HealthCheckResponse`). Used b
 ### `lib/api-client-react` (`@workspace/api-client-react`)
 
 Generated React Query hooks and fetch client from the OpenAPI spec (e.g. `useHealthCheck`, `healthCheck`).
+
+**Auth wiring (May 2026):** `custom-fetch.ts` exports `setUserId(id)` which stores the current user ID and attaches it as an `x-user-id` header to every API request. Also exports `customFetch` for manual API calls. `use-auth.tsx` calls `setUserId` inside its `useEffect` whenever the user state changes (login/logout). This wires frontend auth state to backend auth middleware automatically.
 
 ### `scripts` (`@workspace/scripts`)
 
@@ -180,7 +188,7 @@ React + Vite frontend. Dark-themed Bangladesh-focused multi-vendor marketplace.
 
 **Footer:** desktop-only; mobile uses BottomNav with `pb-20`.
 
-**Seller pages:** Use SellerContext (local state, no backend yet). SellerContext is seeded with 3 sample products and 4 sample orders. Phase 3 will migrate to real API calls.
+**Seller pages:** Use SellerContext (local state + seed data) for optimistic UI. `product-form.tsx` submit handler now ALSO calls the real API (`POST /products` or `PUT /products/:id`) in parallel, so products persist to DB. SellerContext keeps the immediate UI update; real API call runs in the background via `useMutation`.
 
 **CategoryListResponse** shape: `{ categories: Category[] }` — always destructure `.categories` before mapping.
 

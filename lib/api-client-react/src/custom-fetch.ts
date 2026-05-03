@@ -17,6 +17,16 @@ const DEFAULT_JSON_ACCEPT = "application/json, application/problem+json";
 
 let _baseUrl: string | null = null;
 let _authTokenGetter: AuthTokenGetter | null = null;
+let _userId: string | null = null;
+
+/**
+ * Set the current user ID. When set, every request will include an
+ * `x-user-id` header so the API can authenticate the caller.
+ * Pass `null` to clear (on logout).
+ */
+export function setUserId(userId: string | null): void {
+  _userId = userId;
+}
 
 /**
  * Set a base URL that is prepended to every relative request URL
@@ -356,6 +366,11 @@ export async function customFetch<T = unknown>(
     if (token) {
       headers.set("authorization", `Bearer ${token}`);
     }
+  }
+
+  // Attach user ID header for server-side auth when set.
+  if (_userId && !headers.has("x-user-id")) {
+    headers.set("x-user-id", _userId);
   }
 
   const requestInfo = { method, url: resolveUrl(input) };

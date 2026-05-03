@@ -87,7 +87,7 @@ router.get("/sellers", async (req, res): Promise<void> => {
 
   const conditions: SQL[] = [];
   if (params.data.type) {
-    conditions.push(eq(sellersTable.businessType, params.data.type as "wholesaler" | "retailer" | "brand_seller" | "local_shop" | "dropship" | "service"));
+    conditions.push(eq(sellersTable.businessType, params.data.type as "wholesaler" | "retailer" | "brand_seller" | "local_shop" | "dropship" | "service" | "b2b_seller" | "content_creator" | "logistic_courier" | "booking_agent"));
   }
   if (params.data.status) {
     conditions.push(eq(sellersTable.status, params.data.status as "pending" | "approved" | "active" | "suspended"));
@@ -141,7 +141,7 @@ router.post("/sellers/:id/register", async (req, res): Promise<void> => {
   const [seller] = await db.insert(sellersTable).values({
     id,
     shopName: body.data.shopName,
-    businessType: body.data.businessType as "wholesaler" | "retailer" | "brand_seller" | "local_shop" | "dropship" | "service",
+    businessType: body.data.businessType as "wholesaler" | "retailer" | "brand_seller" | "local_shop" | "dropship" | "service" | "b2b_seller" | "content_creator" | "logistic_courier" | "booking_agent",
     phone: body.data.phone,
     email: body.data.email,
     address: body.data.address,

@@ -1,5 +1,7 @@
 import React, { useState, useMemo, useRef, useCallback } from "react";
 import { Link, useLocation, useRoute } from "wouter";
+import { useMutation } from "@tanstack/react-query";
+import { customFetch } from "@workspace/api-client-react";
 import { Layout } from "@/components/layout/Layout";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Input } from "@/components/ui/input";
@@ -910,6 +912,62 @@ export default function SellerProductFormPage() {
     toast.success("Draft saved!");
   };
 
+  const createMutation = useMutation({
+    mutationFn: async (payload: ReturnType<typeof buildPayload>) => {
+      const apiPayload = {
+        name: payload.title,
+        category: payload.categoryName,
+        subcategory: payload.categoryId,
+        type: "physical" as const,
+        price: payload.price,
+        costPrice: payload.comparePrice,
+        stock: payload.stock,
+        moq: payload.moq,
+        description: payload.description,
+        images: payload.images,
+        location: payload.location,
+      };
+      return customFetch<unknown>("/api/products", {
+        method: "POST",
+        body: JSON.stringify(apiPayload),
+      });
+    },
+    onSuccess: () => {
+      toast.success(form.postToFeed ? "Product published & posted to Feed!" : "Product published!");
+      setLocation("/seller/products");
+    },
+    onError: () => {
+      toast.error("Failed to publish product. Please try again.");
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ id, payload }: { id: string; payload: ReturnType<typeof buildPayload> }) => {
+      const apiPayload = {
+        name: payload.title,
+        category: payload.categoryName,
+        subcategory: payload.categoryId,
+        price: payload.price,
+        stock: payload.stock,
+        moq: payload.moq,
+        description: payload.description,
+        images: payload.images,
+        location: payload.location,
+      };
+      return customFetch<unknown>(`/api/products/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(apiPayload),
+      });
+    },
+    onSuccess: () => {
+      toast.success("Product updated!");
+      setLocation("/seller/products");
+    },
+    onError: () => {
+      toast.error("Failed to update product. Please try again.");
+    },
+  });
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     for (let s = 1; s <= 4; s++) {
@@ -917,17 +975,15 @@ export default function SellerProductFormPage() {
       if (err) { toast.error(`Step ${s}: ${err}`); setStep(s); return; }
     }
     setSubmitting(true);
-    await new Promise(r => setTimeout(r, 700));
     const payload = buildPayload();
     if (isEdit && editing) {
       updateProduct(editing.id, payload);
-      toast.success("Product updated!");
+      updateMutation.mutate({ id: editing.id, payload });
     } else {
       createProduct(payload);
-      toast.success(form.postToFeed ? "Product published & posted to Feed! 🎉" : "Product published! 🎉");
+      createMutation.mutate(payload);
     }
     setSubmitting(false);
-    setLocation("/seller/products");
   };
 
   const stepTitles: Record<number, string> = {
