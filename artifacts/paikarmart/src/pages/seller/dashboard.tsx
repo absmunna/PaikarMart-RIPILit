@@ -39,7 +39,7 @@ export default function SellerDashboardPage() {
   if (!isSeller) {
     return <Redirect to="/login" />;
   }
-  const products = (productsData?.products || []).filter(p =>
+  const products = (productsData?.products || []).filter((p: any) =>
     !searchProduct || p.name.toLowerCase().includes(searchProduct.toLowerCase())
   );
 
@@ -176,7 +176,7 @@ export default function SellerDashboardPage() {
                       <CardContent className="px-5 pb-5">
                         {dashboard?.recentOrders?.length ? (
                           <div className="space-y-3">
-                            {dashboard.recentOrders.map(order => {
+                            {dashboard.recentOrders.map((order: any) => {
                               const s = STATUS_CONFIG[order.status as keyof typeof STATUS_CONFIG] || STATUS_CONFIG.pending;
                               const Icon = s.icon;
                               return (
@@ -257,7 +257,7 @@ export default function SellerDashboardPage() {
                 <h2 className="text-xl font-bold text-gray-900 mb-5">Manage Orders</h2>
                 {dashboard?.recentOrders?.length ? (
                   <div className="space-y-3">
-                    {dashboard.recentOrders.map(order => {
+                    {dashboard.recentOrders.map((order: any) => {
                       const s = STATUS_CONFIG[order.status as keyof typeof STATUS_CONFIG] || STATUS_CONFIG.pending;
                       const Icon = s.icon;
                       return (
@@ -307,7 +307,7 @@ export default function SellerDashboardPage() {
                 </div>
                 {products.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {products.slice(0, 12).map(p => (
+                    {products.slice(0, 12).map((p: any) => (
                       <Card key={p.id} className="border-gray-100 shadow-sm hover:shadow-md transition-shadow">
                         <CardContent className="p-4 flex gap-3">
                           <div className="h-16 w-16 rounded-xl bg-gray-100 overflow-hidden shrink-0">

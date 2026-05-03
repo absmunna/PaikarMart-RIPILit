@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useCallback } from "react";
+import React, { useState, useMemo, useRef, useCallback } from "react";
 import { Link, useLocation, useRoute } from "wouter";
 import { Layout } from "@/components/layout/Layout";
 import { GlassCard } from "@/components/ui/GlassCard";
@@ -687,6 +687,7 @@ function StepBar({ current }: { current: number }) {
         const active = current === step.id;
         return (
           <React.Fragment key={step.id}>
+
             <div className="flex flex-col items-center gap-1.5">
               <div className={cn(
                 "h-8 w-8 rounded-xl flex items-center justify-center text-xs font-bold transition-all duration-200",

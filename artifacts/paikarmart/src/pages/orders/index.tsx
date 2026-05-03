@@ -26,7 +26,7 @@ export default function OrdersPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {orders.map(order => (
+            {orders.map((order: any) => (
               <Link key={order.id} href={`/orders/${order.id}`}>
                 <div className="p-6 border rounded-xl hover:shadow-md transition-all cursor-pointer bg-card">
                   <div className="flex justify-between items-start mb-4">
@@ -40,7 +40,7 @@ export default function OrdersPage() {
                   </div>
                   <div className="flex justify-between items-end">
                     <div className="space-y-1">
-                      {order.items.map((item, i) => (
+                      {order.items.map((item: any, i: number) => (
                         <div key={i} className="text-sm font-medium">
                           {item.quantity}x {item.productName}
                         </div>

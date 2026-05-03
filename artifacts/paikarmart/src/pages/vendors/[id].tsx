@@ -629,7 +629,7 @@ export default function VendorDetailPage() {
                     <Globe className="h-4 w-4 text-teal-400" /> Delivery Options
                   </h3>
                   <div className="flex flex-wrap gap-2">
-                    {seller.deliveryTypes.map(d => (
+                    {seller.deliveryTypes.map((d: string) => (
                       <span key={d} className="text-xs px-2.5 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-400 font-medium">
                         {d}
                       </span>
