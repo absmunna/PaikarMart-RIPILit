@@ -68,9 +68,30 @@ Database layer using Drizzle ORM with PostgreSQL. Exports a Drizzle client insta
 
 - `src/index.ts` — creates a `Pool` + Drizzle instance, exports schema
 - `src/schema/index.ts` — barrel re-export of all models
-- `src/schema/<modelname>.ts` — table definitions with `drizzle-zod` insert schemas (no models definitions exist right now)
+- `src/schema/<modelname>.ts` — table definitions with `drizzle-zod` insert schemas
 - `drizzle.config.ts` — Drizzle Kit config (requires `DATABASE_URL`, automatically provided by Replit)
+- `migrations/phase1_down.sql` — reversible down-migration for Phase 1 changes
 - Exports: `.` (pool, db, schema), `./schema` (schema only)
+
+**Phase 1 DB Schema (May 2026) — 13 tables total:**
+
+Original 6 tables (unchanged):
+- `users` — +`otp_verified` (bool, nullable), +`moderator` role in enum
+- `sellers` — +`kyc_status` (text, nullable), +`commission_rate` (real, nullable), +4 new seller types in enum
+- `orders` — +`cancel_reason` (text, nullable), +`refund_status` (text, nullable); JSONB `items` untouched
+- `products`, `notifications`, `wallets` — unchanged
+
+New Phase 1 tables (all nullable-safe):
+- `transactions` — proper wallet transaction ledger (parallel to JSONB, non-replacing)
+- `reviews` — product reviews with verified-purchase flag
+- `disputes` — order dispute tracking with resolution workflow
+- `kyc_documents` — seller KYC document upload & review
+- `commissions_config` — per-seller-type commission % (pre-seeded 10 rows)
+- `milestones` — seller achievement milestones
+- `affiliate_links` — referral/affiliate code tracking
+
+New enums: `transaction_type`, `transaction_status`, `dispute_type`, `dispute_status`, `kyc_doc_type`, `kyc_doc_status`, `milestone_type`, `affiliate_target_type`
+Extended enums: `seller_type` (+b2b_seller, content_creator, logistic_courier, booking_agent), `user_role` (+moderator)
 
 Production migrations are handled by Replit when publishing. In development, we just use `pnpm --filter @workspace/db run push`, and we fallback to `pnpm --filter @workspace/db run push-force`.
 
@@ -142,7 +163,7 @@ React + Vite frontend. Dark-themed Bangladesh-focused multi-vendor marketplace.
 
 **Footer:** desktop-only; mobile uses BottomNav with `pb-20`.
 
-**Seller pages:** Use SellerContext (local state, no backend yet). SellerContext is seeded with 3 sample products and 4 sample orders.
+**Seller pages:** Use SellerContext (local state, no backend yet). SellerContext is seeded with 3 sample products and 4 sample orders. Phase 3 will migrate to real API calls.
 
 **CategoryListResponse** shape: `{ categories: Category[] }` — always destructure `.categories` before mapping.
 
