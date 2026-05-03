@@ -44,8 +44,13 @@ export type SellerOrderStatus =
 export interface SellerProduct {
   id: string;
   title: string;
+  titleBn?: string;
   description: string;
+  descriptionBn?: string;
   price: number;
+  wholesalePrice?: number;
+  comparePrice?: number;
+  moq?: number;
   stock: number;
   categoryId: string;
   categoryName: string;
@@ -54,6 +59,7 @@ export interface SellerProduct {
   images: string[];
   videoUrl?: string;
   tags: string[];
+  postToFeed?: boolean;
   views: number;
   createdAt: string;
 }
