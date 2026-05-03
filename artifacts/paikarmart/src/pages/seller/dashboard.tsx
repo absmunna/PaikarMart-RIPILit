@@ -19,12 +19,12 @@ import {
 type Tab = "overview" | "orders" | "products" | "b2b" | "analytics" | "settings";
 
 const STATUS_CONFIG = {
-  pending: { label: "Pending", color: "bg-yellow-100 text-yellow-700", icon: Clock },
-  confirmed: { label: "Confirmed", color: "bg-blue-100 text-blue-700", icon: CheckCircle },
-  processing: { label: "Processing", color: "bg-purple-100 text-purple-700", icon: Clock },
-  shipped: { label: "Shipped", color: "bg-cyan-100 text-cyan-700", icon: Truck },
-  completed: { label: "Delivered", color: "bg-green-100 text-green-700", icon: CheckCircle },
-  incomplete: { label: "Incomplete", color: "bg-red-100 text-red-700", icon: XCircle },
+  pending: { label: "Pending", color: "bg-yellow-500/15 text-yellow-400", icon: Clock },
+  confirmed: { label: "Confirmed", color: "bg-blue-500/15 text-blue-400", icon: CheckCircle },
+  processing: { label: "Processing", color: "bg-purple-500/15 text-purple-400", icon: Clock },
+  shipped: { label: "Shipped", color: "bg-cyan-500/15 text-cyan-400", icon: Truck },
+  completed: { label: "Delivered", color: "bg-emerald-500/15 text-emerald-400", icon: CheckCircle },
+  incomplete: { label: "Incomplete", color: "bg-red-500/15 text-red-400", icon: XCircle },
 };
 
 export default function SellerDashboardPage() {
@@ -44,10 +44,10 @@ export default function SellerDashboardPage() {
   );
 
   const stats = [
-    { title: "Total Sales", value: `৳${(dashboard?.totalSales || 0).toLocaleString()}`, icon: DollarSign, color: "bg-green-50 text-green-600", change: "+12%" },
-    { title: "Total Orders", value: dashboard?.totalOrders || 0, icon: ShoppingBag, color: "bg-blue-50 text-blue-600", change: "+8%" },
-    { title: "Active Products", value: dashboard?.totalProducts || 0, icon: Package, color: "bg-purple-50 text-purple-600", change: "stable" },
-    { title: "Pending Orders", value: dashboard?.pendingOrders || 0, icon: Activity, color: "bg-orange-50 text-orange-600", change: "-3%" },
+    { title: "Total Sales", value: `৳${(dashboard?.totalSales || 0).toLocaleString()}`, icon: DollarSign, color: "bg-emerald-500/15 text-emerald-400", change: "+12%" },
+    { title: "Total Orders", value: dashboard?.totalOrders || 0, icon: ShoppingBag, color: "bg-blue-500/15 text-blue-400", change: "+8%" },
+    { title: "Active Products", value: dashboard?.totalProducts || 0, icon: Package, color: "bg-purple-500/15 text-purple-400", change: "stable" },
+    { title: "Pending Orders", value: dashboard?.pendingOrders || 0, icon: Activity, color: "bg-orange-500/15 text-orange-400", change: "-3%" },
   ];
 
   const sidebarItems: { key: Tab; label: string; icon: React.ElementType; badge?: string }[] = [
@@ -79,7 +79,7 @@ export default function SellerDashboardPage() {
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Sidebar */}
           <aside className="w-full lg:w-60 shrink-0">
-            <div className="bg-gradient-to-br from-green-700 to-emerald-600 text-white rounded-2xl p-5 mb-4 shadow-lg">
+            <div className="bg-gradient-to-br from-emerald-900 via-teal-900 to-emerald-950 text-white rounded-2xl p-5 mb-4 shadow-lg">
               <div className="flex items-center gap-3 mb-3">
                 <div className="h-12 w-12 rounded-full bg-white/20 border-2 border-white/40 flex items-center justify-center">
                   <Store className="h-6 w-6 text-white" />
@@ -113,7 +113,7 @@ export default function SellerDashboardPage() {
                       </div>
                       {item.badge && (
                         <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold ${
-                          isActive ? "bg-white/20 text-white" : item.badge === "New" ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"
+                          isActive ? "bg-white/20 text-white" : item.badge === "New" ? "bg-emerald-500/15 text-emerald-400" : "bg-orange-100 text-orange-700"
                         }`}>{item.badge}</span>
                       )}
                     </button>
@@ -349,9 +349,9 @@ export default function SellerDashboardPage() {
                 <p className="text-white/45 text-sm mb-6">Manage bulk orders and business-to-business inquiries</p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                   {[
-                    { label: "B2B Inquiries", value: 0, icon: Building2, color: "bg-blue-50 text-blue-600" },
-                    { label: "Active B2B Orders", value: 0, icon: ShoppingBag, color: "bg-green-50 text-green-600" },
-                    { label: "B2B Revenue", value: "৳0", icon: DollarSign, color: "bg-purple-50 text-purple-600" },
+                    { label: "B2B Inquiries", value: 0, icon: Building2, color: "bg-blue-500/15 text-blue-400" },
+                    { label: "Active B2B Orders", value: 0, icon: ShoppingBag, color: "bg-emerald-500/15 text-emerald-400" },
+                    { label: "B2B Revenue", value: "৳0", icon: DollarSign, color: "bg-purple-500/15 text-purple-400" },
                   ].map(s => {
                     const Icon = s.icon;
                     return (

@@ -17,7 +17,7 @@ export function Footer() {
               </div>
               <span className="font-bold text-xl">
                 <span className="text-gradient-green">Paikar</span>
-                <span className="text-gradient-purple">Mart</span>
+                <span style={{ color: "#9B1942" }}>Mart</span>
               </span>
             </div>
             <p className="text-sm leading-relaxed mb-5 text-white/40">
