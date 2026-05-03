@@ -10,8 +10,101 @@ import { toast } from "sonner";
 import { Product } from "@workspace/api-zod/src/generated/types";
 import {
   ShoppingCart, Star, Zap, Package, Store, Filter,
-  ChevronRight, SlidersHorizontal, X, Tag, Layers
+  ChevronRight, SlidersHorizontal, X, Tag, Layers,
+  Sparkles, ArrowRight,
 } from "lucide-react";
+
+const MARKET_BANNERS = [
+  {
+    id: "m1",
+    gradient: "from-emerald-900 via-teal-900 to-emerald-950",
+    glow: "rgba(16,185,129,0.35)",
+    badge: "🔥 Flash Deals",
+    headline: "Up to 60% Off Today",
+    img: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=400&q=80",
+    href: "/products?sort=price_asc",
+  },
+  {
+    id: "m2",
+    gradient: "from-violet-900 via-purple-900 to-violet-950",
+    glow: "rgba(139,92,246,0.35)",
+    badge: "📦 Wholesale",
+    headline: "Bulk Orders — Low MOQ",
+    img: "https://images.unsplash.com/photo-1578574577315-3fbeb0cecdc2?w=400&q=80",
+    href: "/vendors?type=wholesale",
+  },
+  {
+    id: "m3",
+    gradient: "from-blue-900 via-indigo-900 to-blue-950",
+    glow: "rgba(59,130,246,0.35)",
+    badge: "📱 Electronics",
+    headline: "New Tech Arrivals",
+    img: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&q=80",
+    href: "/products?category=Electronics",
+  },
+  {
+    id: "m4",
+    gradient: "from-orange-900 via-amber-900 to-orange-950",
+    glow: "rgba(251,146,60,0.35)",
+    badge: "👗 Fashion Week",
+    headline: "New Season Collection",
+    img: "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=400&q=80",
+    href: "/products?category=Fashion",
+  },
+  {
+    id: "m5",
+    gradient: "from-rose-900 via-pink-900 to-rose-950",
+    glow: "rgba(244,63,94,0.35)",
+    badge: "🏡 Home & Living",
+    headline: "Decor Starts at ৳299",
+    img: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=400&q=80",
+    href: "/products?category=Home",
+  },
+];
+
+function MarketReelBanner() {
+  const [, navigate] = useLocation();
+  return (
+    <div className="overflow-x-auto scrollbar-hide" style={{ borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
+      <div className="flex gap-2.5 px-3 py-3" style={{ width: "max-content" }}>
+        {MARKET_BANNERS.map((slide) => (
+          <div
+            key={slide.id}
+            onClick={() => navigate(slide.href)}
+            className="relative rounded-2xl overflow-hidden shrink-0 cursor-pointer active:scale-95 transition-all duration-200"
+            style={{ width: "148px", height: "220px" }}
+          >
+            {/* BG image */}
+            <img src={slide.img} alt={slide.headline}
+              className="absolute inset-0 w-full h-full object-cover" />
+            {/* Gradient overlays */}
+            <div className={`absolute inset-0 bg-gradient-to-br ${slide.gradient} opacity-75`} />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+            <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse 80% 60% at 50% 20%, ${slide.glow}, transparent)` }} />
+
+            {/* Badge */}
+            <div className="absolute top-2.5 left-2.5 right-2.5 z-10">
+              <span className="inline-flex items-center gap-1 bg-white/15 backdrop-blur-md text-white text-[9px] font-bold px-2 py-0.5 rounded-full border border-white/20">
+                <Sparkles className="h-2 w-2" /> {slide.badge}
+              </span>
+            </div>
+
+            {/* Bottom text */}
+            <div className="absolute bottom-0 left-0 right-0 p-2.5 z-10">
+              <p className="text-white font-extrabold text-sm leading-tight line-clamp-2 mb-2">
+                {slide.headline}
+              </p>
+              <div className="flex items-center gap-1">
+                <span className="text-white/60 text-[10px] font-medium">Shop now</span>
+                <ArrowRight className="h-3 w-3 text-white/60" />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 const CATEGORIES = ["All", "Electronics", "Fashion", "Grocery", "Services", "Wholesale"];
 const VENDOR_TYPES = ["All Types", "Wholesale", "Retail", "Brand", "Local"];
@@ -227,6 +320,9 @@ export default function ProductsPage() {
 
   return (
     <Layout>
+      {/* Reel-style promo banner */}
+      <MarketReelBanner />
+
       {/* Mobile Filter Overlay */}
       {mobileSidebar && (
         <div className="fixed inset-0 z-50 lg:hidden">
