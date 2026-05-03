@@ -244,7 +244,7 @@ function CompactHeader({
               <ShoppingCart className="h-4 w-4" />
               <span className="text-xs font-medium">Cart</span>
               {totalItems > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-emerald-500 text-white text-[9px] font-bold flex items-center justify-center shadow">
+                <span className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center shadow">
                   {totalItems > 9 ? "9+" : totalItems}
                 </span>
               )}
@@ -309,7 +309,7 @@ function CompactHeader({
               <button className="relative h-8 w-8 rounded-xl flex items-center justify-center text-white/50 hover:text-white hover:bg-white/8 transition-all">
                 <ShoppingCart className="h-4 w-4" />
                 {totalItems > 0 && (
-                  <span className="absolute top-0.5 right-0.5 h-4 w-4 rounded-full bg-emerald-500 text-white text-[9px] font-bold flex items-center justify-center">
+                  <span className="absolute top-0.5 right-0.5 h-4 w-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">
                     {totalItems > 9 ? "9+" : totalItems}
                   </span>
                 )}

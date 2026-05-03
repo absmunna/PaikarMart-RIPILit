@@ -238,7 +238,7 @@ export function Header() {
               >
                 <Bell className="h-5 w-5" />
                 {unread > 0 && (
-                  <span className="absolute top-1 right-1 h-4 w-4 rounded-full bg-emerald-500 text-white text-[9px] font-bold flex items-center justify-center">
+                  <span className="absolute top-1 right-1 h-4 w-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">
                     {unread}
                   </span>
                 )}
@@ -271,7 +271,7 @@ export function Header() {
               <button className="h-9 w-9 rounded-xl flex items-center justify-center relative text-white/50 hover:text-white hover:bg-white/8 transition-all">
                 <ShoppingCart className="h-5 w-5" />
                 {totalItems > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-emerald-500 text-white text-[9px] font-bold flex items-center justify-center glow-green">
+                  <span className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">
                     {totalItems}
                   </span>
                 )}

@@ -39,7 +39,7 @@ export function BottomNav() {
           <div className={`relative h-6 w-6 flex items-center justify-center transition-all duration-200 ${active ? item.activeColor : "text-white/35 group-hover:text-white/60"}`}>
             <item.icon className="h-5 w-5" />
             {isCart && totalItems > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-emerald-500 text-white text-[9px] font-bold flex items-center justify-center leading-none">
+              <span className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center leading-none">
                 {totalItems > 9 ? "9+" : totalItems}
               </span>
             )}
