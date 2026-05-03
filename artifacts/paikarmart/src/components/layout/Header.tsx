@@ -155,7 +155,7 @@ export function Header() {
               </div>
               <span className="font-bold text-xl hidden sm:inline-block tracking-tight">
                 <span className="text-gradient-green">Paikar</span>
-                <span className="text-gradient-purple">Mart</span>
+                <span style={{ color: "#9B1942" }}>Mart</span>
               </span>
             </Link>
           </div>
