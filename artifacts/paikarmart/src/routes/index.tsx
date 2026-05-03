@@ -1,6 +1,14 @@
-import { Switch, Route, Redirect } from "wouter";
-import { type ReactNode } from "react";
+import { Switch, Route, Redirect, useLocation } from "wouter";
+import { type ReactNode, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
+
+function ScrollToTop() {
+  const [loc] = useLocation();
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, [loc]);
+  return null;
+}
 
 import Home from "@/pages/index";
 import FeedPage from "@/pages/feed";
@@ -57,7 +65,9 @@ function RequireAdmin({ children }: { children: ReactNode }) {
 
 export function AppRouter() {
   return (
-    <Switch>
+    <>
+      <ScrollToTop />
+      <Switch>
       {/* Public routes */}
       <Route path="/" component={Home} />
       <Route path="/feed" component={FeedPage} />
@@ -140,5 +150,6 @@ export function AppRouter() {
 
       <Route component={NotFound} />
     </Switch>
+    </>
   );
 }
