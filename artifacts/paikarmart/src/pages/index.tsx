@@ -284,10 +284,10 @@ function CompactHeader({
             <Menu className="h-5 w-5" />
           </button>
 
-          {/* Logo center */}
-          <div className="flex-1 flex justify-center">
+          {/* Logo — left */}
+          <div className="flex-1 flex justify-start">
             <Link href="/">
-              <span className="font-extrabold text-lg tracking-tight cursor-pointer select-none">
+              <span className="font-extrabold text-2xl tracking-tight cursor-pointer select-none">
                 <span className="text-gradient-green">Paikar</span>
                 <span className="text-gradient-purple">Mart</span>
               </span>
