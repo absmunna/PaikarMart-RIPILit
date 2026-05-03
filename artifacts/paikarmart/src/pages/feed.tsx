@@ -335,25 +335,106 @@ export default function FeedPage() {
       {/* ── Feed ── */}
       <div className="min-h-screen py-4">
         <div className="container mx-auto px-4">
-          <div className="max-w-lg mx-auto space-y-4">
-            {isLoading ? (
-              Array.from({ length: 3 }).map((_, i) => <PostSkeleton key={i} />)
-            ) : products.length === 0 ? (
-              <div className="text-center py-20">
-                <Package className="h-12 w-12 text-white/15 mx-auto mb-3" />
-                <p className="text-sm text-white/35">এই category-তে এখন কোনো পোস্ট নেই</p>
-              </div>
-            ) : (
-              products.map((product: any, i: number) => (
-                <PostCard key={product.id} product={product} index={i} />
-              ))
-            )}
+          <div className="max-w-7xl mx-auto lg:grid lg:grid-cols-[1fr_300px] lg:gap-8 lg:items-start">
 
-            {products.length > 0 && (
-              <button className="w-full py-3 rounded-xl text-sm font-medium text-white/50 border border-white/10 hover:border-white/20 hover:text-white/70 transition-all glass-card">
-                আরো পোস্ট দেখুন ↓
-              </button>
-            )}
+            {/* ── Posts column ── */}
+            <div className="max-w-lg mx-auto lg:max-w-none space-y-4">
+              {isLoading ? (
+                Array.from({ length: 3 }).map((_, i) => <PostSkeleton key={i} />)
+              ) : products.length === 0 ? (
+                <div className="text-center py-20">
+                  <Package className="h-12 w-12 text-white/15 mx-auto mb-3" />
+                  <p className="text-sm text-white/35">এই category-তে এখন কোনো পোস্ট নেই</p>
+                </div>
+              ) : (
+                products.map((product: any, i: number) => (
+                  <PostCard key={product.id} product={product} index={i} />
+                ))
+              )}
+
+              {products.length > 0 && (
+                <button className="w-full py-3 rounded-xl text-sm font-medium text-white/50 border border-white/10 hover:border-white/20 hover:text-white/70 transition-all glass-card">
+                  আরো পোস্ট দেখুন ↓
+                </button>
+              )}
+            </div>
+
+            {/* ── Desktop right sidebar ── */}
+            <aside className="hidden lg:flex flex-col gap-4 sticky top-36">
+
+              {/* Browse Categories */}
+              <div className="glass-card rounded-2xl p-4">
+                <h3 className="text-sm font-bold text-white mb-3">📂 Browse Categories</h3>
+                <div className="flex flex-col gap-0.5">
+                  {FEED_CATEGORIES.map(cat => (
+                    <button
+                      key={cat.id}
+                      onClick={() => setActiveCategory(cat.id)}
+                      className={cn(
+                        "flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all text-left w-full",
+                        activeCategory === cat.id
+                          ? "bg-primary/20 text-emerald-400 border border-primary/30"
+                          : "text-white/50 hover:bg-white/5 hover:text-white/80",
+                      )}
+                    >
+                      <span className="text-base leading-none">{cat.emoji}</span>
+                      {cat.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Trending shops */}
+              <div className="glass-card rounded-2xl p-4">
+                <h3 className="text-sm font-bold text-white mb-3">🔥 Trending Shops</h3>
+                <div className="flex flex-col gap-3">
+                  {[
+                    { name: "TechZone BD", type: "Electronics", emoji: "📱", rating: 4.9 },
+                    { name: "Fashion Hub", type: "Fashion", emoji: "👗", rating: 4.7 },
+                    { name: "Grocery King", type: "Grocery", emoji: "🛒", rating: 4.8 },
+                  ].map(shop => (
+                    <Link href="/vendors" key={shop.name}>
+                      <div className="flex items-center gap-3 cursor-pointer group">
+                        <div className="h-9 w-9 rounded-xl bg-white/8 border border-white/10 flex items-center justify-center text-lg shrink-0 group-hover:border-emerald-500/30 transition-all">
+                          {shop.emoji}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-semibold text-white/80 group-hover:text-white truncate">{shop.name}</p>
+                          <p className="text-[10px] text-white/35">{shop.type} · ⭐ {shop.rating}</p>
+                        </div>
+                        <span className="text-[10px] px-2 py-0.5 rounded-full border border-white/10 text-white/40 hover:border-emerald-500/30 hover:text-emerald-400 transition-all shrink-0 cursor-pointer">
+                          Follow
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                  <Link href="/vendors">
+                    <span className="text-[11px] text-emerald-400 hover:text-emerald-300 transition-colors cursor-pointer mt-1 inline-block">
+                      See all vendors →
+                    </span>
+                  </Link>
+                </div>
+              </div>
+
+              {/* Download app promo */}
+              <div
+                className="rounded-2xl p-5 text-center"
+                style={{
+                  background: "linear-gradient(135deg,hsl(145 65% 10%),hsl(265 55% 14%))",
+                  border: "1px solid rgba(16,185,129,0.18)",
+                }}
+              >
+                <p className="text-3xl mb-2">📱</p>
+                <p className="text-sm font-bold text-white mb-1">PaikarMart App</p>
+                <p className="text-[11px] text-white/45 mb-3 leading-relaxed">Exclusive deals, instant notifications, faster checkout</p>
+                <button
+                  className="w-full py-2 rounded-xl text-xs font-bold text-white transition-all hover:opacity-90"
+                  style={{ background: "linear-gradient(135deg,hsl(145 65% 30%),hsl(265 55% 38%))" }}
+                >
+                  Download Free
+                </button>
+              </div>
+            </aside>
           </div>
         </div>
       </div>

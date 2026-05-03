@@ -937,20 +937,126 @@ export default function HomePage() {
           <CategoryNav />
         </div>
 
-        {/* Social Feed */}
-        <SectionHeader title="🔥 Live Feed" />
-        <div className="px-4 flex flex-col gap-3 max-w-xl mx-auto lg:max-w-none">
-          {FEED_POSTS.map(post => (
-            <FeedPostCard key={post.id} post={post} />
-          ))}
+        {/* Desktop 2-col layout for feed + marketplace */}
+        <div className="max-w-7xl mx-auto lg:grid lg:grid-cols-[1fr_280px] lg:gap-8 lg:px-6 lg:pt-2 lg:items-start">
+
+          {/* Main column */}
+          <div>
+            {/* Social Feed */}
+            <SectionHeader title="🔥 Live Feed" />
+            <div className="px-4 lg:px-0 flex flex-col gap-3 max-w-lg mx-auto lg:max-w-none">
+              {FEED_POSTS.map(post => (
+                <FeedPostCard key={post.id} post={post} />
+              ))}
+              <Link href="/feed">
+                <div className="py-3 rounded-xl text-center text-xs font-medium text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/5 transition-all cursor-pointer glass-card">
+                  See all posts in Feed →
+                </div>
+              </Link>
+            </div>
+
+            {/* Marketplace Grid */}
+            <SectionHeader title="🛍️ Marketplace" href="/products" />
+            <div className="lg:px-0">
+              <ProductGrid />
+            </div>
+          </div>
+
+          {/* Desktop right sidebar */}
+          <aside className="hidden lg:flex flex-col gap-4 sticky top-[70px] pt-2">
+
+            {/* Quick categories */}
+            <div className="glass-card rounded-2xl p-4">
+              <h3 className="text-sm font-bold text-white mb-3">🗂️ Shop by Category</h3>
+              <div className="flex flex-col gap-0.5">
+                {CATEGORIES.map(cat => (
+                  <Link key={cat.name} href={cat.href}>
+                    <div className={`flex items-center gap-2.5 px-3 py-2 rounded-xl cursor-pointer hover:bg-white/5 transition-all group`}>
+                      <span className="text-base leading-none">{cat.emoji}</span>
+                      <span className={`text-xs font-medium ${cat.text} group-hover:text-white transition-colors`}>{cat.name}</span>
+                      <ChevronRight className="h-3 w-3 text-white/20 ml-auto group-hover:text-white/50 transition-colors" />
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* Featured vendors */}
+            <div className="glass-card rounded-2xl p-4">
+              <h3 className="text-sm font-bold text-white mb-3">⭐ Top Vendors</h3>
+              <div className="flex flex-col gap-3">
+                {[
+                  { name: "TechZone BD", emoji: "📱", tag: "Electronics", rating: 4.9, sellers: "Wholesale" },
+                  { name: "Fashion Hub", emoji: "👗", tag: "Fashion", rating: 4.7, sellers: "Retail" },
+                  { name: "Grocery King", emoji: "🛒", tag: "Grocery", rating: 4.8, sellers: "Retail" },
+                ].map(v => (
+                  <Link href="/vendors" key={v.name}>
+                    <div className="flex items-center gap-3 group cursor-pointer">
+                      <div className="h-9 w-9 rounded-xl bg-white/8 border border-white/10 flex items-center justify-center text-lg shrink-0 group-hover:border-emerald-500/30 transition-all">
+                        {v.emoji}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-semibold text-white/80 group-hover:text-white truncate transition-colors">{v.name}</p>
+                        <p className="text-[10px] text-white/35">{v.tag} · ⭐ {v.rating}</p>
+                      </div>
+                      <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-white/6 text-white/40 shrink-0">{v.sellers}</span>
+                    </div>
+                  </Link>
+                ))}
+                <Link href="/vendors">
+                  <span className="text-[11px] text-emerald-400 hover:text-emerald-300 transition-colors cursor-pointer inline-block mt-1">
+                    Browse all vendors →
+                  </span>
+                </Link>
+              </div>
+            </div>
+
+            {/* Trust badges */}
+            <div className="glass-card rounded-2xl p-4">
+              <h3 className="text-xs font-bold text-white/50 uppercase tracking-wider mb-3">Why PaikarMart?</h3>
+              <div className="space-y-3">
+                {[
+                  { icon: ShieldCheck, label: "Verified Sellers", sub: "Every seller is vetted", color: "text-emerald-400" },
+                  { icon: CreditCard, label: "Secure Payments", sub: "SSL encrypted checkout", color: "text-blue-400" },
+                  { icon: Truck, label: "Fast Delivery", sub: "Nationwide coverage", color: "text-orange-400" },
+                  { icon: Award, label: "Quality Assured", sub: "Buyer protection policy", color: "text-purple-400" },
+                ].map(t => (
+                  <div key={t.label} className="flex items-center gap-3">
+                    <div className={`h-8 w-8 rounded-xl bg-white/5 flex items-center justify-center shrink-0`}>
+                      <t.icon className={`h-4 w-4 ${t.color}`} />
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold text-white/70">{t.label}</p>
+                      <p className="text-[10px] text-white/35">{t.sub}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Download app */}
+            <div
+              className="rounded-2xl p-4 text-center"
+              style={{
+                background: "linear-gradient(135deg,hsl(145 65% 10%),hsl(265 55% 14%))",
+                border: "1px solid rgba(16,185,129,0.18)",
+              }}
+            >
+              <p className="text-2xl mb-1.5">📱</p>
+              <p className="text-sm font-bold text-white mb-1">Get the App</p>
+              <p className="text-[11px] text-white/45 mb-3">Exclusive deals & instant alerts</p>
+              <button
+                className="w-full py-2 rounded-xl text-xs font-bold text-white hover:opacity-90 transition-all"
+                style={{ background: "linear-gradient(135deg,hsl(145 65% 30%),hsl(265 55% 38%))" }}
+              >
+                Download Free
+              </button>
+            </div>
+          </aside>
         </div>
 
-        {/* Marketplace Grid */}
-        <SectionHeader title="🛍️ Marketplace" href="/products" />
-        <ProductGrid />
-
-        {/* Trust strip */}
-        <div className="mt-4 border-t border-white/5">
+        {/* Mobile: Trust strip */}
+        <div className="lg:hidden mt-4 border-t border-white/5">
           <TrustStrip />
         </div>
 

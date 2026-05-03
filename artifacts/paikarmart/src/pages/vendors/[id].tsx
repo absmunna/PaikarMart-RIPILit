@@ -464,11 +464,126 @@ export default function VendorDetailPage() {
         </div>
 
         {/* ── Tab content ── */}
-        <div className="px-4 pt-4">
+        <div className="px-4 pt-4 max-w-7xl mx-auto">
+          <div className="lg:grid lg:grid-cols-[260px_1fr] lg:gap-8 lg:items-start">
+
+          {/* ── Desktop left sidebar ── */}
+          <aside className="hidden lg:flex flex-col gap-4 sticky top-24">
+
+            {/* Mini shop card */}
+            <div className="glass-card rounded-2xl p-4 text-center">
+              <div className="h-16 w-16 rounded-2xl mx-auto mb-3 overflow-hidden border-2 border-emerald-500/20 flex items-center justify-center text-3xl"
+                style={{ background: "linear-gradient(135deg,hsl(145 65% 18%),hsl(265 55% 22%))" }}>
+                {seller.image ? <img src={seller.image} alt={seller.shopName} className="w-full h-full object-cover" /> : "🏪"}
+              </div>
+              <div className="flex items-center justify-center gap-1.5 mb-0.5">
+                <p className="text-sm font-bold text-white">{seller.shopName}</p>
+                <BadgeCheck className="h-4 w-4 text-emerald-400 shrink-0" />
+              </div>
+              <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full border inline-block mb-2", typeColor)}>
+                {typeLabel}
+              </span>
+              {seller.rating && (
+                <div className="flex items-center justify-center gap-1 mb-3">
+                  {[1,2,3,4,5].map(s => (
+                    <Star key={s} className={`h-3 w-3 ${s <= Math.round(seller.rating!) ? "text-yellow-400 fill-yellow-400" : "text-white/15"}`} />
+                  ))}
+                  <span className="text-xs text-white/60 ml-1">{seller.rating.toFixed(1)}</span>
+                </div>
+              )}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => { setFollowing(f => !f); toast(following ? "Unfollowed" : "Following!"); }}
+                  className="flex-1 py-2 rounded-xl text-xs font-bold text-white transition-all hover:opacity-90"
+                  style={!following ? { background: "linear-gradient(135deg,hsl(145 65% 32%),hsl(145 60% 40%))" } : { background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)" }}
+                >
+                  {following ? "Following" : "+ Follow"}
+                </button>
+                <a
+                  href={seller.phone ? `tel:${seller.phone}` : seller.email ? `mailto:${seller.email}` : "#"}
+                  className="flex-1 py-2 rounded-xl text-xs font-bold text-white/70 transition-all hover:text-white glass-card flex items-center justify-center gap-1 border border-white/10"
+                >
+                  <MessageSquare className="h-3 w-3" /> Chat
+                </a>
+              </div>
+            </div>
+
+            {/* Stats */}
+            <div className="glass-card rounded-2xl p-4">
+              <h3 className="text-xs font-bold text-white/60 uppercase tracking-wider mb-3">Shop Stats</h3>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { label: "Products", value: seller.totalProducts ?? products.length, icon: Package, color: "text-emerald-400" },
+                  { label: "Sales", value: seller.totalSales ? `${seller.totalSales}+` : "50+", icon: TrendingUp, color: "text-purple-400" },
+                  { label: "Followers", value: followers.toLocaleString(), icon: Users, color: "text-blue-400" },
+                  { label: "Rating", value: seller.rating?.toFixed(1) ?? "4.5", icon: Star, color: "text-yellow-400" },
+                ].map(s => (
+                  <div key={s.label} className="rounded-xl p-2.5" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}>
+                    <s.icon className={`h-3.5 w-3.5 ${s.color} mb-1`} />
+                    <p className="text-sm font-bold text-white">{s.value}</p>
+                    <p className="text-[9px] text-white/35">{s.label}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Contact */}
+            <div className="glass-card rounded-2xl p-4">
+              <h3 className="text-xs font-bold text-white/60 uppercase tracking-wider mb-3">Contact</h3>
+              <div className="space-y-2.5">
+                {(seller.location || seller.district) && (
+                  <div className="flex items-center gap-2.5 text-xs text-white/55">
+                    <div className="h-7 w-7 rounded-lg bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0">
+                      <MapPin className="h-3 w-3 text-blue-400" />
+                    </div>
+                    {seller.district ?? seller.location}
+                  </div>
+                )}
+                {seller.phone && (
+                  <a href={`tel:${seller.phone}`} className="flex items-center gap-2.5 text-xs text-white/55 hover:text-emerald-400 transition-colors">
+                    <div className="h-7 w-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shrink-0">
+                      <Phone className="h-3 w-3 text-emerald-400" />
+                    </div>
+                    {seller.phone}
+                  </a>
+                )}
+                {seller.email && (
+                  <a href={`mailto:${seller.email}`} className="flex items-center gap-2.5 text-xs text-white/55 hover:text-purple-400 transition-colors">
+                    <div className="h-7 w-7 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center shrink-0">
+                      <Mail className="h-3 w-3 text-purple-400" />
+                    </div>
+                    <span className="truncate">{seller.email}</span>
+                  </a>
+                )}
+              </div>
+            </div>
+
+            {/* Business hours */}
+            <div className="glass-card rounded-2xl p-4">
+              <h3 className="text-xs font-bold text-white/60 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                <Clock className="h-3.5 w-3.5 text-orange-400" /> Hours
+              </h3>
+              <div className="space-y-2">
+                {MOCK_HOURS.map(h => (
+                  <div key={h.day} className="flex flex-col gap-0.5">
+                    <span className="text-[10px] text-white/40">{h.day}</span>
+                    <span className="text-[11px] text-white/70 font-medium">{h.hours}</span>
+                  </div>
+                ))}
+                <div className="flex items-center gap-1.5 pt-1 mt-1 border-t border-white/5">
+                  <div className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span className="text-[10px] text-emerald-400 font-medium">Open Now</span>
+                </div>
+              </div>
+            </div>
+          </aside>
+
+          {/* ── Main content ── */}
+          <div>
 
           {/* POSTS TAB */}
           {activeTab === "Posts" && (
-            <div className="max-w-xl mx-auto flex flex-col gap-4">
+            <div className="flex flex-col gap-4">
               {loadingProducts ? (
                 Array.from({ length: 2 }).map((_, i) => (
                   <GlassCard key={i} className="overflow-hidden rounded-2xl">
@@ -527,7 +642,7 @@ export default function VendorDetailPage() {
                   <button onClick={() => setProductFilter("All")} className="text-xs text-primary hover:underline">Show all</button>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-2.5">
+                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2.5">
                   {filteredProducts.map((p: Product) => <VendorProductCard key={p.id} product={p} />)}
                 </div>
               )}
@@ -536,7 +651,7 @@ export default function VendorDetailPage() {
 
           {/* ABOUT TAB */}
           {activeTab === "About" && (
-            <div className="max-w-xl mx-auto flex flex-col gap-4">
+            <div className="flex flex-col gap-4">
               {/* Shop description */}
               <GlassCard className="p-5">
                 <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
@@ -650,7 +765,7 @@ export default function VendorDetailPage() {
 
           {/* REVIEWS TAB */}
           {activeTab === "Reviews" && (
-            <div className="max-w-xl mx-auto flex flex-col gap-4">
+            <div className="flex flex-col gap-4">
               {/* Rating summary */}
               <GlassCard className="p-5">
                 <div className="flex items-center gap-5">
@@ -713,7 +828,10 @@ export default function VendorDetailPage() {
               </div>
             </div>
           )}
-        </div>
+
+          </div>{/* end main content col */}
+          </div>{/* end lg:grid */}
+        </div>{/* end tab content wrapper */}
       </div>
 
       {/* ── Floating Contact Button (mobile) ── */}
