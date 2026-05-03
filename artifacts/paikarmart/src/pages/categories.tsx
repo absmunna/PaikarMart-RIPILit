@@ -23,7 +23,7 @@ export default function CategoriesPage() {
             ? skeletons.map((_, i) => (
                 <div key={i} className="glass-card rounded-xl p-6 animate-pulse h-32" />
               ))
-            : categories?.map((cat) => {
+            : categories?.map((cat: any) => {
                 const iconName = (cat as any).icon as string | undefined;
                 const IconComponent = (iconName && (Icons as any)[iconName]) ? (Icons as any)[iconName] : Icons.Tag;
                 return (

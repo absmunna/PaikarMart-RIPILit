@@ -72,7 +72,7 @@ export default function AdminDashboardPage() {
             <CardContent>
               {dashboard?.recentSellers?.length ? (
                 <div className="space-y-4">
-                  {dashboard.recentSellers.map(seller => (
+                  {dashboard.recentSellers.map((seller: any) => (
                     <div key={seller.id} className="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0">
                       <div>
                         <div className="font-medium">{seller.shopName}</div>
@@ -98,7 +98,7 @@ export default function AdminDashboardPage() {
             <CardContent>
               {dashboard?.recentOrders?.length ? (
                 <div className="space-y-4">
-                  {dashboard.recentOrders.map(order => (
+                  {dashboard.recentOrders.map((order: any) => (
                     <div key={order.id} className="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0">
                       <div>
                         <div className="font-medium">Order #{order.id}</div>

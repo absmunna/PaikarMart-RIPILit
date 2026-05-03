@@ -26,7 +26,7 @@ export default function CheckoutPage() {
         toast.success("Order placed successfully!");
         setLocation("/orders");
       },
-      onError: (err) => {
+      onError: (err: any) => {
         toast.error((err as Error).message || "Failed to place order");
       },
     },

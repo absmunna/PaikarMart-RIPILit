@@ -46,7 +46,7 @@ export default function NotificationsPage() {
           </Card>
         ) : (
           <div className="space-y-4">
-            {notifications.map((notif) => (
+            {notifications.map((notif: any) => (
               <Card key={notif.id} className={notif.read ? "bg-muted/30" : "bg-card border-primary/30 shadow-sm"}>
                 <CardContent className="p-4 flex gap-4">
                   <div className={`h-10 w-10 shrink-0 rounded-full flex items-center justify-center bg-background border ${!notif.read ? "border-primary/20" : ""}`}>

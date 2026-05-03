@@ -122,8 +122,8 @@ export default function ProfilePage() {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {[
                     { label: "Total Orders", value: orders.length, icon: Package, color: "bg-blue-50 text-blue-600" },
-                    { label: "Delivered", value: orders.filter(o => o.status === "completed").length, icon: CheckCircle, color: "bg-green-50 text-green-600" },
-                    { label: "Pending", value: orders.filter(o => o.status === "pending").length, icon: Clock, color: "bg-yellow-50 text-yellow-600" },
+                    { label: "Delivered", value: orders.filter((o: any) => o.status === "completed").length, icon: CheckCircle, color: "bg-green-50 text-green-600" },
+                    { label: "Pending", value: orders.filter((o: any) => o.status === "pending").length, icon: Clock, color: "bg-yellow-50 text-yellow-600" },
                     { label: "Wishlist", value: 0, icon: Heart, color: "bg-pink-50 text-pink-600" },
                   ].map(s => {
                     const Icon = s.icon;
@@ -183,7 +183,7 @@ export default function ProfilePage() {
                         <Button variant="ghost" size="sm" onClick={() => setActiveTab("orders")} className="text-green-600 text-xs">View All</Button>
                       </div>
                       <div className="space-y-3">
-                        {orders.slice(0, 3).map(order => {
+                        {orders.slice(0, 3).map((order: any) => {
                           const s = STATUS_CONFIG[order.status as keyof typeof STATUS_CONFIG] || STATUS_CONFIG.pending;
                           const Icon = s.icon;
                           return (
@@ -230,7 +230,7 @@ export default function ProfilePage() {
                   </Card>
                 ) : (
                   <div className="space-y-4">
-                    {orders.map(order => {
+                    {orders.map((order: any) => {
                       const s = STATUS_CONFIG[order.status as keyof typeof STATUS_CONFIG] || STATUS_CONFIG.pending;
                       const Icon = s.icon;
                       return (

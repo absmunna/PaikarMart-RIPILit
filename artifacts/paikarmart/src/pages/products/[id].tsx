@@ -110,7 +110,7 @@ export default function ProductDetailPage() {
             </div>
             {product.images && product.images.length > 1 && (
               <div className="flex gap-2">
-                {product.images.map((img, i) => (
+                {product.images.map((img: string, i: number) => (
                   <button key={i} onClick={() => setSelectedImage(i)}
                     className={`h-16 w-16 rounded-lg overflow-hidden border-2 transition-all ${i === selectedImage ? "border-green-500" : "border-gray-200"}`}>
                     <img src={img} alt="" className="w-full h-full object-cover" />

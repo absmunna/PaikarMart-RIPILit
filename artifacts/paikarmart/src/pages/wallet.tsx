@@ -167,7 +167,7 @@ export default function WalletPage() {
           <CardContent className="p-0">
             {wallet?.transactions?.length ? (
               <div className="divide-y">
-                {wallet.transactions.map(tx => (
+                {wallet.transactions.map((tx: any) => (
                   <div key={tx.id} className="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
                     <div className="flex items-center gap-4">
                       <div className={`h-10 w-10 rounded-full flex items-center justify-center shrink-0 ${

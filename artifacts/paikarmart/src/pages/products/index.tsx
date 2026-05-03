@@ -117,8 +117,8 @@ export default function ProductsPage() {
 
   let products = productsData?.products || [];
 
-  if (priceMin) products = products.filter(p => (p.price || 0) >= Number(priceMin));
-  if (priceMax) products = products.filter(p => (p.price || 0) <= Number(priceMax));
+  if (priceMin) products = products.filter((p: any) => (p.price || 0) >= Number(priceMin));
+  if (priceMax) products = products.filter((p: any) => (p.price || 0) <= Number(priceMax));
   if (sortBy === "price_asc") products = [...products].sort((a, b) => (a.price || 0) - (b.price || 0));
   if (sortBy === "price_desc") products = [...products].sort((a, b) => (b.price || 0) - (a.price || 0));
   if (sortBy === "rating") products = [...products].sort((a, b) => (b.rating || 0) - (a.rating || 0));
@@ -215,7 +215,7 @@ export default function ProductsPage() {
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {products.map(product => <ProductCard key={product.id} product={product} />)}
+            {products.map((product: any) => <ProductCard key={product.id} product={product} />)}
           </div>
         )}
       </div>

@@ -98,7 +98,7 @@ export default function OrderDetailPage() {
             <div className="p-6 border rounded-xl bg-card">
               <h2 className="text-xl font-bold mb-4">Items</h2>
               <div className="space-y-4">
-                {order.items.map((item, idx) => (
+                {order.items.map((item: any, idx: number) => (
                   <div key={idx} className="flex justify-between items-center py-2 border-b last:border-0">
                     <div>
                       <div className="font-medium">{item.productName}</div>

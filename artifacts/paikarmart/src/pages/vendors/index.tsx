@@ -35,7 +35,7 @@ export default function VendorsPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {sellers.map((seller) => (
+            {sellers.map((seller: any) => (
               <Link key={seller.id} href={`/vendors/${seller.id}`}>
                 <Card className="hover:shadow-lg transition-all cursor-pointer h-full group">
                   <CardContent className="p-6">

@@ -253,7 +253,7 @@ export function Header() {
                     <Link href="/notifications" className="text-xs text-emerald-400 hover:text-emerald-300" onClick={() => setShowNotifMenu(false)}>View All</Link>
                   </div>
                   <div className="divide-y max-h-72 overflow-y-auto" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
-                    {notifData?.notifications?.slice(0, 5).map(n => (
+                    {notifData?.notifications?.slice(0, 5).map((n: any) => (
                       <div key={n.id} className={`px-4 py-3 text-sm ${!n.read ? "bg-emerald-500/5" : ""}`}>
                         <p className="font-medium text-white/90 line-clamp-1">{n.title}</p>
                         <p className="text-white/40 text-xs line-clamp-1 mt-0.5">{n.message}</p>
