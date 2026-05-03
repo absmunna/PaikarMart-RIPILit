@@ -101,6 +101,17 @@ React + Vite frontend. Dark-themed Bangladesh-focused multi-vendor marketplace.
 
 **Design tokens**: bg `hsl(160 28% 5%)`, primary `hsl(145 65% 38%)`, purple `hsl(265 55% 58%)`. CSS utilities: `.glass`, `.glass-card`, `.glow-green`, `.text-gradient-green`.
 
+**UI Audit complete (May 2026) — all pages dark glassmorphism:**
+- `orders/index.tsx` — filter tabs (All/Pending/Shipped/Delivered/Cancelled) + GlassCard order list + empty state
+- `notifications.tsx` — filter tabs + GlassCard divided list, unread dot, type icons (order/delivery/account/seller)
+- `faq.tsx` — hero + search + accordion categories (General/Buying/Selling/Account) + contact CTA
+- `terms.tsx` — hero + collapsible section accordion + date footer
+- `admin/dashboard.tsx` — 4 stat cards + seller applications panel + recent orders panel + mobile quick-nav
+- `register.tsx` — 3-step registration (info → OTP 6-digit → done/welcome)
+- STATUS_CONFIG in all pages: dark `bg-yellow-500/15 text-yellow-400` etc. (no more `bg-yellow-100 text-yellow-700`)
+- BUSINESS_TYPES in `seller/register.tsx`: dark selection colors (`bg-orange-500/10 text-orange-400`)
+- Profile toggle: `bg-white/10` unchecked, `bg-emerald-500` checked (was `bg-gray-200`/`bg-green-600`)
+
 **Responsive desktop layouts (completed):**
 - `index.tsx` — custom layout with CompactHeader + SideDrawer; 2-col desktop (feed + right sidebar with categories/trending shops/trust/app promo)
 - `feed.tsx` — 2-col desktop (posts + right sidebar: browse categories/trending shops/app promo)

@@ -18,12 +18,12 @@ import {
 type Tab = "dashboard" | "orders" | "wishlist" | "reviews" | "wallet" | "settings";
 
 const STATUS_CONFIG = {
-  pending: { label: "Pending", color: "bg-yellow-100 text-yellow-700", icon: Clock },
-  confirmed: { label: "Confirmed", color: "bg-blue-100 text-blue-700", icon: CheckCircle },
-  processing: { label: "Processing", color: "bg-purple-100 text-purple-700", icon: Clock },
-  shipped: { label: "Shipped", color: "bg-cyan-100 text-cyan-700", icon: Truck },
-  completed: { label: "Delivered", color: "bg-green-100 text-green-700", icon: CheckCircle },
-  incomplete: { label: "Incomplete", color: "bg-red-100 text-red-700", icon: XCircle },
+  pending: { label: "Pending", color: "bg-yellow-500/15 text-yellow-400", icon: Clock },
+  confirmed: { label: "Confirmed", color: "bg-blue-500/15 text-blue-400", icon: CheckCircle },
+  processing: { label: "Processing", color: "bg-purple-500/15 text-purple-400", icon: Clock },
+  shipped: { label: "Shipped", color: "bg-cyan-500/15 text-cyan-400", icon: Truck },
+  completed: { label: "Delivered", color: "bg-emerald-500/15 text-emerald-400", icon: CheckCircle },
+  incomplete: { label: "Incomplete", color: "bg-red-500/15 text-red-400", icon: XCircle },
 };
 
 export default function ProfilePage() {
@@ -62,7 +62,7 @@ export default function ProfilePage() {
           {/* Sidebar */}
           <aside className="w-full lg:w-64 shrink-0">
             {/* User Card */}
-            <div className="bg-gradient-to-br from-green-700 to-emerald-600 text-white rounded-2xl p-5 mb-4 shadow-lg">
+            <div className="bg-gradient-to-br from-emerald-900 via-teal-900 to-emerald-950 text-white rounded-2xl p-5 mb-4 shadow-lg">
               <div className="flex items-center gap-3 mb-3">
                 <div className="h-14 w-14 rounded-full bg-white/20 border-2 border-white/40 flex items-center justify-center text-2xl font-bold">
                   {user.name.charAt(0).toUpperCase()}
@@ -87,7 +87,7 @@ export default function ProfilePage() {
                   return (
                     <button key={item.key} onClick={() => setActiveTab(item.key)}
                       className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all mb-0.5 ${
-                        isActive ? "bg-green-600 text-white" : "text-white/60 hover:bg-white/3 hover:text-white"
+                        isActive ? "bg-emerald-500/20 border border-emerald-500/30 text-emerald-400" : "text-white/60 hover:bg-white/3 hover:text-white"
                       }`}>
                       <div className="flex items-center gap-2.5">
                         <Icon className="h-4 w-4 shrink-0" />
@@ -96,7 +96,7 @@ export default function ProfilePage() {
                       <div className="flex items-center gap-1.5">
                         {item.badge && (
                           <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold ${
-                            isActive ? "bg-white/20 text-white" : item.badge === "Soon" ? "bg-orange-100 text-orange-600" : "bg-green-100 text-green-700"
+                            isActive ? "bg-white/20 text-white" : item.badge === "Soon" ? "bg-orange-100 text-orange-600" : "bg-emerald-500/15 text-emerald-400"
                           }`}>{item.badge}</span>
                         )}
                         {!item.badge && <ChevronRight className={`h-3.5 w-3.5 ${isActive ? "text-white/60" : "text-white/25"}`} />}
@@ -121,8 +121,8 @@ export default function ProfilePage() {
                 <h2 className="text-xl font-bold text-white">My Account Dashboard</h2>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   {[
-                    { label: "Total Orders", value: orders.length, icon: Package, color: "bg-blue-50 text-blue-600" },
-                    { label: "Delivered", value: orders.filter((o: any) => o.status === "completed").length, icon: CheckCircle, color: "bg-green-50 text-green-600" },
+                    { label: "Total Orders", value: orders.length, icon: Package, color: "bg-blue-500/15 text-blue-400" },
+                    { label: "Delivered", value: orders.filter((o: any) => o.status === "completed").length, icon: CheckCircle, color: "bg-emerald-500/15 text-emerald-400" },
                     { label: "Pending", value: orders.filter((o: any) => o.status === "pending").length, icon: Clock, color: "bg-yellow-50 text-yellow-600" },
                     { label: "Wishlist", value: 0, icon: Heart, color: "bg-pink-50 text-pink-600" },
                   ].map(s => {
@@ -361,7 +361,7 @@ export default function ProfilePage() {
                             </div>
                             <label className="relative inline-flex items-center cursor-pointer">
                               <input type="checkbox" defaultChecked className="sr-only peer" />
-                              <div className="w-10 h-5 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-5 peer-checked:bg-green-600 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all" />
+                              <div className="w-10 h-5 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-5 peer-checked:bg-emerald-500 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all" />
                             </label>
                           </div>
                         ))}

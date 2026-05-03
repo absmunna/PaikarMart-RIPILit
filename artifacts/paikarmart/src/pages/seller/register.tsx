@@ -14,13 +14,13 @@ import {
 } from "lucide-react";
 
 const BUSINESS_TYPES = [
-  { value: "wholesaler", label: "Wholesaler", icon: Package, desc: "Sell in bulk to retailers & businesses", color: "border-orange-300 bg-orange-50 text-orange-700" },
-  { value: "retailer", label: "Retailer", icon: Tag, desc: "Sell directly to end customers", color: "border-blue-300 bg-blue-50 text-blue-700" },
-  { value: "brand_seller", label: "Brand Seller", icon: Building2, desc: "Official brand or authorized dealer", color: "border-purple-300 bg-purple-50 text-purple-700" },
-  { value: "local_shop", label: "Local Shop", icon: Store, desc: "Physical store in your area", color: "border-yellow-300 bg-yellow-50 text-yellow-700" },
-  { value: "dropship", label: "Dropshipper", icon: TrendingUp, desc: "Sell without holding inventory", color: "border-teal-300 bg-teal-50 text-teal-700" },
-  { value: "service", label: "Service Provider", icon: HeadphonesIcon, desc: "Offer professional services", color: "border-pink-300 bg-pink-50 text-pink-700" },
-  { value: "b2b_seller", label: "B2B Supplier", icon: Users, desc: "Sell wholesale to PaikarMart businesses", color: "border-green-400 bg-green-50 text-green-700", isNew: true },
+  { value: "wholesaler", label: "Wholesaler", icon: Package, desc: "Sell in bulk to retailers & businesses", color: "border-orange-500/35 bg-orange-500/10 text-orange-400" },
+  { value: "retailer", label: "Retailer", icon: Tag, desc: "Sell directly to end customers", color: "border-blue-500/35 bg-blue-500/10 text-blue-400" },
+  { value: "brand_seller", label: "Brand Seller", icon: Building2, desc: "Official brand or authorized dealer", color: "border-purple-500/35 bg-purple-500/10 text-purple-400" },
+  { value: "local_shop", label: "Local Shop", icon: Store, desc: "Physical store in your area", color: "border-yellow-500/35 bg-yellow-500/10 text-yellow-400" },
+  { value: "dropship", label: "Dropshipper", icon: TrendingUp, desc: "Sell without holding inventory", color: "border-teal-500/35 bg-teal-500/10 text-teal-400" },
+  { value: "service", label: "Service Provider", icon: HeadphonesIcon, desc: "Offer professional services", color: "border-pink-500/35 bg-pink-500/10 text-pink-400" },
+  { value: "b2b_seller", label: "B2B Supplier", icon: Users, desc: "Sell wholesale to PaikarMart businesses", color: "border-emerald-500/35 bg-emerald-500/10 text-emerald-400", isNew: true },
 ];
 
 const DISTRICTS = [
@@ -71,7 +71,7 @@ export default function SellerRegisterPage() {
       <div className="container mx-auto px-4 py-12 max-w-3xl">
         {/* Header */}
         <div className="text-center mb-10">
-          <Badge className="bg-green-100 text-green-700 border-green-200 mb-3">Join 500+ Active Sellers</Badge>
+          <Badge className="bg-emerald-500/15 text-emerald-400 border-emerald-500/25 mb-3">Join 500+ Active Sellers</Badge>
           <h1 className="text-3xl font-extrabold text-white mb-3">Start Selling on PaikarMart</h1>
           <p className="text-white/45">Reach thousands of buyers across Bangladesh. Fast approval, no upfront fee.</p>
         </div>
@@ -87,7 +87,7 @@ export default function SellerRegisterPage() {
                 <span className={`text-sm font-medium hidden sm:block ${step >= s ? "text-green-700" : "text-white/35"}`}>
                   {s === 1 ? "Business Type" : "Details"}
                 </span>
-                {s < 2 && <div className={`w-8 h-0.5 ${step > s ? "bg-green-600" : "bg-gray-200"}`} />}
+                {s < 2 && <div className={`w-8 h-0.5 ${step > s ? "bg-green-600" : "bg-white/10"}`} />}
               </div>
             ))}
           </div>
@@ -125,14 +125,15 @@ export default function SellerRegisterPage() {
             </div>
 
             {selectedType === "b2b_seller" && (
-              <div className="bg-green-50 border border-green-200 rounded-xl p-4 mb-6 text-sm text-green-800">
+              <div className="bg-emerald-500/10 border border-emerald-500/25 rounded-xl p-4 mb-6 text-sm text-emerald-300">
                 <strong>B2B Supplier Benefits:</strong> Access to bulk orders from verified businesses, priority listing, dedicated account manager, and higher commission rates.
               </div>
             )}
 
             <Button
               onClick={() => { if (!selectedType) { toast.error("Select a business type first"); return; } setStep(2); }}
-              className="w-full bg-green-600 hover:bg-green-700 h-11 font-semibold"
+              className="w-full h-11 font-semibold text-white"
+              style={{ background: "linear-gradient(135deg, hsl(145 65% 28%), hsl(145 60% 40%))" }}
               disabled={!selectedType}
             >
               Continue →
@@ -170,7 +171,7 @@ export default function SellerRegisterPage() {
                   <Label className="text-sm font-medium text-white/70 mb-1.5 block">Product Category *</Label>
                   <select
                     value={selectedCategory} onChange={e => setSelectedCategory(e.target.value)}
-                    className="w-full h-10 border border-white/10 rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+                    className="w-full h-10 border border-white/10 rounded-lg px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white/5"
                     required
                   >
                     <option value="">Select your main category...</option>
@@ -199,7 +200,7 @@ export default function SellerRegisterPage() {
                       <MapPin className="h-3.5 w-3.5 inline mr-1 text-green-600" /> District *
                     </Label>
                     <select name="district" required
-                      className="w-full h-10 border border-white/10 rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white">
+                      className="w-full h-10 border border-white/10 rounded-lg px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white/5">
                       <option value="">Select district...</option>
                       {DISTRICTS.map(d => <option key={d} value={d}>{d}</option>)}
                     </select>
