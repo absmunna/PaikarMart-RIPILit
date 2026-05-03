@@ -559,34 +559,63 @@ function HeroSlider() {
         </div>
       </div>
 
-      {/* Mobile layout */}
-      <div className="lg:hidden px-4 py-5 relative z-10" style={{ minHeight: "180px" }}>
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-          <div className="flex-1">
-            <div className="inline-flex items-center gap-1 bg-white/10 backdrop-blur-sm text-white text-[10px] font-semibold px-2.5 py-0.5 rounded-full mb-2 border border-white/20">
-              <Sparkles className="h-2.5 w-2.5" /> {s.badge}
+      {/* Mobile layout — Reel-style horizontal scroll */}
+      <div className="lg:hidden overflow-x-auto scrollbar-hide relative z-10">
+        <div className="flex gap-3 px-3 py-3" style={{ width: "max-content" }}>
+          {HERO_SLIDES.map((slide, i) => (
+            <div
+              key={slide.id}
+              onClick={() => { setCurrent(i); navigate(slide.cta1.href); }}
+              className={`relative rounded-2xl overflow-hidden shrink-0 cursor-pointer transition-all duration-300 ${i === current ? "ring-2 ring-white/60 scale-[1.02]" : "opacity-85"}`}
+              style={{ width: "160px", height: "240px" }}
+            >
+              {/* BG image */}
+              <img src={slide.img} alt={slide.headline}
+                className="absolute inset-0 w-full h-full object-cover" />
+
+              {/* gradient overlay */}
+              <div className={`absolute inset-0 bg-gradient-to-br ${slide.gradient} opacity-80`} />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+              {/* glow */}
+              <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse 80% 60% at 50% 30%, ${slide.glow}, transparent)` }} />
+
+              {/* Top badge */}
+              <div className="absolute top-3 left-3 right-3 z-10">
+                <span className="inline-flex items-center gap-1 bg-white/15 backdrop-blur-md text-white text-[9px] font-bold px-2 py-0.5 rounded-full border border-white/20">
+                  <Sparkles className="h-2 w-2" /> {slide.badge.split(" ").slice(0, 3).join(" ")}
+                </span>
+              </div>
+
+              {/* Bottom text */}
+              <div className="absolute bottom-0 left-0 right-0 p-3 z-10">
+                <p className="text-white font-extrabold text-sm leading-tight line-clamp-2 mb-2">
+                  {slide.headline}
+                </p>
+                <div className="flex items-center gap-1.5">
+                  <div className="flex-1 h-0.5 rounded-full bg-white/20 overflow-hidden">
+                    <div
+                      className="h-full bg-white rounded-full transition-all duration-300"
+                      style={{ width: i === current ? "100%" : "0%" }}
+                    />
+                  </div>
+                  <ArrowRight className="h-3.5 w-3.5 text-white/70 shrink-0" />
+                </div>
+              </div>
+
+              {/* Active play indicator */}
+              {i === current && (
+                <div className="absolute top-3 right-3 h-5 w-5 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                  <div className="h-1.5 w-1.5 rounded-full bg-white" />
+                </div>
+              )}
             </div>
-            <h2 className="text-xl font-extrabold mb-1.5 leading-tight">{s.headline}</h2>
-            <p className="text-white/65 text-xs mb-3 line-clamp-2">{s.sub}</p>
-            <div className="flex gap-2">
-              <button onClick={() => navigate(s.cta1.href)}
-                className="px-4 py-1.5 rounded-xl font-bold text-xs bg-white text-gray-900 hover:bg-white/90 transition-all shadow">
-                {s.cta1.label} <ArrowRight className="h-3 w-3 inline ml-0.5" />
-              </button>
-              <button onClick={() => navigate(s.cta2.href)}
-                className="px-4 py-1.5 rounded-xl font-semibold text-xs bg-white/12 border border-white/25 hover:bg-white/20 text-white backdrop-blur-sm transition-all">
-                {s.cta2.label}
-              </button>
-            </div>
-          </div>
-          <div className="hidden sm:block w-40 h-28 rounded-xl overflow-hidden border border-white/15 shrink-0 shadow-xl">
-            <img src={s.img} alt={s.headline} className="w-full h-full object-cover" />
-          </div>
+          ))}
         </div>
       </div>
 
-      {/* Dots */}
-      <div className="flex justify-center gap-1.5 pb-3 relative z-10">
+      {/* Desktop dots only */}
+      <div className="hidden lg:flex justify-center gap-1.5 pb-3 relative z-10">
         {HERO_SLIDES.map((_, i) => (
           <button key={i} onClick={() => setCurrent(i)}
             className={`rounded-full transition-all duration-300 ${i === current ? "w-5 h-1 bg-white" : "w-1 h-1 bg-white/35"}`} />
