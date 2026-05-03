@@ -455,33 +455,62 @@ function HeroSlider() {
   const s = HERO_SLIDES[current];
 
   return (
-    <section className={`relative bg-gradient-to-br ${s.gradient} text-white overflow-hidden`}
-      style={{ minHeight: "180px" }}>
-      <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse 80% 70% at 80% 50%, ${s.glow}, transparent)` }} />
-      <div className="px-4 py-5 relative z-10 flex flex-col lg:flex-row items-center gap-4">
-        <div className="flex-1 w-full">
-          <div className="inline-flex items-center gap-1 bg-white/10 backdrop-blur-sm text-white text-[10px] font-semibold px-2.5 py-0.5 rounded-full mb-2 border border-white/20">
-            <Sparkles className="h-2.5 w-2.5" /> {s.badge}
+    <section className={`relative bg-gradient-to-br ${s.gradient} text-white overflow-hidden`}>
+      <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse 70% 80% at 75% 50%, ${s.glow}, transparent)` }} />
+
+      {/* Desktop layout */}
+      <div className="hidden lg:flex items-center gap-8 px-10 py-12 relative z-10 min-h-[300px]">
+        <div className="flex-1 max-w-xl">
+          <div className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1 rounded-full mb-4 border border-white/20">
+            <Sparkles className="h-3 w-3" /> {s.badge}
           </div>
-          <h2 className="text-xl sm:text-2xl font-extrabold mb-1.5 leading-tight">{s.headline}</h2>
-          <p className="text-white/65 text-xs mb-3 line-clamp-2">{s.sub}</p>
-          <div className="flex gap-2">
+          <p className="text-white/50 text-sm font-medium mb-1.5">{s.eyebrow}</p>
+          <h2 className="text-4xl font-extrabold mb-3 leading-tight">{s.headline}</h2>
+          <p className="text-white/60 text-base mb-6 leading-relaxed">{s.sub}</p>
+          <div className="flex gap-3">
             <button onClick={() => navigate(s.cta1.href)}
-              className="px-4 py-1.5 rounded-xl font-bold text-xs bg-white text-gray-900 hover:bg-white/90 transition-all shadow">
-              {s.cta1.label} <ArrowRight className="h-3 w-3 inline ml-0.5" />
+              className="px-6 py-2.5 rounded-xl font-bold text-sm bg-white text-gray-900 hover:bg-white/90 transition-all shadow-lg flex items-center gap-1.5">
+              {s.cta1.label} <ArrowRight className="h-4 w-4" />
             </button>
             <button onClick={() => navigate(s.cta2.href)}
-              className="px-4 py-1.5 rounded-xl font-semibold text-xs bg-white/12 border border-white/25 hover:bg-white/20 text-white backdrop-blur-sm transition-all">
+              className="px-6 py-2.5 rounded-xl font-semibold text-sm bg-white/12 border border-white/25 hover:bg-white/20 text-white backdrop-blur-sm transition-all">
               {s.cta2.label}
             </button>
           </div>
         </div>
-        <div className="hidden sm:block w-44 h-32 rounded-xl overflow-hidden border border-white/15 shrink-0 shadow-xl">
+        <div className="w-80 h-56 rounded-2xl overflow-hidden border border-white/15 shrink-0 shadow-2xl">
           <img src={s.img} alt={s.headline} className="w-full h-full object-cover" />
         </div>
       </div>
+
+      {/* Mobile layout */}
+      <div className="lg:hidden px-4 py-5 relative z-10" style={{ minHeight: "180px" }}>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          <div className="flex-1">
+            <div className="inline-flex items-center gap-1 bg-white/10 backdrop-blur-sm text-white text-[10px] font-semibold px-2.5 py-0.5 rounded-full mb-2 border border-white/20">
+              <Sparkles className="h-2.5 w-2.5" /> {s.badge}
+            </div>
+            <h2 className="text-xl font-extrabold mb-1.5 leading-tight">{s.headline}</h2>
+            <p className="text-white/65 text-xs mb-3 line-clamp-2">{s.sub}</p>
+            <div className="flex gap-2">
+              <button onClick={() => navigate(s.cta1.href)}
+                className="px-4 py-1.5 rounded-xl font-bold text-xs bg-white text-gray-900 hover:bg-white/90 transition-all shadow">
+                {s.cta1.label} <ArrowRight className="h-3 w-3 inline ml-0.5" />
+              </button>
+              <button onClick={() => navigate(s.cta2.href)}
+                className="px-4 py-1.5 rounded-xl font-semibold text-xs bg-white/12 border border-white/25 hover:bg-white/20 text-white backdrop-blur-sm transition-all">
+                {s.cta2.label}
+              </button>
+            </div>
+          </div>
+          <div className="hidden sm:block w-40 h-28 rounded-xl overflow-hidden border border-white/15 shrink-0 shadow-xl">
+            <img src={s.img} alt={s.headline} className="w-full h-full object-cover" />
+          </div>
+        </div>
+      </div>
+
       {/* Dots */}
-      <div className="flex justify-center gap-1.5 pb-2.5 relative z-10">
+      <div className="flex justify-center gap-1.5 pb-3 relative z-10">
         {HERO_SLIDES.map((_, i) => (
           <button key={i} onClick={() => setCurrent(i)}
             className={`rounded-full transition-all duration-300 ${i === current ? "w-5 h-1 bg-white" : "w-1 h-1 bg-white/35"}`} />
@@ -695,94 +724,177 @@ function FeedPostCard({ post }: { post: FeedPost }) {
 
   return (
     <GlassCard className="overflow-hidden rounded-2xl">
-      {/* Post header */}
-      <div className="px-3.5 pt-3.5 pb-2.5 flex items-center gap-2.5">
-        <div className="h-9 w-9 rounded-xl bg-white/8 border border-white/10 flex items-center justify-center text-lg shrink-0">{post.shopEmoji}</div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs font-semibold text-white truncate">{post.shopName}</span>
-            {post.shopVerified && <BadgeCheck className="h-3 w-3 text-emerald-400 shrink-0" />}
-          </div>
-          <div className="flex items-center gap-1.5 text-[9px] text-white/35">
-            <MapPin className="h-2 w-2" />{post.location} · {post.timeAgo} ago
+      {/* ── DESKTOP: horizontal card ── */}
+      <div className="hidden lg:flex gap-0">
+        {/* Image — fixed width landscape */}
+        <div className="relative w-64 shrink-0" style={{ aspectRatio: "4/3" }}>
+          <img src={post.image} alt={post.productName} className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/20" />
+          {discount && (
+            <div className="absolute top-2.5 left-2.5">
+              <span className="text-[9px] font-bold px-2 py-0.5 rounded-lg bg-red-500 text-white">-{discount}% OFF</span>
+            </div>
+          )}
+          <div className="absolute bottom-2.5 left-2.5 flex items-center gap-1 bg-black/60 backdrop-blur-sm px-1.5 py-0.5 rounded-full border border-white/10">
+            <MapPin className="h-2.5 w-2.5 text-emerald-400" />
+            <span className="text-[9px] text-white/80 font-medium">{post.distance}</span>
           </div>
         </div>
-        <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full text-white ${post.tagColor}`}>{post.tag}</span>
-      </div>
 
-      {/* Image 1:1 */}
-      <div className="relative" style={{ aspectRatio: "1/1" }}>
-        <img src={post.image} alt={post.productName} className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent" />
-
-        {discount && (
-          <div className="absolute top-2.5 left-2.5">
-            <span className="text-[9px] font-bold px-2 py-0.5 rounded-lg bg-red-500 text-white">-{discount}% OFF</span>
+        {/* Content */}
+        <div className="flex-1 flex flex-col justify-between p-4 min-w-0">
+          {/* Header */}
+          <div className="flex items-start justify-between gap-2 mb-2">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="h-9 w-9 rounded-xl bg-white/8 border border-white/10 flex items-center justify-center text-lg shrink-0">{post.shopEmoji}</div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-semibold text-white truncate">{post.shopName}</span>
+                  {post.shopVerified && <BadgeCheck className="h-3 w-3 text-emerald-400 shrink-0" />}
+                </div>
+                <div className="flex items-center gap-1.5 text-[9px] text-white/35">
+                  <MapPin className="h-2 w-2" />{post.location} · {post.timeAgo} ago
+                </div>
+              </div>
+            </div>
+            <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full text-white shrink-0 ${post.tagColor}`}>{post.tag}</span>
           </div>
-        )}
 
-        <button
-          onClick={() => {
-            toggle({ productId: post.id, title: post.productName, price: post.price, imageUrl: post.image });
-            toast(isWishlisted ? "Removed" : "Saved ❤️");
-          }}
-          className="absolute top-2.5 right-2.5 h-7 w-7 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center border border-white/15 transition-all hover:scale-110">
-          <Heart className={`h-3.5 w-3.5 ${isWishlisted ? "fill-rose-400 text-rose-400" : "text-white/70"}`} />
-        </button>
+          {/* Product name */}
+          <p className="text-sm font-semibold text-white/90 line-clamp-2 mb-2 leading-snug">{post.productName}</p>
 
-        <div className="absolute bottom-2.5 right-2.5 flex items-center gap-1 bg-black/60 backdrop-blur-sm px-1.5 py-0.5 rounded-full border border-white/10">
-          <MapPin className="h-2.5 w-2.5 text-emerald-400" />
-          <span className="text-[9px] text-white/80 font-medium">{post.distance}</span>
-        </div>
-
-        <div className="absolute bottom-2.5 left-2.5 right-14">
-          <p className="text-white font-semibold text-xs line-clamp-1 drop-shadow">{post.productName}</p>
-        </div>
-      </div>
-
-      {/* Price + Buy */}
-      <div className="px-3.5 py-2.5 flex items-center justify-between gap-2">
-        <div>
-          <div className="flex items-baseline gap-1.5">
-            <span className="text-base font-bold text-emerald-400">{formatBDT(post.price)}</span>
-            {post.compareAt > post.price && (
-              <span className="text-[10px] text-white/30 line-through">{formatBDT(post.compareAt)}</span>
-            )}
-          </div>
-          <div className="flex items-center gap-1 mt-0.5">
+          {/* Rating */}
+          <div className="flex items-center gap-1 mb-3">
             {[1,2,3,4,5].map(s => (
-              <Star key={s} className={`h-2 w-2 ${s <= Math.round(post.rating) ? "text-yellow-400 fill-yellow-400" : "text-white/15"}`} />
+              <Star key={s} className={`h-2.5 w-2.5 ${s <= Math.round(post.rating) ? "text-yellow-400 fill-yellow-400" : "text-white/15"}`} />
             ))}
-            <span className="text-[9px] text-white/35 ml-0.5">{post.rating} · {post.sold} sold</span>
+            <span className="text-[10px] text-white/40 ml-1">{post.rating} · {post.sold} sold</span>
+          </div>
+
+          {/* Price row */}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-base font-bold text-emerald-400">{formatBDT(post.price)}</span>
+              {post.compareAt > post.price && (
+                <span className="text-[10px] text-white/30 line-through">{formatBDT(post.compareAt)}</span>
+              )}
+            </div>
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => { toggle({ productId: post.id, title: post.productName, price: post.price, imageUrl: post.image }); toast(isWishlisted ? "Removed" : "Saved ❤️"); }}
+                className="h-8 w-8 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center hover:border-rose-400/30 transition-all">
+                <Heart className={`h-3.5 w-3.5 ${isWishlisted ? "fill-rose-400 text-rose-400" : "text-white/50"}`} />
+              </button>
+              <button
+                onClick={() => { addToCart({ productId: post.id, productName: post.productName, vendorId: post.id, vendorName: post.shopName, price: post.price, quantity: 1, image: post.image }); toast.success("Added to cart!"); }}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white transition-all hover:opacity-90"
+                style={{ background: "linear-gradient(135deg, hsl(145 65% 32%), hsl(265 55% 44%))" }}>
+                <Zap className="h-3 w-3" /> Buy Now
+              </button>
+            </div>
+          </div>
+
+          {/* Social actions */}
+          <div className="flex items-center gap-0.5 border-t border-white/5 pt-2.5 mt-2.5">
+            <button onClick={() => { setLiked(l => { setLikes(c => l ? c - 1 : c + 1); return !l; }); }}
+              className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-all ${liked ? "text-rose-400 bg-rose-500/10" : "text-white/45 hover:text-white/70 hover:bg-white/5"}`}>
+              <Heart className={`h-3 w-3 ${liked ? "fill-rose-400" : ""}`} /> {likes}
+            </button>
+            <button className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium text-white/45 hover:text-white/70 hover:bg-white/5 transition-all">
+              <MessageCircle className="h-3 w-3" /> {post.comments}
+            </button>
+            <button className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium text-white/45 hover:text-white/70 hover:bg-white/5 transition-all">
+              <Share2 className="h-3 w-3" /> Share
+            </button>
+            <button onClick={() => setSaved(s => !s)}
+              className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-all ml-auto ${saved ? "text-emerald-400 bg-emerald-500/10" : "text-white/45 hover:text-white/70 hover:bg-white/5"}`}>
+              <Bookmark className={`h-3 w-3 ${saved ? "fill-emerald-400" : ""}`} />
+            </button>
           </div>
         </div>
-        <button
-          onClick={() => {
-            addToCart({ productId: post.id, productName: post.productName, vendorId: post.id, vendorName: post.shopName, price: post.price, quantity: 1, image: post.image });
-            toast.success("Added to cart!");
-          }}
-          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white transition-all hover:opacity-90 shrink-0"
-          style={{ background: "linear-gradient(135deg, hsl(145 65% 32%), hsl(265 55% 44%))" }}>
-          <Zap className="h-3 w-3" /> Buy Now
-        </button>
       </div>
 
-      {/* Social actions */}
-      <div className="px-3.5 pb-3 flex items-center gap-0.5 border-t border-white/5 pt-2.5">
-        <button onClick={() => { setLiked(l => { setLikes(c => l ? c - 1 : c + 1); return !l; }); }}
-          className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-all ${liked ? "text-rose-400 bg-rose-500/10" : "text-white/45 hover:text-white/70 hover:bg-white/5"}`}>
-          <Heart className={`h-3 w-3 ${liked ? "fill-rose-400" : ""}`} /> {likes}
-        </button>
-        <button className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium text-white/45 hover:text-white/70 hover:bg-white/5 transition-all">
-          <MessageCircle className="h-3 w-3" /> {post.comments}
-        </button>
-        <button className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium text-white/45 hover:text-white/70 hover:bg-white/5 transition-all">
-          <Share2 className="h-3 w-3" /> Share
-        </button>
-        <button onClick={() => setSaved(s => !s)}
-          className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-all ml-auto ${saved ? "text-emerald-400 bg-emerald-500/10" : "text-white/45 hover:text-white/70 hover:bg-white/5"}`}>
-          <Bookmark className={`h-3 w-3 ${saved ? "fill-emerald-400" : ""}`} />
-        </button>
+      {/* ── MOBILE: vertical card ── */}
+      <div className="lg:hidden">
+        {/* Post header */}
+        <div className="px-3.5 pt-3.5 pb-2.5 flex items-center gap-2.5">
+          <div className="h-9 w-9 rounded-xl bg-white/8 border border-white/10 flex items-center justify-center text-lg shrink-0">{post.shopEmoji}</div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-semibold text-white truncate">{post.shopName}</span>
+              {post.shopVerified && <BadgeCheck className="h-3 w-3 text-emerald-400 shrink-0" />}
+            </div>
+            <div className="flex items-center gap-1.5 text-[9px] text-white/35">
+              <MapPin className="h-2 w-2" />{post.location} · {post.timeAgo} ago
+            </div>
+          </div>
+          <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full text-white ${post.tagColor}`}>{post.tag}</span>
+        </div>
+
+        {/* Image 4:3 on mobile (instead of 1:1) */}
+        <div className="relative" style={{ aspectRatio: "4/3" }}>
+          <img src={post.image} alt={post.productName} className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent" />
+          {discount && (
+            <div className="absolute top-2.5 left-2.5">
+              <span className="text-[9px] font-bold px-2 py-0.5 rounded-lg bg-red-500 text-white">-{discount}% OFF</span>
+            </div>
+          )}
+          <button
+            onClick={() => { toggle({ productId: post.id, title: post.productName, price: post.price, imageUrl: post.image }); toast(isWishlisted ? "Removed" : "Saved ❤️"); }}
+            className="absolute top-2.5 right-2.5 h-7 w-7 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center border border-white/15 transition-all hover:scale-110">
+            <Heart className={`h-3.5 w-3.5 ${isWishlisted ? "fill-rose-400 text-rose-400" : "text-white/70"}`} />
+          </button>
+          <div className="absolute bottom-2.5 right-2.5 flex items-center gap-1 bg-black/60 backdrop-blur-sm px-1.5 py-0.5 rounded-full border border-white/10">
+            <MapPin className="h-2.5 w-2.5 text-emerald-400" />
+            <span className="text-[9px] text-white/80 font-medium">{post.distance}</span>
+          </div>
+          <div className="absolute bottom-2.5 left-2.5 right-14">
+            <p className="text-white font-semibold text-xs line-clamp-1 drop-shadow">{post.productName}</p>
+          </div>
+        </div>
+
+        {/* Price + Buy */}
+        <div className="px-3.5 py-2.5 flex items-center justify-between gap-2">
+          <div>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-base font-bold text-emerald-400">{formatBDT(post.price)}</span>
+              {post.compareAt > post.price && (
+                <span className="text-[10px] text-white/30 line-through">{formatBDT(post.compareAt)}</span>
+              )}
+            </div>
+            <div className="flex items-center gap-1 mt-0.5">
+              {[1,2,3,4,5].map(s => (
+                <Star key={s} className={`h-2 w-2 ${s <= Math.round(post.rating) ? "text-yellow-400 fill-yellow-400" : "text-white/15"}`} />
+              ))}
+              <span className="text-[9px] text-white/35 ml-0.5">{post.rating} · {post.sold} sold</span>
+            </div>
+          </div>
+          <button
+            onClick={() => { addToCart({ productId: post.id, productName: post.productName, vendorId: post.id, vendorName: post.shopName, price: post.price, quantity: 1, image: post.image }); toast.success("Added to cart!"); }}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white transition-all hover:opacity-90 shrink-0"
+            style={{ background: "linear-gradient(135deg, hsl(145 65% 32%), hsl(265 55% 44%))" }}>
+            <Zap className="h-3 w-3" /> Buy Now
+          </button>
+        </div>
+
+        {/* Social actions */}
+        <div className="px-3.5 pb-3 flex items-center gap-0.5 border-t border-white/5 pt-2.5">
+          <button onClick={() => { setLiked(l => { setLikes(c => l ? c - 1 : c + 1); return !l; }); }}
+            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-all ${liked ? "text-rose-400 bg-rose-500/10" : "text-white/45 hover:text-white/70 hover:bg-white/5"}`}>
+            <Heart className={`h-3 w-3 ${liked ? "fill-rose-400" : ""}`} /> {likes}
+          </button>
+          <button className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium text-white/45 hover:text-white/70 hover:bg-white/5 transition-all">
+            <MessageCircle className="h-3 w-3" /> {post.comments}
+          </button>
+          <button className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium text-white/45 hover:text-white/70 hover:bg-white/5 transition-all">
+            <Share2 className="h-3 w-3" /> Share
+          </button>
+          <button onClick={() => setSaved(s => !s)}
+            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-all ml-auto ${saved ? "text-emerald-400 bg-emerald-500/10" : "text-white/45 hover:text-white/70 hover:bg-white/5"}`}>
+            <Bookmark className={`h-3 w-3 ${saved ? "fill-emerald-400" : ""}`} />
+          </button>
+        </div>
       </div>
     </GlassCard>
   );
@@ -826,7 +938,7 @@ function ProductGrid() {
   if (!products.length) return null;
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 px-4">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-2.5 px-4 lg:px-0">
       {products.map((p: Product) => (
         <CompactCard
           key={p.id}
@@ -938,7 +1050,7 @@ export default function HomePage() {
         </div>
 
         {/* Desktop 2-col layout for feed + marketplace */}
-        <div className="max-w-7xl mx-auto lg:grid lg:grid-cols-[1fr_280px] lg:gap-8 lg:px-6 lg:pt-2 lg:items-start">
+        <div className="max-w-7xl mx-auto lg:grid lg:grid-cols-[1fr_300px] lg:gap-6 lg:px-6 lg:pt-2 lg:items-start">
 
           {/* Main column */}
           <div>
