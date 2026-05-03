@@ -101,6 +101,19 @@ React + Vite frontend. Dark-themed Bangladesh-focused multi-vendor marketplace.
 
 **Design tokens**: bg `hsl(160 28% 5%)`, primary `hsl(145 65% 38%)`, purple `hsl(265 55% 58%)`. CSS utilities: `.glass`, `.glass-card`, `.glow-green`, `.text-gradient-green`.
 
+**Responsive desktop layouts (completed):**
+- `index.tsx` — custom layout with CompactHeader + SideDrawer; 2-col desktop (feed + right sidebar with categories/trending shops/trust/app promo)
+- `feed.tsx` — 2-col desktop (posts + right sidebar: browse categories/trending shops/app promo)
+- `vendors/[id].tsx` — vendor storefront with desktop left sidebar (shop info/stats/contact/hours) + 4-tab main content
+- `products/index.tsx` — dark glassmorphism; desktop left filter sidebar (category/price range/vendor type/in-stock toggle) + 4-col product grid with active filter chips
+- `vendors/index.tsx` — dark glassmorphism; stats banner (4 tiles) + filter chips (All/Wholesale/Retail/Brand/Local/Service) + search + 4-col vendor cards with rating/sales stats
+- `cart.tsx` — dark glassmorphism; 2-col desktop (items left + sticky order summary/promo code/trust badges right)
+- `checkout.tsx` — dark glassmorphism; 2-col desktop (delivery info/delivery type/payment method left + sticky order summary right)
+- `categories.tsx` — dark glassmorphism; hero banner + product category grid + shop-by-type (4 tiles) + trending sections (3-col banners) + popular search tags
+- `login.tsx` — dark glassmorphism; role tabs (Customer/Seller/Admin) + OTP/password/forgot flows + demo quick-login buttons
+- `products/[id].tsx` — dark glassmorphism; 2-col desktop (image gallery left + product info/price/features/CTA right) + tabs (Description/Specifications/Reviews)
+- `profile.tsx` — desktop left sidebar nav + main content area (dashboard/orders/wishlist/reviews/wallet/settings tabs)
+
 **Key directories:**
 - `src/pages/` — route-level pages (products, cart, checkout, orders, vendors, feed, categories, profile, wallet, notifications, faq, terms)
 - `src/pages/seller/` — seller sub-pages (dashboard, products, product-form, profile, verification, analytics, orders, register)
