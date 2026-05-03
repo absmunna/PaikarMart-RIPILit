@@ -72,8 +72,8 @@ export default function SellerRegisterPage() {
         {/* Header */}
         <div className="text-center mb-10">
           <Badge className="bg-green-100 text-green-700 border-green-200 mb-3">Join 500+ Active Sellers</Badge>
-          <h1 className="text-3xl font-extrabold text-gray-900 mb-3">Start Selling on PaikarMart</h1>
-          <p className="text-gray-500">Reach thousands of buyers across Bangladesh. Fast approval, no upfront fee.</p>
+          <h1 className="text-3xl font-extrabold text-white mb-3">Start Selling on PaikarMart</h1>
+          <p className="text-white/45">Reach thousands of buyers across Bangladesh. Fast approval, no upfront fee.</p>
         </div>
 
         {/* Steps indicator */}
@@ -82,9 +82,9 @@ export default function SellerRegisterPage() {
             {[1, 2].map(s => (
               <div key={s} className="flex items-center gap-2">
                 <div className={`h-8 w-8 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
-                  step >= s ? "bg-green-600 text-white" : "bg-gray-100 text-gray-400"
+                  step >= s ? "bg-green-600 text-white" : "bg-white/5 text-white/35"
                 }`}>{s}</div>
-                <span className={`text-sm font-medium hidden sm:block ${step >= s ? "text-green-700" : "text-gray-400"}`}>
+                <span className={`text-sm font-medium hidden sm:block ${step >= s ? "text-green-700" : "text-white/35"}`}>
                   {s === 1 ? "Business Type" : "Details"}
                 </span>
                 {s < 2 && <div className={`w-8 h-0.5 ${step > s ? "bg-green-600" : "bg-gray-200"}`} />}
@@ -96,7 +96,7 @@ export default function SellerRegisterPage() {
         {/* Step 1: Business Type Selection */}
         {step === 1 && (
           <div>
-            <h2 className="text-lg font-bold text-gray-800 mb-4">Select your business type</h2>
+            <h2 className="text-lg font-bold text-white/85 mb-4">Select your business type</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
               {BUSINESS_TYPES.map(bt => {
                 const Icon = bt.icon;
@@ -104,12 +104,12 @@ export default function SellerRegisterPage() {
                 return (
                   <button key={bt.value} type="button" onClick={() => setSelectedType(bt.value)}
                     className={`relative flex items-start gap-3 p-4 rounded-xl border-2 text-left transition-all ${
-                      isSelected ? `${bt.color} border-2 shadow-sm` : "border-gray-200 bg-white hover:border-gray-300 hover:shadow-sm"
+                      isSelected ? `${bt.color} border-2 shadow-sm` : "border-white/10 bg-white/5 hover:border-gray-300 hover:shadow-sm"
                     }`}>
                     <div className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 ${
-                      isSelected ? "bg-white/60" : "bg-gray-100"
+                      isSelected ? "bg-white/60" : "bg-white/5"
                     }`}>
-                      <Icon className={`h-5 w-5 ${isSelected ? "" : "text-gray-500"}`} />
+                      <Icon className={`h-5 w-5 ${isSelected ? "" : "text-white/45"}`} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
@@ -142,35 +142,35 @@ export default function SellerRegisterPage() {
 
         {/* Step 2: Fill Details */}
         {step === 2 && (
-          <Card className="border-gray-100 shadow-sm">
+          <Card className="border-white/8 shadow-sm">
             <CardContent className="p-6 md:p-8">
-              <div className="flex items-center gap-2 mb-6 p-3 bg-gray-50 rounded-xl">
+              <div className="flex items-center gap-2 mb-6 p-3 bg-white/3 rounded-xl">
                 {(() => {
                   const bt = BUSINESS_TYPES.find(b => b.value === selectedType);
                   const Icon = bt?.icon || Store;
                   return (
                     <>
                       <Icon className="h-5 w-5 text-green-600" />
-                      <span className="text-sm font-medium text-gray-700">Registering as: <strong>{bt?.label}</strong></span>
+                      <span className="text-sm font-medium text-white/70">Registering as: <strong>{bt?.label}</strong></span>
                     </>
                   );
                 })()}
-                <Button variant="ghost" size="sm" onClick={() => setStep(1)} className="ml-auto text-gray-500 text-xs">Change</Button>
+                <Button variant="ghost" size="sm" onClick={() => setStep(1)} className="ml-auto text-white/45 text-xs">Change</Button>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
-                  <Label className="text-sm font-medium text-gray-700 mb-1.5 block">
+                  <Label className="text-sm font-medium text-white/70 mb-1.5 block">
                     <FileText className="h-3.5 w-3.5 inline mr-1 text-green-600" /> Shop / Business Name *
                   </Label>
-                  <Input name="shopName" required placeholder="E.g. Rahim Traders, Tech Solutions Ltd." className="border-gray-200 focus:border-green-500" />
+                  <Input name="shopName" required placeholder="E.g. Rahim Traders, Tech Solutions Ltd." className="border-white/10 focus:border-green-500" />
                 </div>
 
                 <div>
-                  <Label className="text-sm font-medium text-gray-700 mb-1.5 block">Product Category *</Label>
+                  <Label className="text-sm font-medium text-white/70 mb-1.5 block">Product Category *</Label>
                   <select
                     value={selectedCategory} onChange={e => setSelectedCategory(e.target.value)}
-                    className="w-full h-10 border border-gray-200 rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+                    className="w-full h-10 border border-white/10 rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
                     required
                   >
                     <option value="">Select your main category...</option>
@@ -180,45 +180,45 @@ export default function SellerRegisterPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div>
-                    <Label className="text-sm font-medium text-gray-700 mb-1.5 block">
+                    <Label className="text-sm font-medium text-white/70 mb-1.5 block">
                       <Phone className="h-3.5 w-3.5 inline mr-1 text-green-600" /> Phone Number *
                     </Label>
-                    <Input name="phone" required placeholder="01XXXXXXXXX" className="border-gray-200 focus:border-green-500" />
+                    <Input name="phone" required placeholder="01XXXXXXXXX" className="border-white/10 focus:border-green-500" />
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-gray-700 mb-1.5 block">
+                    <Label className="text-sm font-medium text-white/70 mb-1.5 block">
                       <Mail className="h-3.5 w-3.5 inline mr-1 text-green-600" /> Email Address
                     </Label>
-                    <Input name="email" type="email" placeholder="business@example.com" className="border-gray-200 focus:border-green-500" />
+                    <Input name="email" type="email" placeholder="business@example.com" className="border-white/10 focus:border-green-500" />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div>
-                    <Label className="text-sm font-medium text-gray-700 mb-1.5 block">
+                    <Label className="text-sm font-medium text-white/70 mb-1.5 block">
                       <MapPin className="h-3.5 w-3.5 inline mr-1 text-green-600" /> District *
                     </Label>
                     <select name="district" required
-                      className="w-full h-10 border border-gray-200 rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white">
+                      className="w-full h-10 border border-white/10 rounded-lg px-3 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white">
                       <option value="">Select district...</option>
                       {DISTRICTS.map(d => <option key={d} value={d}>{d}</option>)}
                     </select>
                   </div>
                   <div>
-                    <Label className="text-sm font-medium text-gray-700 mb-1.5 block">Full Business Address *</Label>
-                    <Input name="address" required placeholder="Street, Thana, Area" className="border-gray-200 focus:border-green-500" />
+                    <Label className="text-sm font-medium text-white/70 mb-1.5 block">Full Business Address *</Label>
+                    <Input name="address" required placeholder="Street, Thana, Area" className="border-white/10 focus:border-green-500" />
                   </div>
                 </div>
 
                 {/* Document Upload */}
                 <div>
-                  <Label className="text-sm font-medium text-gray-700 mb-1.5 block">Documents (NID / Trade License)</Label>
-                  <div className="border-2 border-dashed border-gray-200 rounded-xl p-5 flex flex-col items-center justify-center text-center cursor-pointer hover:border-green-400 hover:bg-green-50 transition-all">
+                  <Label className="text-sm font-medium text-white/70 mb-1.5 block">Documents (NID / Trade License)</Label>
+                  <div className="border-2 border-dashed border-white/10 rounded-xl p-5 flex flex-col items-center justify-center text-center cursor-pointer hover:border-green-400 hover:bg-green-50 transition-all">
                     <div className="h-10 w-10 rounded-full bg-green-50 text-green-600 flex items-center justify-center mb-2">
                       <Upload className="h-5 w-5" />
                     </div>
-                    <p className="text-sm font-medium text-gray-700 mb-1">Click to upload or drag & drop</p>
-                    <p className="text-xs text-gray-400">PDF, JPG, PNG up to 5MB • Optional for faster approval</p>
+                    <p className="text-sm font-medium text-white/70 mb-1">Click to upload or drag & drop</p>
+                    <p className="text-xs text-white/35">PDF, JPG, PNG up to 5MB • Optional for faster approval</p>
                   </div>
                 </div>
 
@@ -228,7 +228,7 @@ export default function SellerRegisterPage() {
                     {isPending ? "Submitting..." : "Submit Application"}
                   </Button>
                 </div>
-                <p className="text-xs text-center text-gray-400">
+                <p className="text-xs text-center text-white/35">
                   By applying, you agree to our <a href="/terms" className="text-green-600 hover:underline">Seller Terms & Conditions</a>
                 </p>
               </form>
@@ -242,8 +242,8 @@ export default function SellerRegisterPage() {
             <div className="h-24 w-24 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-6">
               <CheckCircle className="h-12 w-12 text-green-600" />
             </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-3">Application Submitted!</h2>
-            <p className="text-gray-500 mb-2 max-w-md mx-auto">Your seller application has been received. Our team will review and get back to you within <strong>24 hours</strong>.</p>
+            <h2 className="text-2xl font-bold text-white mb-3">Application Submitted!</h2>
+            <p className="text-white/45 mb-2 max-w-md mx-auto">Your seller application has been received. Our team will review and get back to you within <strong>24 hours</strong>.</p>
             <p className="text-sm text-green-600 mb-8">Check your phone/email for confirmation.</p>
             <div className="flex gap-3 justify-center">
               <Button variant="outline" onClick={() => setLocation("/")}>Go to Home</Button>
@@ -262,8 +262,8 @@ export default function SellerRegisterPage() {
             ].map(b => (
               <div key={b.title} className="text-center p-4 rounded-xl bg-green-50 border border-green-100">
                 <CheckCircle className="h-6 w-6 text-green-600 mx-auto mb-2" />
-                <p className="font-semibold text-sm text-gray-800">{b.title}</p>
-                <p className="text-xs text-gray-500 mt-0.5">{b.desc}</p>
+                <p className="font-semibold text-sm text-white/85">{b.title}</p>
+                <p className="text-xs text-white/45 mt-0.5">{b.desc}</p>
               </div>
             ))}
           </div>
