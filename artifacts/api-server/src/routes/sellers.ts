@@ -173,6 +173,16 @@ router.put("/sellers/:id/approve", async (req, res): Promise<void> => {
   res.json(ApproveSellerResponse.parse(normalizeSeller(seller as unknown as Record<string, unknown>)));
 });
 
+router.put("/sellers/:id/suspend", async (req, res): Promise<void> => {
+  const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  const [seller] = await db.update(sellersTable)
+    .set({ status: "suspended" })
+    .where(eq(sellersTable.id, raw))
+    .returning();
+  if (!seller) { res.status(404).json({ error: "Seller not found" }); return; }
+  res.json(normalizeSeller(seller as unknown as Record<string, unknown>));
+});
+
 router.get("/sellers/:id/dashboard", async (req, res): Promise<void> => {
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const params = GetSellerDashboardParams.safeParse({ id: raw });
