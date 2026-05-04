@@ -1,6 +1,7 @@
 import { Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/use-auth";
 import { CartProvider } from "@/hooks/use-cart";
@@ -35,6 +36,7 @@ function App() {
                         <AppRouter />
                       </WouterRouter>
                       <Toaster position="top-right" richColors />
+                      <SpeedInsights />
                     </TooltipProvider>
                   </CartProvider>
                 </SellerProvider>
