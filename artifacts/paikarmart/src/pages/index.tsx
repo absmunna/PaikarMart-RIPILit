@@ -1,347 +1,444 @@
-import React, { useState } from "react";
-import { Link } from "wouter";
+import React, { useState, useEffect } from "react";
+import { Link, useLocation } from "wouter";
+import { useListProducts, useListSellers } from "@workspace/api-client-react";
 import { Layout } from "@/components/layout/Layout";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
-  Heart, MessageCircle, ShoppingCart, MoreHorizontal,
-  Star, Eye, Plus, Globe, BadgeCheck, TrendingUp, Flame
+  Store, Tag, TrendingUp, Package, HeadphonesIcon, Building2,
+  Star, ShoppingCart, Zap, ChevronLeft, ChevronRight,
+  ShieldCheck, CreditCard, Truck, Award, MapPin
 } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useCart } from "@/hooks/use-cart";
-import { useListProducts } from "@workspace/api-client-react";
-import type { Product } from "@workspace/api-client-react";
 import { toast } from "sonner";
+import type { Product } from "@workspace/api-client-react";
 
-/* ─── Theme ─── */
-const GLOW  = "#00FF9C";
-const RED   = "#FF3B3B";
-const TEXT  = "#E8F5EE";
-const MUTED = "#A3C9B8";
-
-/* ─── Stories ─── */
-const STORIES = [
-  { id: "your",  label: "Add Story",    bg: "rgba(255,255,255,0.07)", border: "rgba(255,255,255,0.18)", isYour: true },
-  { id: "new",   label: "New Arrivals", bg: "#1a2e20",                border: RED,                     emoji: "🔥"  },
-  { id: "hot",   label: "Hot Deals",    bg: "#2b1a10",                border: "#f59e0b",               emoji: "⚡"  },
-  { id: "top",   label: "Top Sellers",  bg: "#1a1a2e",                border: "#8b5cf6",               emoji: "⭐"  },
-  { id: "ws",    label: "Wholesale",    bg: "#0a1e2e",                border: "#0ea5e9",               emoji: "📦"  },
-  { id: "fresh", label: "Fresh Stock",  bg: "#0e2a1a",                border: GLOW,                    emoji: "🌿"  },
+const HERO_SLIDES = [
+  {
+    id: 1,
+    gradient: "from-green-800 via-green-700 to-emerald-600",
+    eyebrow: "Welcome to PaikarMart",
+    headline: "The Premium Market for Bangladesh",
+    sub: "Connect with wholesalers, brands, and local shops. Get the best prices with reliable delivery.",
+    cta1: { label: "Start Shopping", href: "/products" },
+    cta2: { label: "Become a Seller", href: "/seller/register" },
+    badge: "🚀 10,000+ Products Listed",
+    img: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&q=80",
+  },
+  {
+    id: 2,
+    gradient: "from-blue-900 via-blue-800 to-blue-700",
+    eyebrow: "Wholesale Marketplace",
+    headline: "Buy in Bulk, Save More",
+    sub: "Access thousands of wholesale suppliers across Bangladesh. MOQ as low as 10 units.",
+    cta1: { label: "Browse Wholesale", href: "/vendors?type=wholesale" },
+    cta2: { label: "Register as Seller", href: "/seller/register" },
+    badge: "💰 Up to 60% Wholesale Savings",
+    img: "https://images.unsplash.com/photo-1578574577315-3fbeb0cecdc2?w=600&q=80",
+  },
+  {
+    id: 3,
+    gradient: "from-purple-900 via-purple-800 to-violet-700",
+    eyebrow: "Digital & Services",
+    headline: "Software, Services & Digital Products",
+    sub: "Find professional services, digital downloads, and software licenses all in one place.",
+    cta1: { label: "Explore Services", href: "/vendors?type=service" },
+    cta2: { label: "List Your Service", href: "/seller/register" },
+    badge: "⚡ Instant Digital Delivery",
+    img: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&q=80",
+  },
 ];
 
-/* ─── Sellers ─── */
-const SELLERS = [
-  { initials: "GH", name: "Green Harvest Traders", color: "#1a6b38", verified: true,  cat: "Agriculture",    desc: "সেরা মানের মিনিকেট চাল – পাইকারী দামে পাওয়া যাচ্ছে!\nআপনার ব্যবসার জন্য সেরা পছন্দ। আজই অর্ডার করুন। 🌾" },
-  { initials: "AA", name: "Apon Agro Supply",       color: "#15803d", verified: false, cat: "Food & Grocery", desc: "খাঁটি সরিষার তেল ৫ লিটার – স্বাস্থ্যকর ও বিশুদ্ধ। সরাসরি মিলের দামে। 🛢️" },
-  { initials: "BF", name: "BD Fresh Market",        color: "#065f46", verified: true,  cat: "Agriculture",    desc: "তাজা মসুর ডাল ১ কেজি – সরাসরি কৃষকের কাছ থেকে। হোলসেলে বিশাল ছাড়! 🌱" },
-  { initials: "MS", name: "Metro Spice House",      color: "#1e3a5f", verified: true,  cat: "Spices",         desc: "সেরা মানের চক্কি আটা ৫ কেজি – রুটি ও পরোটার জন্য পারফেক্ট। 🌾" },
-  { initials: "RC", name: "Royal Cotton Mills",     color: "#3b1f6b", verified: false, cat: "Textiles",       desc: "উচ্চমানের সুতা ও কাপড় – পাইকারি মূল্যে সরাসরি মিল থেকে। 🧵" },
-  { initials: "DF", name: "Delta Foods Ltd.",       color: "#7f1d1d", verified: true,  cat: "Food",           desc: "মানসম্মত প্রক্রিয়াজাত খাদ্যপণ্য – রেস্টুরেন্ট ও হোটেলের জন্য আদর্শ। 🍽️" },
+const CATEGORIES = [
+  { name: "Wholesale", icon: Package, desc: "Bulk orders at lowest prices", href: "/vendors?type=wholesale", color: "bg-orange-100 text-orange-600" },
+  { name: "Retail", icon: Tag, desc: "Single items, personal use", href: "/vendors?type=retail", color: "bg-blue-100 text-blue-600" },
+  { name: "Brand Seller", icon: Building2, desc: "Official brand stores", href: "/vendors?type=brand_seller", color: "bg-purple-100 text-purple-600" },
+  { name: "Dropship", icon: TrendingUp, desc: "Sell with zero inventory", href: "/vendors?type=dropship", color: "bg-teal-100 text-teal-600" },
+  { name: "Service", icon: HeadphonesIcon, desc: "Professional services", href: "/vendors?type=service", color: "bg-pink-100 text-pink-600" },
+  { name: "Local Shop", icon: Store, desc: "Stores near you", href: "/vendors?type=local_shop", color: "bg-yellow-100 text-yellow-600" },
 ];
 
-const TIMES   = ["just now","2 min ago","15 min ago","1 hour ago","3 hours ago","Yesterday"];
-const FALLBACKS = [
-  "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600&q=80",
-  "https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&q=80",
-  "https://images.unsplash.com/photo-1518977822534-7049a61ee0c2?w=600&q=80",
-  "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?w=600&q=80",
-  "https://images.unsplash.com/photo-1559181567-c3190bce8d0a?w=600&q=80",
-  "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=600&q=80",
+const PROMO_BANNERS_1 = [
+  { title: "Flash Sale", sub: "Electronics up to 40% off", color: "from-orange-500 to-red-500", href: "/products?category=Electronics" },
+  { title: "New Arrivals", sub: "Fresh fashion collections", color: "from-pink-500 to-purple-500", href: "/products?category=Fashion" },
+  { title: "Wholesale Hub", sub: "MOQ deals for resellers", color: "from-blue-500 to-cyan-500", href: "/vendors?type=wholesale" },
 ];
 
-function GlassCard({ children }: { children: React.ReactNode }) {
+function HeroSlider() {
+  const [current, setCurrent] = useState(0);
+  const [, navigate] = useLocation();
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrent(c => (c + 1) % HERO_SLIDES.length), 5000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const slide = HERO_SLIDES[current];
+
   return (
-    <div
-      style={{
-        background: "linear-gradient(145deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.025) 100%)",
-        border: "1px solid rgba(255,255,255,0.10)",
-        borderRadius: 20,
-        boxShadow: "0 8px 32px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.06)",
-        backdropFilter: "blur(20px)",
-        WebkitBackdropFilter: "blur(20px)",
-        overflow: "hidden",
-      }}
-    >
-      {children}
-    </div>
+    <section className={`relative bg-gradient-to-r ${slide.gradient} text-white overflow-hidden transition-all duration-700`} style={{ minHeight: 420 }}>
+      <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_70%_50%,white,transparent)]" />
+      <div className="container mx-auto px-4 py-14 lg:py-20 flex flex-col lg:flex-row items-center justify-between gap-8 relative z-10">
+        <div className="flex-1 text-center lg:text-left">
+          <div className="inline-block bg-white/20 backdrop-blur-sm text-white text-xs font-semibold px-4 py-1.5 rounded-full mb-4 border border-white/30">
+            {slide.badge}
+          </div>
+          <p className="text-white/70 font-medium text-sm mb-2 uppercase tracking-widest">{slide.eyebrow}</p>
+          <h1 className="text-3xl lg:text-5xl font-extrabold mb-4 leading-tight">{slide.headline}</h1>
+          <p className="text-white/80 text-base lg:text-lg mb-8 max-w-lg">{slide.sub}</p>
+          <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3">
+            <Button size="lg" variant="secondary" onClick={() => navigate(slide.cta1.href)} className="w-full sm:w-auto font-bold">
+              {slide.cta1.label}
+            </Button>
+            <Button size="lg" onClick={() => navigate(slide.cta2.href)} className="w-full sm:w-auto bg-white/20 border border-white/40 hover:bg-white/30 text-white backdrop-blur-sm">
+              {slide.cta2.label}
+            </Button>
+          </div>
+        </div>
+        <div className="hidden lg:block w-80 h-64 rounded-2xl overflow-hidden shadow-2xl border-4 border-white/20 shrink-0">
+          <img src={slide.img} alt={slide.headline} className="w-full h-full object-cover" />
+        </div>
+      </div>
+
+      {/* Slide Navigation */}
+      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-3 z-20">
+        <button onClick={() => setCurrent(c => (c - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)}
+          className="h-8 w-8 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center border border-white/30 transition-colors">
+          <ChevronLeft className="h-4 w-4 text-white" />
+        </button>
+        {HERO_SLIDES.map((_, i) => (
+          <button key={i} onClick={() => setCurrent(i)}
+            className={`rounded-full transition-all duration-300 ${i === current ? "w-8 h-2.5 bg-white" : "w-2.5 h-2.5 bg-white/50"}`} />
+        ))}
+        <button onClick={() => setCurrent(c => (c + 1) % HERO_SLIDES.length)}
+          className="h-8 w-8 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center border border-white/30 transition-colors">
+          <ChevronRight className="h-4 w-4 text-white" />
+        </button>
+      </div>
+    </section>
   );
 }
 
-export default function HomePage() {
-  const { addToCart }             = useCart();
-  const { data, isLoading }       = useListProducts({ limit: 12 });
-  const products                  = data?.products ?? [];
-  const [liked, setLiked]         = useState<Record<string, boolean>>({});
-  const [wishlist, setWishlist]   = useState<Record<string, boolean>>({});
-  const [cartAdded, setCartAdded] = useState<Record<string, boolean>>({});
+function ProductCard({ product }: { product: Product }) {
+  const { addToCart } = useCart();
+  const [, navigate] = useLocation();
+  const [adding, setAdding] = useState(false);
 
-  const handleCart = (product: Product) => {
+  const handleAdd = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setAdding(true);
     addToCart({
       productId: product.id,
       productName: product.name,
       vendorId: product.vendorId,
       vendorName: product.vendorName,
+      price: product.price || 0,
       quantity: 1,
-      price: product.price ?? 0,
-      image: product.images?.[0] ?? "",
+      image: product.images?.[0] || "",
     });
-    setCartAdded(p => ({ ...p, [product.id]: true }));
-    toast.success("Added to cart!", {
-      style: { background: "#0B2B1F", border: "1px solid rgba(0,255,156,0.3)", color: TEXT },
-    });
-    setTimeout(() => setCartAdded(p => ({ ...p, [product.id]: false })), 1500);
+    toast.success("Added to cart!");
+    setTimeout(() => setAdding(false), 800);
   };
+
+  const handleBuyNow = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addToCart({
+      productId: product.id,
+      productName: product.name,
+      vendorId: product.vendorId,
+      vendorName: product.vendorName,
+      price: product.price || 0,
+      quantity: 1,
+      image: product.images?.[0] || "",
+    });
+    navigate("/checkout");
+  };
+
+  const originalPrice = product.price ? Math.round(product.price * 1.15) : 0;
+
+  return (
+    <Link href={`/products/${product.id}`}>
+      <Card className="group cursor-pointer overflow-hidden transition-all duration-200 hover:shadow-xl hover:-translate-y-1 border-gray-100 h-full flex flex-col">
+        <div className="aspect-square bg-gray-50 relative overflow-hidden">
+          {product.images?.[0] ? (
+            <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-gray-300">
+              <Package className="h-12 w-12" />
+            </div>
+          )}
+          {product.inStock === false && (
+            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+              <Badge variant="destructive">Out of Stock</Badge>
+            </div>
+          )}
+          {product.type === "digital" && (
+            <div className="absolute top-2 left-2">
+              <Badge className="bg-blue-600 text-white text-[10px]">Digital</Badge>
+            </div>
+          )}
+        </div>
+        <CardContent className="p-3 flex flex-col flex-1">
+          <div className="text-[10px] text-green-600 font-semibold uppercase tracking-wide mb-1">{product.category}</div>
+          <h3 className="font-medium text-sm line-clamp-2 mb-1.5 group-hover:text-green-700 transition-colors text-gray-800 flex-1">{product.name}</h3>
+          <p className="text-xs text-gray-500 mb-2 line-clamp-1 flex items-center gap-1">
+            <Store className="h-3 w-3 shrink-0" /> {product.vendorName}
+          </p>
+          <div className="flex items-center gap-1 mb-3">
+            {[1, 2, 3, 4, 5].map(s => (
+              <Star key={s} className={`h-3 w-3 ${s <= Math.round(product.rating || 4) ? "text-yellow-400 fill-yellow-400" : "text-gray-200 fill-gray-200"}`} />
+            ))}
+            <span className="text-[10px] text-gray-500 ml-0.5">({product.reviewCount || 0})</span>
+          </div>
+          <div className="mb-3">
+            {product.priceOnInquiry ? (
+              <span className="text-sm font-bold text-orange-600">Price on Request</span>
+            ) : (
+              <div className="flex items-baseline gap-2">
+                <span className="font-bold text-base text-gray-900">৳{product.price?.toLocaleString()}</span>
+                {originalPrice > 0 && (
+                  <span className="text-xs text-gray-400 line-through">৳{originalPrice.toLocaleString()}</span>
+                )}
+              </div>
+            )}
+            {product.moq && <p className="text-[10px] text-orange-500 mt-0.5">MOQ: {product.moq} units</p>}
+          </div>
+          <div className="flex gap-1.5">
+            <Button
+              size="sm"
+              variant="outline"
+              className="flex-1 h-8 text-xs border-green-200 hover:border-green-500 hover:text-green-600"
+              onClick={handleAdd}
+              disabled={adding || product.inStock === false}
+            >
+              <ShoppingCart className="h-3 w-3 mr-1" />
+              {adding ? "Added!" : "Add"}
+            </Button>
+            <Button
+              size="sm"
+              className="flex-1 h-8 text-xs bg-green-600 hover:bg-green-700"
+              onClick={handleBuyNow}
+              disabled={product.priceOnInquiry || product.inStock === false}
+            >
+              <Zap className="h-3 w-3 mr-1" /> Buy Now
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </Link>
+  );
+}
+
+function VendorCard({ seller }: { seller: any }) {
+  return (
+    <Link href={`/vendors/${seller.id}`}>
+      <Card className="hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 cursor-pointer overflow-hidden h-full">
+        <div className="h-28 bg-gradient-to-br from-green-100 to-emerald-50 relative overflow-hidden">
+          {seller.image && <img src={seller.image} alt={seller.shopName} className="w-full h-full object-cover opacity-60" />}
+          <div className="absolute bottom-2 left-2">
+            <Badge className="bg-green-600 text-white text-[10px] capitalize">{seller.businessType?.replace("_", " ")}</Badge>
+          </div>
+        </div>
+        <CardContent className="p-3">
+          <h3 className="font-semibold text-sm line-clamp-1 mb-1">{seller.shopName}</h3>
+          <div className="flex items-center gap-1 text-xs text-gray-500 mb-2">
+            <MapPin className="h-3 w-3 text-green-600" /> {seller.district || seller.location || "Bangladesh"}
+          </div>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-0.5">
+              <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
+              <span className="text-xs font-medium">{seller.rating?.toFixed(1) || "4.0"}</span>
+            </div>
+            <Button size="sm" variant="outline" className="h-6 text-[10px] border-green-200 text-green-700 hover:bg-green-50 px-2">Visit Store</Button>
+          </div>
+        </CardContent>
+      </Card>
+    </Link>
+  );
+}
+
+export default function Home() {
+  const [, navigate] = useLocation();
+  const { data: productsData, isLoading: productsLoading } = useListProducts({ limit: 8 });
+  const { data: sellersData, isLoading: sellersLoading } = useListSellers({ status: "active" });
+
+  const products = productsData?.products || [];
+  const sellers = sellersData?.sellers?.slice(0, 4) || [];
 
   return (
     <Layout>
-      <div className="max-w-[480px] mx-auto w-full">
-
-        {/* ══════════════════ STORIES ══════════════════ */}
-        <div className="px-3 pt-3 pb-2" style={{ borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
-          <div className="flex items-start gap-3 overflow-x-auto scrollbar-hide pb-1">
-            {STORIES.map(s => (
-              <button key={s.id} className="flex flex-col items-center gap-1.5 shrink-0 group">
-                <div
-                  className="h-[58px] w-[58px] rounded-full flex items-center justify-center text-xl transition-transform duration-200 group-hover:scale-105"
-                  style={{
-                    background: s.bg,
-                    border: `2.5px solid ${s.border}`,
-                    boxShadow: `0 0 10px ${s.border}40`,
-                  }}
+      {/* Feed / Marketplace Toggle */}
+      <div className="sticky z-30" style={{ top: "94px" }}>
+        <div className="glass border-b" style={{ borderColor: "hsl(42 72% 50% / 0.2)" }}>
+          <div className="container mx-auto px-4">
+            <div className="flex items-center h-11 gap-1">
+              <div className="flex items-center bg-white/60 rounded-full p-1 gold-ring-sm">
+                <button
+                  onClick={() => navigate("/feed")}
+                  className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-medium text-gray-500 hover:text-gray-700 transition-all"
                 >
-                  {s.isYour
-                    ? <Plus className="h-5 w-5" style={{ color: MUTED }} />
-                    : <span>{s.emoji}</span>
-                  }
-                </div>
-                <span className="text-[10px] font-medium leading-none max-w-[60px] truncate text-center" style={{ color: MUTED }}>
-                  {s.label}
-                </span>
-              </button>
-            ))}
+                  🏠 Feed
+                </button>
+                <button
+                  className="flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-semibold text-white transition-all"
+                  style={{ background: "linear-gradient(135deg, hsl(350 55% 28%), hsl(350 55% 38%))" }}
+                >
+                  🛍️ Marketplace
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-
-        {/* ══════════════════ FEED ══════════════════ */}
-        <div className="px-3 py-3 space-y-4">
-          {isLoading
-            ? Array.from({ length: 3 }).map((_, i) => (
-                <GlassCard key={i}>
-                  <div className="p-4 flex items-center gap-3 animate-pulse">
-                    <div className="h-10 w-10 rounded-full shrink-0" style={{ background: "rgba(255,255,255,0.07)" }} />
-                    <div className="flex-1 space-y-2">
-                      <div className="h-3 rounded-full w-36" style={{ background: "rgba(255,255,255,0.07)" }} />
-                      <div className="h-2.5 rounded-full w-24" style={{ background: "rgba(255,255,255,0.05)" }} />
-                    </div>
-                  </div>
-                  <div className="aspect-square" style={{ background: "rgba(255,255,255,0.04)" }} />
-                  <div className="p-4 space-y-2 animate-pulse">
-                    <div className="h-3 rounded-full w-full" style={{ background: "rgba(255,255,255,0.06)" }} />
-                    <div className="h-2.5 rounded-full w-2/3" style={{ background: "rgba(255,255,255,0.04)" }} />
-                  </div>
-                </GlassCard>
-              ))
-            : products.map((product, i) => {
-                const seller     = SELLERS[i % SELLERS.length];
-                const timeStr    = TIMES[i % TIMES.length];
-                const fallback   = FALLBACKS[i % FALLBACKS.length];
-                const discPct    = 10 + (i * 7) % 20;
-                const oldPrice   = Math.round((product.price ?? 0) * (1 + discPct / 100));
-                const rating     = (4.2 + (i * 0.13) % 0.7).toFixed(1);
-                const reviews    = 24 + (i * 37) % 180;
-                const views      = 350 + (i * 213) % 2200;
-                const isLiked    = liked[product.id];
-                const inWishlist = wishlist[product.id];
-                const inCart     = cartAdded[product.id];
-
-                return (
-                  <GlassCard key={product.id}>
-
-                    {/* ─ Seller header ─ */}
-                    <div className="flex items-center gap-2.5 px-4 pt-4 pb-2">
-                      <div
-                        className="h-10 w-10 rounded-full flex items-center justify-center text-white font-bold text-sm shrink-0"
-                        style={{ background: seller.color, boxShadow: `0 0 14px ${seller.color}60` }}
-                      >
-                        {seller.initials}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-1">
-                          <p className="font-semibold text-sm truncate" style={{ color: TEXT }}>{seller.name}</p>
-                          {seller.verified && <BadgeCheck className="h-3.5 w-3.5 shrink-0" style={{ color: GLOW }} />}
-                        </div>
-                        <div className="flex items-center gap-1.5 mt-0.5">
-                          <span className="text-xs" style={{ color: MUTED }}>{timeStr}</span>
-                          <span style={{ color: MUTED, fontSize: 10 }}>·</span>
-                          <Globe className="h-3 w-3" style={{ color: MUTED }} />
-                          <span
-                            className="px-1.5 py-0.5 rounded-full text-[9px] font-semibold"
-                            style={{ background: "rgba(0,255,156,0.08)", color: GLOW, border: "1px solid rgba(0,255,156,0.18)" }}
-                          >
-                            {seller.cat}
-                          </span>
-                        </div>
-                      </div>
-                      <button
-                        className="shrink-0 h-7 px-3 rounded-lg text-[11px] font-bold border transition-all hover:scale-105"
-                        style={{ borderColor: `${RED}60`, color: RED, background: "rgba(255,59,59,0.07)" }}
-                      >
-                        + Follow
-                      </button>
-                      <button
-                        className="shrink-0 h-7 w-7 flex items-center justify-center rounded-lg transition-all hover:bg-white/6"
-                        style={{ color: MUTED }}
-                      >
-                        <MoreHorizontal className="h-4 w-4" />
-                      </button>
-                    </div>
-
-                    {/* ─ Description ─ */}
-                    <div className="px-4 pb-2">
-                      <p className="text-sm leading-relaxed whitespace-pre-line" style={{ color: `${TEXT}bb` }}>
-                        {seller.desc}
-                      </p>
-                    </div>
-
-                    {/* ─ Product image — white bg, object-contain ─ */}
-                    <Link href={`/products/${product.id}`}>
-                      <div className="relative aspect-square w-full overflow-hidden" style={{ background: "#f4f6f4" }}>
-                        <img
-                          src={product.images?.[0] ?? fallback}
-                          alt={product.name}
-                          className="w-full h-full object-contain p-6 transition-transform duration-300 hover:scale-105"
-                          onError={e => { (e.target as HTMLImageElement).src = fallback; }}
-                        />
-
-                        {/* Discount pill */}
-                        <div
-                          className="absolute top-3 left-3 px-2.5 py-0.5 rounded-full text-xs font-bold text-white"
-                          style={{ background: RED, boxShadow: `0 0 14px ${RED}70` }}
-                        >
-                          -{discPct}%
-                        </div>
-
-                        {/* Trend badge */}
-                        {i % 3 === 0 && (
-                          <div
-                            className="absolute top-3 right-3 flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold"
-                            style={{ background: "rgba(6,26,18,0.88)", color: GLOW, border: `1px solid ${GLOW}30`, backdropFilter: "blur(8px)" }}
-                          >
-                            <TrendingUp className="h-2.5 w-2.5" /> Trending
-                          </div>
-                        )}
-                        {i % 5 === 1 && (
-                          <div
-                            className="absolute top-3 right-3 flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold"
-                            style={{ background: "rgba(6,26,18,0.88)", color: "#f59e0b", border: "1px solid rgba(245,158,11,0.25)", backdropFilter: "blur(8px)" }}
-                          >
-                            <Flame className="h-2.5 w-2.5" /> Hot
-                          </div>
-                        )}
-
-                        {/* Price overlay */}
-                        <div
-                          className="absolute bottom-3 left-3 px-3 py-2 rounded-xl"
-                          style={{
-                            background: "rgba(6,26,18,0.90)",
-                            border: "1px solid rgba(255,255,255,0.12)",
-                            backdropFilter: "blur(12px)",
-                          }}
-                        >
-                          <p className="font-bold text-[15px] leading-none" style={{ color: RED }}>
-                            ৳ {(product.price ?? 0).toLocaleString("en-BD")}
-                          </p>
-                          <p className="text-xs line-through leading-none mt-0.5" style={{ color: MUTED }}>
-                            ৳ {oldPrice.toLocaleString("en-BD")}
-                          </p>
-                        </div>
-                      </div>
-                    </Link>
-
-                    {/* ─ Product info ─ */}
-                    <div className="px-4 pt-3 pb-2">
-                      <p className="font-semibold text-sm line-clamp-1" style={{ color: TEXT }}>{product.name}</p>
-                      <div className="flex items-center gap-3 mt-1.5">
-                        <div className="flex items-center gap-0.5">
-                          {[...Array(5)].map((_, j) => (
-                            <Star
-                              key={j}
-                              className="h-3 w-3"
-                              style={{
-                                fill: j < Math.floor(Number(rating)) ? "#f59e0b" : "transparent",
-                                color: "#f59e0b",
-                              }}
-                            />
-                          ))}
-                          <span className="text-xs font-semibold ml-1" style={{ color: "#f59e0b" }}>{rating}</span>
-                          <span className="text-xs ml-0.5" style={{ color: MUTED }}>({reviews})</span>
-                        </div>
-                        <div className="flex items-center gap-1" style={{ color: MUTED }}>
-                          <Eye className="h-3 w-3" />
-                          <span className="text-xs">{views >= 1000 ? (views / 1000).toFixed(1) + "k" : views} views</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* ─ Divider ─ */}
-                    <div className="mx-4" style={{ height: 1, background: "rgba(255,255,255,0.06)" }} />
-
-                    {/* ─ Actions ─ */}
-                    <div className="flex items-center justify-between px-4 py-3">
-                      {/* Like + Comment */}
-                      <div className="flex items-center gap-1">
-                        <button
-                          onClick={() => setLiked(p => ({ ...p, [product.id]: !p[product.id] }))}
-                          className="flex items-center gap-1.5 h-9 px-3 rounded-xl transition-all hover:bg-white/5"
-                          style={{ color: isLiked ? RED : MUTED }}
-                        >
-                          <Heart
-                            className="h-[17px] w-[17px]"
-                            style={{ fill: isLiked ? RED : "transparent", filter: isLiked ? `drop-shadow(0 0 4px ${RED})` : "none" }}
-                          />
-                          <span className="text-xs font-medium">Like</span>
-                        </button>
-                        <button
-                          className="flex items-center gap-1.5 h-9 px-3 rounded-xl transition-all hover:bg-white/5"
-                          style={{ color: MUTED }}
-                        >
-                          <MessageCircle className="h-[17px] w-[17px]" />
-                          <span className="text-xs font-medium">Comment</span>
-                        </button>
-                      </div>
-
-                      {/* Wishlist + Cart */}
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => setWishlist(p => ({ ...p, [product.id]: !p[product.id] }))}
-                          className="h-9 w-9 flex items-center justify-center rounded-xl border transition-all"
-                          style={{
-                            borderColor: inWishlist ? `${RED}55` : "rgba(255,255,255,0.12)",
-                            background: inWishlist ? "rgba(255,59,59,0.09)" : "transparent",
-                            color: inWishlist ? RED : MUTED,
-                          }}
-                        >
-                          <Heart className="h-4 w-4" style={{ fill: inWishlist ? RED : "transparent" }} />
-                        </button>
-                        <button
-                          onClick={() => handleCart(product)}
-                          className="flex items-center gap-1.5 h-9 px-4 rounded-xl border font-semibold text-[12px] transition-all duration-200"
-                          style={{
-                            borderColor: inCart ? GLOW : `${GLOW}45`,
-                            color: inCart ? "#061A12" : GLOW,
-                            background: inCart ? GLOW : "rgba(0,255,156,0.07)",
-                            boxShadow: inCart ? `0 0 16px rgba(0,255,156,0.35)` : "none",
-                          }}
-                        >
-                          <ShoppingCart className="h-3.5 w-3.5" />
-                          {inCart ? "Added!" : "Add to Cart"}
-                        </button>
-                      </div>
-                    </div>
-                  </GlassCard>
-                );
-              })
-          }
-        </div>
-
       </div>
+
+      <HeroSlider />
+
+      {/* Promo Banners */}
+      <section className="container mx-auto px-4 py-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {PROMO_BANNERS_1.map(b => (
+            <Link key={b.title} href={b.href}>
+              <div className={`bg-gradient-to-r ${b.color} rounded-xl p-5 text-white cursor-pointer hover:opacity-90 transition-opacity`}>
+                <h3 className="font-bold text-base">{b.title}</h3>
+                <p className="text-white/80 text-sm mt-1">{b.sub}</p>
+                <span className="text-xs mt-3 inline-block bg-white/20 px-3 py-1 rounded-full">Shop Now →</span>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Category Grid */}
+      <section className="py-12 container mx-auto px-4">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-gray-900">Shop by Vendor Type</h2>
+          <Link href="/vendors"><Button variant="ghost" size="sm" className="text-green-600">View All</Button></Link>
+        </div>
+        <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
+          {CATEGORIES.map(cat => {
+            const Icon = cat.icon;
+            return (
+              <Link key={cat.name} href={cat.href}>
+                <Card className="hover:border-green-400 hover:shadow-md transition-all cursor-pointer h-full group">
+                  <CardContent className="p-4 flex flex-col items-center text-center gap-3">
+                    <div className={`h-11 w-11 rounded-full ${cat.color} flex items-center justify-center group-hover:scale-110 transition-transform`}>
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-sm text-gray-800 group-hover:text-green-700">{cat.name}</h3>
+                      <p className="text-[10px] text-gray-500 hidden sm:block mt-0.5">{cat.desc}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Featured Products */}
+      <section className="py-12 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">Featured Products</h2>
+            <Link href="/products"><Button variant="ghost" size="sm" className="text-green-600">View All →</Button></Link>
+          </div>
+          {productsLoading ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className="space-y-3">
+                  <Skeleton className="aspect-square w-full rounded-xl" />
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                  <Skeleton className="h-8 w-full" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {products.map(product => <ProductCard key={product.id} product={product} />)}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Promo Ad Section 2 */}
+      <section className="container mx-auto px-4 py-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-gradient-to-r from-green-700 to-emerald-600 rounded-2xl p-8 text-white flex items-center justify-between overflow-hidden relative">
+            <div className="absolute right-0 top-0 h-full w-48 opacity-10 bg-[radial-gradient(circle,white,transparent)]" />
+            <div>
+              <p className="text-white/70 text-sm mb-1">For Sellers</p>
+              <h3 className="text-2xl font-bold mb-2">Start Selling Today</h3>
+              <p className="text-white/80 text-sm mb-4">Join 500+ active sellers on PaikarMart</p>
+              <Link href="/seller/register">
+                <Button variant="secondary" size="sm" className="font-semibold">Register as Seller</Button>
+              </Link>
+            </div>
+            <Store className="h-24 w-24 text-white/20 shrink-0" />
+          </div>
+          <div className="bg-gradient-to-r from-slate-800 to-slate-700 rounded-2xl p-8 text-white flex items-center justify-between overflow-hidden relative">
+            <div>
+              <p className="text-white/70 text-sm mb-1">Wholesale Hub</p>
+              <h3 className="text-2xl font-bold mb-2">B2B Marketplace</h3>
+              <p className="text-white/80 text-sm mb-4">Bulk deals for business buyers</p>
+              <Link href="/vendors?type=wholesale">
+                <Button variant="outline" size="sm" className="text-white border-white/40 hover:bg-white/10">Explore Wholesale</Button>
+              </Link>
+            </div>
+            <Package className="h-24 w-24 text-white/20 shrink-0" />
+          </div>
+        </div>
+      </section>
+
+      {/* Vendors Section */}
+      {sellers.length > 0 && (
+        <section className="py-12 bg-gray-50">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-900">Featured Vendors</h2>
+              <Link href="/vendors"><Button variant="ghost" size="sm" className="text-green-600">View All →</Button></Link>
+            </div>
+            {sellersLoading ? (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-40 rounded-xl" />)}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {sellers.map(s => <VendorCard key={s.id} seller={s} />)}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Trust Section */}
+      <section className="py-16 container mx-auto px-4">
+        <h2 className="text-2xl font-bold text-center mb-10 text-gray-900">Why Choose PaikarMart?</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {[
+            { icon: ShieldCheck, title: "Verified Sellers", desc: "Every seller is verified for your safety.", color: "bg-green-100 text-green-600" },
+            { icon: CreditCard, title: "Secure Payments", desc: "Multiple secure payment methods.", color: "bg-blue-100 text-blue-600" },
+            { icon: Truck, title: "Fast Delivery", desc: "Delivery across all Bangladesh.", color: "bg-orange-100 text-orange-600" },
+            { icon: Award, title: "Quality Assured", desc: "Products meet quality standards.", color: "bg-purple-100 text-purple-600" },
+          ].map(f => {
+            const Icon = f.icon;
+            return (
+              <div key={f.title} className="flex flex-col items-center text-center p-6 rounded-2xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+                <div className={`h-14 w-14 rounded-full ${f.color} flex items-center justify-center mb-4`}>
+                  <Icon className="h-7 w-7" />
+                </div>
+                <h3 className="font-bold mb-2 text-gray-800">{f.title}</h3>
+                <p className="text-sm text-gray-500">{f.desc}</p>
+              </div>
+            );
+          })}
+        </div>
+      </section>
     </Layout>
   );
 }
