@@ -1,254 +1,223 @@
 import React, { useState } from "react";
-import { Link, useSearch } from "wouter";
 import { useListProducts } from "@workspace/api-client-react";
-import type { Product } from "@workspace/api-client-react";
 import { Layout } from "@/components/layout/Layout";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Link, useLocation } from "wouter";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/use-cart";
 import { toast } from "sonner";
-import { ShoppingCart, Star, SlidersHorizontal, Search, ChevronRight, Heart } from "lucide-react";
+import type { Product } from "@workspace/api-client-react";
+import {
+  ShoppingCart, Star, Zap, Package, Store, Filter, X, SlidersHorizontal
+} from "lucide-react";
 
-/* ─── Theme ─── */
-const GLOW  = "#00FF9C";
-const RED   = "#FF3B3B";
-const TEXT  = "#E8F5EE";
-const MUTED = "#A3C9B8";
-
-/* ─── Categories ─── */
-const CATS = [
-  { id: "all",         label: "All",           emoji: "🏪" },
-  { id: "agriculture", label: "Agriculture",   emoji: "🌾" },
-  { id: "grocery",     label: "Grocery",       emoji: "🛒" },
-  { id: "electronics", label: "Electronics",   emoji: "⚡" },
-  { id: "textiles",    label: "Textiles",      emoji: "🧵" },
-  { id: "spices",      label: "Spices",        emoji: "🌶️" },
-  { id: "beauty",      label: "Beauty",        emoji: "✨" },
-  { id: "home",        label: "Home",          emoji: "🏠" },
+const CATEGORIES = ["All", "Electronics", "Fashion", "Grocery", "Services", "Wholesale"];
+const SORT_OPTIONS = [
+  { value: "", label: "Default" },
+  { value: "price_asc", label: "Price: Low to High" },
+  { value: "price_desc", label: "Price: High to Low" },
+  { value: "rating", label: "Top Rated" },
 ];
 
-const SORTS = ["Popular", "Price: Low→High", "Price: High→Low", "Newest", "Rating"];
+function ProductCard({ product }: { product: Product }) {
+  const { addToCart } = useCart();
+  const [, navigate] = useLocation();
+  const [adding, setAdding] = useState(false);
 
-const FALLBACKS = [
-  "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=400&q=75",
-  "https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&q=75",
-  "https://images.unsplash.com/photo-1518977822534-7049a61ee0c2?w=400&q=75",
-  "https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?w=400&q=75",
-  "https://images.unsplash.com/photo-1559181567-c3190bce8d0a?w=400&q=75",
-  "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&q=75",
-];
-
-function ProductCard({ product, index }: { product: Product; index: number }) {
-  const { addToCart }       = useCart();
-  const [wished, setWished] = useState(false);
-  const [added, setAdded]   = useState(false);
-  const fallback = FALLBACKS[index % FALLBACKS.length];
-  const discPct  = 8 + (index * 9) % 25;
-  const oldPrice = Math.round((product.price ?? 0) * (1 + discPct / 100));
-  const rating   = (4.1 + (index * 0.15) % 0.8).toFixed(1);
-  const reviews  = 10 + (index * 29) % 200;
-
-  const handleCart = (e: React.MouseEvent) => {
-    e.preventDefault();
+  const handleAdd = (e: React.MouseEvent) => {
+    e.preventDefault(); e.stopPropagation();
+    setAdding(true);
     addToCart({
-      productId: product.id,
-      productName: product.name,
-      vendorId: product.vendorId,
-      vendorName: product.vendorName,
-      quantity: 1,
-      price: product.price ?? 0,
-      image: product.images?.[0] ?? "",
+      productId: product.id, productName: product.name,
+      vendorId: product.vendorId, vendorName: product.vendorName,
+      price: product.price || 0, quantity: 1, image: product.images?.[0] || "",
     });
-    setAdded(true);
-    toast.success("Added to cart!", {
-      style: { background: "#0B2B1F", border: "1px solid rgba(0,255,156,0.3)", color: TEXT },
-    });
-    setTimeout(() => setAdded(false), 1400);
+    toast.success("Added to cart!");
+    setTimeout(() => setAdding(false), 800);
   };
+
+  const handleBuyNow = (e: React.MouseEvent) => {
+    e.preventDefault(); e.stopPropagation();
+    addToCart({
+      productId: product.id, productName: product.name,
+      vendorId: product.vendorId, vendorName: product.vendorName,
+      price: product.price || 0, quantity: 1, image: product.images?.[0] || "",
+    });
+    navigate("/checkout");
+  };
+
+  const originalPrice = product.price ? Math.round(product.price * 1.15) : 0;
 
   return (
     <Link href={`/products/${product.id}`}>
-      <div
-        className="group cursor-pointer overflow-hidden transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
-        style={{
-          background: "linear-gradient(145deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.025) 100%)",
-          border: "1px solid rgba(255,255,255,0.10)",
-          borderRadius: 16,
-          boxShadow: "0 4px 20px rgba(0,0,0,0.3)",
-        }}
-      >
-        {/* Image */}
-        <div className="relative aspect-square overflow-hidden" style={{ background: "#f4f6f4" }}>
-          <img
-            src={product.images?.[0] ?? fallback}
-            alt={product.name}
-            className="w-full h-full object-contain p-3 transition-transform duration-300 group-hover:scale-105"
-            onError={e => { (e.target as HTMLImageElement).src = fallback; }}
-          />
-          {/* Discount */}
-          <div
-            className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-bold text-white"
-            style={{ background: RED }}
-          >
-            -{discPct}%
-          </div>
-          {/* Wishlist */}
-          <button
-            onClick={e => { e.preventDefault(); setWished(w => !w); }}
-            className="absolute top-2 right-2 h-7 w-7 rounded-full flex items-center justify-center transition-all"
-            style={{
-              background: "rgba(6,26,18,0.80)",
-              border: `1px solid ${wished ? RED + "80" : "rgba(255,255,255,0.18)"}`,
-            }}
-          >
-            <Heart className="h-3.5 w-3.5" style={{ fill: wished ? RED : "transparent", color: wished ? RED : MUTED }} />
-          </button>
+      <Card className="group cursor-pointer overflow-hidden transition-all duration-200 hover:shadow-xl hover:-translate-y-1 border-gray-100 h-full flex flex-col">
+        <div className="aspect-square bg-gray-50 relative overflow-hidden">
+          {product.images?.[0] ? (
+            <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center"><Package className="h-12 w-12 text-gray-200" /></div>
+          )}
+          {product.type === "digital" && (
+            <div className="absolute top-2 left-2"><Badge className="bg-blue-600 text-white text-[10px]">Digital</Badge></div>
+          )}
+          {product.inStock === false && (
+            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+              <Badge variant="destructive">Out of Stock</Badge>
+            </div>
+          )}
         </div>
-
-        {/* Info */}
-        <div className="p-3">
-          <p className="text-xs font-semibold line-clamp-2 leading-snug mb-1.5" style={{ color: TEXT }}>
-            {product.name}
+        <CardContent className="p-3 flex flex-col flex-1">
+          <div className="text-[10px] text-green-600 font-semibold uppercase tracking-wide mb-1">{product.category}</div>
+          <h3 className="font-medium text-sm line-clamp-2 mb-1 group-hover:text-green-700 transition-colors text-gray-800 flex-1">{product.name}</h3>
+          <p className="text-xs text-gray-500 mb-2 line-clamp-1 flex items-center gap-1">
+            <Store className="h-3 w-3 shrink-0 text-green-600" /> {product.vendorName}
           </p>
-          {/* Rating */}
           <div className="flex items-center gap-1 mb-2">
-            <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-            <span className="text-[11px] font-semibold" style={{ color: "#f59e0b" }}>{rating}</span>
-            <span className="text-[10px]" style={{ color: MUTED }}>({reviews})</span>
+            {[1,2,3,4,5].map(s => (
+              <Star key={s} className={`h-3 w-3 ${s <= Math.round(product.rating || 4) ? "text-yellow-400 fill-yellow-400" : "text-gray-200 fill-gray-200"}`} />
+            ))}
+            <span className="text-[10px] text-gray-500 ml-0.5">({product.reviewCount || 0})</span>
           </div>
-          {/* Price */}
-          <div className="flex items-baseline gap-1.5 mb-2.5">
-            <span className="text-sm font-bold" style={{ color: RED }}>৳{(product.price ?? 0).toLocaleString()}</span>
-            <span className="text-[10px] line-through" style={{ color: MUTED }}>৳{oldPrice.toLocaleString()}</span>
+          <div className="mb-3">
+            {product.priceOnInquiry ? (
+              <span className="text-sm font-bold text-orange-600">Price on Request</span>
+            ) : (
+              <div className="flex items-baseline gap-2">
+                <span className="font-bold text-gray-900">৳{product.price?.toLocaleString()}</span>
+                {originalPrice > 0 && <span className="text-xs text-gray-400 line-through">৳{originalPrice.toLocaleString()}</span>}
+              </div>
+            )}
           </div>
-          {/* Add to cart */}
-          <button
-            onClick={handleCart}
-            className="w-full flex items-center justify-center gap-1.5 h-8 rounded-xl text-[11px] font-bold border transition-all duration-200"
-            style={{
-              borderColor: added ? GLOW : `${RED}55`,
-              color: added ? "#061A12" : RED,
-              background: added ? GLOW : "rgba(255,59,59,0.07)",
-              boxShadow: added ? `0 0 14px rgba(0,255,156,0.3)` : "none",
-            }}
-          >
-            <ShoppingCart className="h-3.5 w-3.5" />
-            {added ? "Added!" : "Add to Cart"}
-          </button>
-        </div>
-      </div>
+          <div className="flex gap-1.5">
+            <Button size="sm" variant="outline" className="flex-1 h-8 text-xs border-green-200 hover:border-green-500 hover:text-green-600" onClick={handleAdd} disabled={adding || product.inStock === false}>
+              <ShoppingCart className="h-3 w-3 mr-1" /> {adding ? "Added!" : "Cart"}
+            </Button>
+            <Button size="sm" className="flex-1 h-8 text-xs bg-green-600 hover:bg-green-700" onClick={handleBuyNow} disabled={!!product.priceOnInquiry || product.inStock === false}>
+              <Zap className="h-3 w-3 mr-1" /> Buy
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </Link>
   );
 }
 
 export default function ProductsPage() {
-  const searchStr = useSearch();
-  const params    = new URLSearchParams(searchStr);
-  const query     = params.get("q") ?? "";
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [sortBy, setSortBy] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
+  const [priceMin, setPriceMin] = useState("");
+  const [priceMax, setPriceMax] = useState("");
 
-  const [activeCat, setActiveCat] = useState("all");
-  const [activeSort, setActiveSort] = useState("Popular");
-  const [showSort, setShowSort]     = useState(false);
-
-  const { data, isLoading } = useListProducts({ limit: 24 });
-  const products = (data?.products ?? []).filter(p =>
-    !query || p.name.toLowerCase().includes(query.toLowerCase())
+  const { data: productsData, isLoading } = useListProducts(
+    selectedCategory !== "All" ? { category: selectedCategory } : {}
   );
+
+  let products = productsData?.products || [];
+
+  if (priceMin) products = products.filter(p => (p.price || 0) >= Number(priceMin));
+  if (priceMax) products = products.filter(p => (p.price || 0) <= Number(priceMax));
+  if (sortBy === "price_asc") products = [...products].sort((a, b) => (a.price || 0) - (b.price || 0));
+  if (sortBy === "price_desc") products = [...products].sort((a, b) => (b.price || 0) - (a.price || 0));
+  if (sortBy === "rating") products = [...products].sort((a, b) => (b.rating || 0) - (a.rating || 0));
 
   return (
     <Layout>
-      <div className="max-w-[540px] mx-auto w-full">
+      <div className="container mx-auto px-4 py-6">
+        {/* Header */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">All Products</h1>
+            <p className="text-sm text-gray-500 mt-0.5">{products.length} products found</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <select
+              value={sortBy}
+              onChange={e => setSortBy(e.target.value)}
+              className="border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+            >
+              {SORT_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+            </select>
+            <Button variant="outline" size="sm" onClick={() => setShowFilters(v => !v)} className="gap-2">
+              <SlidersHorizontal className="h-4 w-4" />
+              Filters
+              {(priceMin || priceMax) && <span className="h-4 w-4 rounded-full bg-green-600 text-white text-[9px] flex items-center justify-center">!</span>}
+            </Button>
+          </div>
+        </div>
 
-        {/* ── Header row ── */}
-        <div className="sticky top-[88px] z-30 px-3 pt-3 pb-2" style={{ background: "rgba(6,26,18,0.95)", backdropFilter: "blur(16px)" }}>
+        {/* Category Pills */}
+        <div className="flex gap-2 overflow-x-auto pb-2 mb-6 scrollbar-hide">
+          {CATEGORIES.map(cat => (
+            <button
+              key={cat}
+              onClick={() => setSelectedCategory(cat)}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
+                selectedCategory === cat
+                  ? "bg-green-600 text-white shadow-sm"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
 
-          {/* Category pills */}
-          <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-2">
-            {CATS.map(cat => (
-              <button
-                key={cat.id}
-                onClick={() => setActiveCat(cat.id)}
-                className="flex items-center gap-1.5 h-8 px-3 rounded-full text-xs font-semibold shrink-0 transition-all duration-200"
-                style={{
-                  background: activeCat === cat.id ? GLOW : "rgba(255,255,255,0.06)",
-                  color: activeCat === cat.id ? "#061A12" : MUTED,
-                  border: activeCat === cat.id ? `1px solid ${GLOW}` : "1px solid rgba(255,255,255,0.10)",
-                  boxShadow: activeCat === cat.id ? `0 0 14px rgba(0,255,156,0.3)` : "none",
-                }}
-              >
-                <span>{cat.emoji}</span> {cat.label}
-              </button>
+        {/* Filter Panel */}
+        {showFilters && (
+          <div className="bg-white border border-gray-100 rounded-xl p-4 mb-6 shadow-sm">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold flex items-center gap-2"><Filter className="h-4 w-4" /> Filter Products</h3>
+              <button onClick={() => setShowFilters(false)} className="text-gray-400 hover:text-gray-600"><X className="h-4 w-4" /></button>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div>
+                <label className="text-xs font-medium text-gray-700 mb-1.5 block">Min Price (৳)</label>
+                <input type="number" value={priceMin} onChange={e => setPriceMin(e.target.value)} placeholder="0"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-gray-700 mb-1.5 block">Max Price (৳)</label>
+                <input type="number" value={priceMax} onChange={e => setPriceMax(e.target.value)} placeholder="99999"
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500" />
+              </div>
+              <div className="flex items-end">
+                <Button variant="outline" size="sm" onClick={() => { setPriceMin(""); setPriceMax(""); }} className="w-full">
+                  Clear Filters
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Grid */}
+        {isLoading ? (
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {[1,2,3,4,5,6,7,8,9,10].map(i => (
+              <div key={i} className="space-y-3">
+                <Skeleton className="aspect-square w-full rounded-xl" />
+                <Skeleton className="h-4 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+                <Skeleton className="h-8 w-full" />
+              </div>
             ))}
           </div>
-
-          {/* Sort + result count */}
-          <div className="flex items-center justify-between mt-1">
-            <p className="text-xs" style={{ color: MUTED }}>
-              <span className="font-semibold" style={{ color: TEXT }}>{products.length}</span> products found
-              {query && <span> for "<span style={{ color: GLOW }}>{query}</span>"</span>}
-            </p>
-            <div className="relative">
-              <button
-                onClick={() => setShowSort(v => !v)}
-                className="flex items-center gap-1.5 h-7 px-3 rounded-xl text-xs font-semibold transition-all hover:bg-white/6"
-                style={{ color: MUTED, border: "1px solid rgba(255,255,255,0.10)", background: "rgba(255,255,255,0.04)" }}
-              >
-                <SlidersHorizontal className="h-3 w-3" /> {activeSort}
-              </button>
-              {showSort && (
-                <div
-                  className="absolute right-0 top-full mt-1.5 w-44 rounded-2xl overflow-hidden z-40"
-                  style={{ background: "rgba(8,28,18,0.97)", border: "1px solid rgba(255,255,255,0.12)", boxShadow: "0 16px 48px rgba(0,0,0,0.5)", backdropFilter: "blur(24px)" }}
-                >
-                  {SORTS.map(s => (
-                    <button
-                      key={s}
-                      onClick={() => { setActiveSort(s); setShowSort(false); }}
-                      className="w-full text-left px-4 py-2.5 text-xs transition-all hover:bg-white/6 flex items-center justify-between"
-                      style={{ color: s === activeSort ? GLOW : MUTED }}
-                    >
-                      {s}
-                      {s === activeSort && <span style={{ color: GLOW, fontSize: 10 }}>✓</span>}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+        ) : products.length === 0 ? (
+          <div className="text-center py-20">
+            <Package className="h-16 w-16 text-gray-200 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-700 mb-2">No products found</h3>
+            <p className="text-gray-500 mb-6">Try a different category or clear your filters</p>
+            <Button onClick={() => { setSelectedCategory("All"); setPriceMin(""); setPriceMax(""); }} variant="outline">
+              Clear All Filters
+            </Button>
           </div>
-        </div>
-
-        {/* ── Product grid ── */}
-        <div className="px-3 pb-4">
-          {isLoading ? (
-            <div className="grid grid-cols-2 gap-3">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <div
-                  key={i}
-                  className="overflow-hidden animate-pulse"
-                  style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: 16 }}
-                >
-                  <div className="aspect-square" style={{ background: "rgba(255,255,255,0.05)" }} />
-                  <div className="p-3 space-y-2">
-                    <div className="h-3 rounded-full" style={{ background: "rgba(255,255,255,0.06)" }} />
-                    <div className="h-2.5 rounded-full w-2/3" style={{ background: "rgba(255,255,255,0.04)" }} />
-                    <div className="h-7 rounded-xl mt-2" style={{ background: "rgba(255,255,255,0.04)" }} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : products.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-16 gap-3">
-              <div className="text-5xl">🔍</div>
-              <p className="text-base font-semibold" style={{ color: TEXT }}>No products found</p>
-              <p className="text-sm" style={{ color: MUTED }}>Try a different search or category</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-3">
-              {products.map((product, i) => (
-                <ProductCard key={product.id} product={product} index={i} />
-              ))}
-            </div>
-          )}
-        </div>
-
+        ) : (
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {products.map(product => <ProductCard key={product.id} product={product} />)}
+          </div>
+        )}
       </div>
     </Layout>
   );
