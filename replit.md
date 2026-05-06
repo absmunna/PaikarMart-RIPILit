@@ -57,27 +57,10 @@ Express 5 API server. Routes live in `src/routes/` and use `@workspace/api-zod` 
 - Entry: `src/index.ts` — reads `PORT`, starts Express
 - App setup: `src/app.ts` — mounts CORS, JSON/urlencoded parsing, routes at `/api`
 - Routes: `src/routes/index.ts` mounts sub-routers; `src/routes/health.ts` exposes `GET /health` (full path: `/api/health`)
-- Auth: `src/middleware/auth.ts` — `requireAuth`, `requireSeller`, `requireAdmin` middleware (x-user-id header → DB lookup → role check)
-- Depends on: `@workspace/db`, `@workspace/api-zod`, `zod`
+- Depends on: `@workspace/db`, `@workspace/api-zod`
 - `pnpm --filter @workspace/api-server run dev` — run the dev server
-- `pnpm --filter @workspace/api-server run build` — production esbuild bundle (`dist/index.mjs`)
+- `pnpm --filter @workspace/api-server run build` — production esbuild bundle (`dist/index.cjs`)
 - Build bundles an allowlist of deps (express, cors, pg, drizzle-orm, zod, etc.) and externalizes the rest
-
-**Phase 2 API Routes (May 2026):**
-
-Original routes (unchanged, no auth guards yet — Phase 3):
-`health`, `products`, `sellers`, `orders`, `users`, `notifications`, `admin`, `auth`
-
-New Phase 2 routes (all with inline Zod validation):
-- `GET /transactions?user_id=&type=` — list wallet transactions; `POST /transactions` (requireAuth) — create & update wallet balance
-- `GET /reviews?product_id=&vendor_id=&user_id=` — list reviews; `GET /reviews/:id`; `POST /reviews` (requireAuth) — auto-updates product avg rating; `DELETE /reviews/:id` (own or admin)
-- `GET /disputes` (requireAuth) — list; `POST /disputes` (requireAuth) — create; `GET /disputes/:id` (requireAuth, owner/admin); `PUT /disputes/:id/status` (requireAdmin) — resolve
-- `GET /kyc` (requireSeller) — list seller docs; `POST /kyc` (requireSeller) — submit doc; `PUT /kyc/:id/review` (requireAdmin) — approve/reject
-- `GET /commissions` — public list; `GET /commissions/:seller_type` — single; `PUT /commissions/:seller_type` (requireAdmin) — update rate
-- `GET /milestones/:seller_id` (requireAuth); `POST /milestones` (requireAdmin) — create; `PUT /milestones/:seller_id/progress` (requireAdmin) — bulk update
-- `GET /affiliate` (requireAuth) — list user links; `POST /affiliate` (requireAuth) — create with auto-generated code; `GET /affiliate/track/:code` — public click tracker
-
-**Auth middleware pattern:** `x-user-id` header → DB user lookup → role assertion. Frontend must send header on authenticated requests. Existing routes NOT yet guarded (backward-compatible). Phase 3 will add JWT + guard existing admin/seller routes.
 
 ### `lib/db` (`@workspace/db`)
 
