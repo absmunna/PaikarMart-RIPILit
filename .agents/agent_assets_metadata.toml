@@ -1,8 +1,0 @@
-uploads = []
-generated = []
-
-[[outputs]]
-id = "rDf0VZXv_yAPQk1fIB5cb"
-uri = "file://paikarmart-production-ready.zip"
-type = "unspecified"
-title = "PaikarMart Production-Ready ZIP"

@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/use-cart";
 import { toast } from "sonner";
-import type { Product } from "@workspace/api-client-react";
+import { Product } from "@workspace/api-zod/src/generated/types";
 import {
   ShoppingCart, Star, Zap, Package, Store, Filter, X, SlidersHorizontal
 } from "lucide-react";
