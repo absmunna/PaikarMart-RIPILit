@@ -1,4 +1,4 @@
-import { db, usersTable, sellersTable, productsTable, ordersTable, notificationsTable, walletsTable, commissionsConfigTable } from "@workspace/db";
+import { db, usersTable, sellersTable, productsTable, ordersTable, notificationsTable, walletsTable } from "@workspace/db";
 
 async function seed() {
   console.log("Seeding PaikarMart database...");
@@ -465,28 +465,6 @@ async function seed() {
     }).onConflictDoNothing();
   } catch (e) {
     // ignore
-  }
-
-  // Commission config (pre-seed all 10 seller types)
-  const commissions = [
-    { id: "comm-wholesaler",       sellerType: "wholesaler",        percent: 5,  minPercent: 3,  maxPercent: 8,  notes: "Bulk discount — lower margin" },
-    { id: "comm-retailer",         sellerType: "retailer",          percent: 10, minPercent: 8,  maxPercent: 12, notes: "Standard retail commission" },
-    { id: "comm-brand_seller",     sellerType: "brand_seller",      percent: 8,  minPercent: 6,  maxPercent: 10, notes: "Brand-authorized seller discount" },
-    { id: "comm-local_shop",       sellerType: "local_shop",        percent: 7,  minPercent: 5,  maxPercent: 10, notes: "Local community shop rate" },
-    { id: "comm-dropship",         sellerType: "dropship",          percent: 12, minPercent: 10, maxPercent: 15, notes: "Higher rate for dropshippers" },
-    { id: "comm-service",          sellerType: "service",           percent: 15, minPercent: 10, maxPercent: 20, notes: "Service providers — variable rate" },
-    { id: "comm-b2b_seller",       sellerType: "b2b_seller",        percent: 6,  minPercent: 4,  maxPercent: 8,  notes: "B2B bulk trade rate" },
-    { id: "comm-content_creator",  sellerType: "content_creator",   percent: 20, minPercent: 15, maxPercent: 25, notes: "Creator economy — affiliate-style" },
-    { id: "comm-logistic_courier", sellerType: "logistic_courier",  percent: 3,  minPercent: 2,  maxPercent: 5,  notes: "Logistics service low commission" },
-    { id: "comm-booking_agent",    sellerType: "booking_agent",     percent: 10, minPercent: 8,  maxPercent: 15, notes: "Travel & booking standard rate" },
-  ];
-
-  for (const c of commissions) {
-    try {
-      await db.insert(commissionsConfigTable).values(c).onConflictDoNothing();
-    } catch (e) {
-      // ignore
-    }
   }
 
   console.log("Seeding complete!");

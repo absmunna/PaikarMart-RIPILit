@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { eq } from "drizzle-orm";
-import { z } from "@workspace/api-zod";
+import { z } from "zod";
 import { db, milestonesTable } from "@workspace/db";
 import { requireAuth, requireAdmin } from "../middleware/auth";
 import { randomUUID } from "crypto";

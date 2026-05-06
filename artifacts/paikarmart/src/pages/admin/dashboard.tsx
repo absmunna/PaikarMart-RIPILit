@@ -1,18 +1,16 @@
-import React, { useState } from "react";
+import React from "react";
 import { Layout } from "@/components/layout/Layout";
 import { useAuth } from "@/hooks/use-auth";
 import { Redirect, Link } from "wouter";
-import { useGetAdminDashboard, useApproveSeller, customFetch } from "@workspace/api-client-react";
+import { useGetAdminDashboard } from "@workspace/api-client-react";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useQueryClient } from "@tanstack/react-query";
 import {
   Users, Store, ShoppingBag, DollarSign, CheckCircle,
-  XCircle, TrendingUp, ArrowUpRight, LayoutDashboard,
-  Settings, FileText, Activity, ChevronRight, Loader2,
+  XCircle, Clock, TrendingUp, ArrowUpRight, LayoutDashboard,
+  Settings, FileText, Activity, ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
 
 const STATUS_COLORS: Record<string, string> = {
   pending:   "bg-yellow-500/15 text-yellow-400 border-yellow-500/25",
@@ -32,44 +30,7 @@ const ADMIN_LINKS = [
 export default function AdminDashboardPage() {
   const { user } = useAuth();
   const isAdmin = user?.role === "admin";
-  const qc = useQueryClient();
-  const [actionPending, setActionPending] = useState<string | null>(null);
-
   const { data: dashboard, isLoading } = useGetAdminDashboard({ query: { enabled: isAdmin } });
-
-  const approveSeller = useApproveSeller({
-    mutation: {
-      onSuccess: (_, vars) => {
-        toast.success("Seller approved");
-        setActionPending(null);
-        qc.invalidateQueries({ queryKey: ["/api/admin/dashboard"] });
-        qc.invalidateQueries({ queryKey: ["/api/sellers"] });
-      },
-      onError: () => {
-        toast.error("Failed to approve seller");
-        setActionPending(null);
-      },
-    },
-  });
-
-  const handleApprove = (sellerId: string) => {
-    setActionPending(`approve-${sellerId}`);
-    approveSeller.mutate({ id: sellerId });
-  };
-
-  const handleReject = async (sellerId: string) => {
-    setActionPending(`reject-${sellerId}`);
-    try {
-      await customFetch(`/api/sellers/${sellerId}/suspend`, { method: "PUT" });
-      toast.success("Seller rejected/suspended");
-      qc.invalidateQueries({ queryKey: ["/api/admin/dashboard"] });
-      qc.invalidateQueries({ queryKey: ["/api/sellers"] });
-    } catch {
-      toast.error("Failed to reject seller");
-    } finally {
-      setActionPending(null);
-    }
-  };
 
   if (!isAdmin) return <Redirect to="/login" />;
 
@@ -101,6 +62,7 @@ export default function AdminDashboardPage() {
     <Layout>
       <div className="container mx-auto px-4 py-6 max-w-6xl">
 
+        {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-xl font-bold text-white">Admin Dashboard</h1>
@@ -117,6 +79,7 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
+        {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           {stats.map((s, i) => {
             const Icon = s.icon;
@@ -149,43 +112,22 @@ export default function AdminDashboardPage() {
             </div>
             {dashboard?.recentSellers?.length ? (
               <div className="divide-y" style={{ borderColor: "rgba(255,255,255,0.05)" }}>
-                {dashboard.recentSellers.map((seller: Record<string, unknown>) => {
-                  const isApprovePending = actionPending === `approve-${seller.id}`;
-                  const isRejectPending  = actionPending === `reject-${seller.id}`;
-                  return (
-                    <div key={seller.id as string} className="px-5 py-3.5 flex items-center justify-between gap-3 hover:bg-white/3 transition-colors">
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium text-white/85 truncate">{seller.shopName as string}</p>
-                        <p className="text-xs text-white/35 capitalize">
-                          {(seller.businessType as string)?.replace(/_/g, " ")}
-                          {" · "}
-                          <span className={cn("font-semibold",
-                            seller.status === "approved"  ? "text-emerald-400" :
-                            seller.status === "suspended" ? "text-red-400" : "text-yellow-400"
-                          )}>{seller.status as string}</span>
-                        </p>
-                      </div>
-                      <div className="flex gap-2 shrink-0">
-                        <button
-                          onClick={() => handleApprove(seller.id as string)}
-                          disabled={!!actionPending || seller.status === "approved"}
-                          className="h-7 px-2.5 rounded-lg flex items-center gap-1 text-[11px] font-bold text-emerald-400 bg-emerald-500/15 border border-emerald-500/25 hover:bg-emerald-500/25 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                        >
-                          {isApprovePending ? <Loader2 className="h-3 w-3 animate-spin" /> : <CheckCircle className="h-3 w-3" />}
-                          Approve
-                        </button>
-                        <button
-                          onClick={() => handleReject(seller.id as string)}
-                          disabled={!!actionPending || seller.status === "suspended"}
-                          className="h-7 px-2.5 rounded-lg flex items-center gap-1 text-[11px] font-bold text-red-400 bg-red-500/15 border border-red-500/25 hover:bg-red-500/25 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                        >
-                          {isRejectPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <XCircle className="h-3 w-3" />}
-                          Reject
-                        </button>
-                      </div>
+                {dashboard.recentSellers.map((seller: any) => (
+                  <div key={seller.id} className="px-5 py-3.5 flex items-center justify-between gap-3 hover:bg-white/3 transition-colors">
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-white/85 truncate">{seller.shopName}</p>
+                      <p className="text-xs text-white/35 capitalize">{seller.businessType?.replace(/_/g, " ")}</p>
                     </div>
-                  );
-                })}
+                    <div className="flex gap-2 shrink-0">
+                      <button className="h-7 px-2.5 rounded-lg flex items-center gap-1 text-[11px] font-bold text-emerald-400 bg-emerald-500/15 border border-emerald-500/25 hover:bg-emerald-500/25 transition-colors">
+                        <CheckCircle className="h-3 w-3" /> Approve
+                      </button>
+                      <button className="h-7 px-2.5 rounded-lg flex items-center gap-1 text-[11px] font-bold text-red-400 bg-red-500/15 border border-red-500/25 hover:bg-red-500/25 transition-colors">
+                        <XCircle className="h-3 w-3" /> Reject
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
             ) : (
               <div className="py-10 text-center text-sm text-white/30">No pending applications.</div>
@@ -206,20 +148,20 @@ export default function AdminDashboardPage() {
             </div>
             {dashboard?.recentOrders?.length ? (
               <div className="divide-y" style={{ borderColor: "rgba(255,255,255,0.05)" }}>
-                {dashboard.recentOrders.map((order: Record<string, unknown>) => {
-                  const sc = STATUS_COLORS[order.status as string] ?? STATUS_COLORS.pending;
+                {dashboard.recentOrders.map((order: any) => {
+                  const sc = STATUS_COLORS[order.status] ?? STATUS_COLORS.pending;
                   return (
-                    <div key={order.id as string} className="px-5 py-3.5 flex items-center justify-between gap-3 hover:bg-white/3 transition-colors">
+                    <div key={order.id} className="px-5 py-3.5 flex items-center justify-between gap-3 hover:bg-white/3 transition-colors">
                       <div className="min-w-0">
-                        <p className="text-sm font-medium text-white/85">Order #{order.id as string}</p>
+                        <p className="text-sm font-medium text-white/85">Order #{order.id}</p>
                         <p className="text-xs text-white/35">
-                          {new Date(order.createdAt as string).toLocaleDateString("en-BD", { day: "numeric", month: "short" })}
+                          {new Date(order.createdAt).toLocaleDateString("en-BD", { day: "numeric", month: "short" })}
                         </p>
                       </div>
                       <div className="flex items-center gap-2 shrink-0">
-                        <span className="text-sm font-bold text-white">৳{(order.totalAmount as number)?.toLocaleString()}</span>
+                        <span className="text-sm font-bold text-white">৳{order.totalAmount?.toLocaleString()}</span>
                         <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full border capitalize", sc)}>
-                          {order.status as string}
+                          {order.status}
                         </span>
                       </div>
                     </div>
@@ -232,6 +174,7 @@ export default function AdminDashboardPage() {
           </GlassCard>
         </div>
 
+        {/* Quick nav (mobile) */}
         <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-3 lg:hidden">
           {ADMIN_LINKS.slice(1).map(({ href, label, icon: Icon }) => (
             <Link key={href} href={href}>
