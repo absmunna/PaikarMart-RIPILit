@@ -34,6 +34,8 @@ export const ordersTable = pgTable("orders", {
   district: text("district"),
   area: text("area"),
   estimatedDelivery: text("estimated_delivery"),
+  cancelReason: text("cancel_reason"),
+  refundStatus: text("refund_status"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });
