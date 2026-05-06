@@ -27,33 +27,14 @@ function normalizeSeller(s: Record<string, unknown>) {
   };
 }
 
-function normalizeOrderItem(item: Record<string, unknown>) {
-  const price = (item.price as number) ?? 0;
-  const quantity = (item.quantity as number) ?? 1;
-  return {
-    productId: item.productId as string,
-    productName: item.productName as string,
-    vendorId: (item.vendorId as string | null) ?? undefined,
-    vendorName: (item.vendorName as string | null) ?? undefined,
-    quantity,
-    price,
-    subtotal: (item.subtotal as number) ?? price * quantity,
-  };
-}
-
 function normalizeOrder(o: Record<string, unknown>) {
-  const rawItems = Array.isArray(o.items) ? o.items : [];
   return {
     ...o,
-    items: rawItems.map(i => normalizeOrderItem(i as Record<string, unknown>)),
     createdAt: o.createdAt instanceof Date ? (o.createdAt as Date).toISOString() : o.createdAt,
     updatedAt: o.updatedAt instanceof Date ? (o.updatedAt as Date).toISOString() : o.updatedAt,
     trackingCode: o.trackingCode ?? undefined,
     estimatedDelivery: o.estimatedDelivery ?? undefined,
-    customerName: o.customerName ?? undefined,
-    customerPhone: o.customerPhone ?? undefined,
-    customerAddress: o.customerAddress ?? undefined,
-    district: o.district ?? undefined,
+    cancelReason: o.cancelReason ?? undefined,
     area: o.area ?? undefined,
   };
 }

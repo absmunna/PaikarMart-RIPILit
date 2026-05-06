@@ -19,12 +19,12 @@ import {
 type Tab = "overview" | "orders" | "products" | "b2b" | "analytics" | "settings";
 
 const STATUS_CONFIG = {
-  pending: { label: "Pending", color: "bg-yellow-500/15 text-yellow-400", icon: Clock },
-  confirmed: { label: "Confirmed", color: "bg-blue-500/15 text-blue-400", icon: CheckCircle },
-  processing: { label: "Processing", color: "bg-purple-500/15 text-purple-400", icon: Clock },
-  shipped: { label: "Shipped", color: "bg-cyan-500/15 text-cyan-400", icon: Truck },
-  completed: { label: "Delivered", color: "bg-emerald-500/15 text-emerald-400", icon: CheckCircle },
-  incomplete: { label: "Incomplete", color: "bg-red-500/15 text-red-400", icon: XCircle },
+  pending: { label: "Pending", color: "bg-yellow-100 text-yellow-700", icon: Clock },
+  confirmed: { label: "Confirmed", color: "bg-blue-100 text-blue-700", icon: CheckCircle },
+  processing: { label: "Processing", color: "bg-purple-100 text-purple-700", icon: Clock },
+  shipped: { label: "Shipped", color: "bg-cyan-100 text-cyan-700", icon: Truck },
+  completed: { label: "Delivered", color: "bg-green-100 text-green-700", icon: CheckCircle },
+  incomplete: { label: "Incomplete", color: "bg-red-100 text-red-700", icon: XCircle },
 };
 
 export default function SellerDashboardPage() {
@@ -39,15 +39,15 @@ export default function SellerDashboardPage() {
   if (!isSeller) {
     return <Redirect to="/login" />;
   }
-  const products = (productsData?.products || []).filter((p: any) =>
+  const products = (productsData?.products || []).filter(p =>
     !searchProduct || p.name.toLowerCase().includes(searchProduct.toLowerCase())
   );
 
   const stats = [
-    { title: "Total Sales", value: `৳${(dashboard?.totalSales || 0).toLocaleString()}`, icon: DollarSign, color: "bg-emerald-500/15 text-emerald-400", change: "+12%" },
-    { title: "Total Orders", value: dashboard?.totalOrders || 0, icon: ShoppingBag, color: "bg-blue-500/15 text-blue-400", change: "+8%" },
-    { title: "Active Products", value: dashboard?.totalProducts || 0, icon: Package, color: "bg-purple-500/15 text-purple-400", change: "stable" },
-    { title: "Pending Orders", value: dashboard?.pendingOrders || 0, icon: Activity, color: "bg-orange-500/15 text-orange-400", change: "-3%" },
+    { title: "Total Sales", value: `৳${(dashboard?.totalSales || 0).toLocaleString()}`, icon: DollarSign, color: "bg-green-50 text-green-600", change: "+12%" },
+    { title: "Total Orders", value: dashboard?.totalOrders || 0, icon: ShoppingBag, color: "bg-blue-50 text-blue-600", change: "+8%" },
+    { title: "Active Products", value: dashboard?.totalProducts || 0, icon: Package, color: "bg-purple-50 text-purple-600", change: "stable" },
+    { title: "Pending Orders", value: dashboard?.pendingOrders || 0, icon: Activity, color: "bg-orange-50 text-orange-600", change: "-3%" },
   ];
 
   const sidebarItems: { key: Tab; label: string; icon: React.ElementType; badge?: string }[] = [
@@ -79,7 +79,7 @@ export default function SellerDashboardPage() {
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Sidebar */}
           <aside className="w-full lg:w-60 shrink-0">
-            <div className="bg-gradient-to-br from-emerald-900 via-teal-900 to-emerald-950 text-white rounded-2xl p-5 mb-4 shadow-lg">
+            <div className="bg-gradient-to-br from-green-700 to-emerald-600 text-white rounded-2xl p-5 mb-4 shadow-lg">
               <div className="flex items-center gap-3 mb-3">
                 <div className="h-12 w-12 rounded-full bg-white/20 border-2 border-white/40 flex items-center justify-center">
                   <Store className="h-6 w-6 text-white" />
@@ -97,7 +97,7 @@ export default function SellerDashboardPage() {
                 </Link>
               </div>
             </div>
-            <Card className="border-white/8 shadow-sm overflow-hidden">
+            <Card className="border-gray-100 shadow-sm overflow-hidden">
               <CardContent className="p-2">
                 {sidebarItems.map(item => {
                   const Icon = item.icon;
@@ -105,7 +105,7 @@ export default function SellerDashboardPage() {
                   return (
                     <button key={item.key} onClick={() => setActiveTab(item.key)}
                       className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium transition-all mb-0.5 ${
-                        isActive ? "bg-emerald-500/20 border border-emerald-500/30 text-emerald-400" : "text-white/45 hover:bg-white/5 hover:text-white"
+                        isActive ? "bg-green-600 text-white" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
                       }`}>
                       <div className="flex items-center gap-2.5">
                         <Icon className="h-4 w-4 shrink-0" />
@@ -113,13 +113,13 @@ export default function SellerDashboardPage() {
                       </div>
                       {item.badge && (
                         <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold ${
-                          isActive ? "bg-white/20 text-white" : item.badge === "New" ? "bg-emerald-500/15 text-emerald-400" : "bg-orange-100 text-orange-700"
+                          isActive ? "bg-white/20 text-white" : item.badge === "New" ? "bg-green-100 text-green-700" : "bg-orange-100 text-orange-700"
                         }`}>{item.badge}</span>
                       )}
                     </button>
                   );
                 })}
-                <div className="border-t border-white/8 mt-1 pt-1">
+                <div className="border-t border-gray-100 mt-1 pt-1">
                   <button onClick={logout} className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 transition-all">
                     <LogOut className="h-4 w-4" /> Logout
                   </button>
@@ -134,7 +134,7 @@ export default function SellerDashboardPage() {
             {activeTab === "overview" && (
               <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                  <h1 className="text-xl font-bold text-white">Seller Dashboard</h1>
+                  <h1 className="text-xl font-bold text-gray-900">Seller Dashboard</h1>
                   <Button className="bg-green-600 hover:bg-green-700 h-9 text-sm" onClick={() => toast.info("Add product form coming soon")}>
                     <Plus className="h-4 w-4 mr-1" /> Add Product
                   </Button>
@@ -145,18 +145,18 @@ export default function SellerDashboardPage() {
                   {stats.map((s) => {
                     const Icon = s.icon;
                     return (
-                      <Card key={s.title} className="border-white/8 shadow-sm">
+                      <Card key={s.title} className="border-gray-100 shadow-sm">
                         <CardContent className="p-4">
                           <div className="flex items-center justify-between mb-3">
                             <div className={`h-9 w-9 rounded-xl ${s.color} flex items-center justify-center`}>
                               <Icon className="h-4.5 w-4.5" />
                             </div>
                             <span className={`text-[11px] font-semibold ${
-                              s.change.startsWith("+") ? "text-green-600" : s.change.startsWith("-") ? "text-red-500" : "text-white/35"
+                              s.change.startsWith("+") ? "text-green-600" : s.change.startsWith("-") ? "text-red-500" : "text-gray-400"
                             }`}>{s.change}</span>
                           </div>
-                          <p className="text-xl font-bold text-white">{s.value}</p>
-                          <p className="text-xs text-white/45 mt-0.5">{s.title}</p>
+                          <p className="text-xl font-bold text-gray-900">{s.value}</p>
+                          <p className="text-xs text-gray-500 mt-0.5">{s.title}</p>
                         </CardContent>
                       </Card>
                     );
@@ -166,7 +166,7 @@ export default function SellerDashboardPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                   {/* Recent Orders */}
                   <div className="lg:col-span-2">
-                    <Card className="border-white/8 shadow-sm">
+                    <Card className="border-gray-100 shadow-sm">
                       <CardHeader className="pb-3 pt-5 px-5">
                         <div className="flex items-center justify-between">
                           <CardTitle className="text-base">Recent Orders</CardTitle>
@@ -176,22 +176,22 @@ export default function SellerDashboardPage() {
                       <CardContent className="px-5 pb-5">
                         {dashboard?.recentOrders?.length ? (
                           <div className="space-y-3">
-                            {dashboard.recentOrders.map((order: any) => {
+                            {dashboard.recentOrders.map(order => {
                               const s = STATUS_CONFIG[order.status as keyof typeof STATUS_CONFIG] || STATUS_CONFIG.pending;
                               const Icon = s.icon;
                               return (
-                                <div key={order.id} className="flex items-center justify-between p-3 rounded-xl bg-white/3 hover:bg-white/5 transition-colors">
+                                <div key={order.id} className="flex items-center justify-between p-3 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors">
                                   <div className="flex items-center gap-3">
-                                    <div className="h-8 w-8 rounded-lg bg-white/5 flex items-center justify-center border border-white/10">
+                                    <div className="h-8 w-8 rounded-lg bg-white flex items-center justify-center border border-gray-200">
                                       <ShoppingBag className="h-3.5 w-3.5 text-green-600" />
                                     </div>
                                     <div>
-                                      <p className="text-sm font-medium text-white/85">#{order.id}</p>
-                                      <p className="text-[11px] text-white/45">{new Date(order.createdAt).toLocaleDateString()}</p>
+                                      <p className="text-sm font-medium text-gray-800">#{order.id}</p>
+                                      <p className="text-[11px] text-gray-500">{new Date(order.createdAt).toLocaleDateString()}</p>
                                     </div>
                                   </div>
                                   <div className="flex items-center gap-3">
-                                    <span className="font-bold text-white text-sm">৳{order.totalAmount.toLocaleString()}</span>
+                                    <span className="font-bold text-gray-900 text-sm">৳{order.totalAmount.toLocaleString()}</span>
                                     <span className={`text-[10px] px-2 py-1 rounded-full font-medium flex items-center gap-1 ${s.color}`}>
                                       <Icon className="h-3 w-3" /> {s.label}
                                     </span>
@@ -202,8 +202,8 @@ export default function SellerDashboardPage() {
                           </div>
                         ) : (
                           <div className="text-center py-8">
-                            <ShoppingBag className="h-12 w-12 text-white/15 mx-auto mb-3" />
-                            <p className="text-white/45 text-sm">No recent orders found</p>
+                            <ShoppingBag className="h-12 w-12 text-gray-200 mx-auto mb-3" />
+                            <p className="text-gray-500 text-sm">No recent orders found</p>
                           </div>
                         )}
                       </CardContent>
@@ -212,7 +212,7 @@ export default function SellerDashboardPage() {
 
                   {/* Inventory Summary */}
                   <div className="space-y-4">
-                    <Card className="border-white/8 shadow-sm">
+                    <Card className="border-gray-100 shadow-sm">
                       <CardHeader className="pb-3 pt-5 px-5">
                         <CardTitle className="text-base">Inventory</CardTitle>
                       </CardHeader>
@@ -221,8 +221,8 @@ export default function SellerDashboardPage() {
                           { label: "In Stock", value: dashboard?.inStock || 0, color: "text-green-600" },
                           { label: "Out of Stock", value: dashboard?.outOfStock || 0, color: "text-red-500" },
                         ].map(item => (
-                          <div key={item.label} className="flex justify-between items-center p-3 rounded-xl bg-white/3">
-                            <span className="text-sm text-white/60">{item.label}</span>
+                          <div key={item.label} className="flex justify-between items-center p-3 rounded-xl bg-gray-50">
+                            <span className="text-sm text-gray-600">{item.label}</span>
                             <span className={`font-bold ${item.color}`}>{item.value}</span>
                           </div>
                         ))}
@@ -233,15 +233,15 @@ export default function SellerDashboardPage() {
                       </CardContent>
                     </Card>
 
-                    <Card className="border-white/8 shadow-sm">
+                    <Card className="border-gray-100 shadow-sm">
                       <CardContent className="p-4">
                         <div className="flex items-center gap-2 mb-2">
                           <Star className="h-4 w-4 text-yellow-400 fill-yellow-400" />
-                          <span className="text-sm font-semibold text-white/85">Seller Rating</span>
+                          <span className="text-sm font-semibold text-gray-800">Seller Rating</span>
                         </div>
-                        <p className="text-3xl font-extrabold text-white">4.7</p>
-                        <p className="text-xs text-white/45">Based on 128 reviews</p>
-                        <div className="mt-2 h-1.5 bg-white/5 rounded-full overflow-hidden">
+                        <p className="text-3xl font-extrabold text-gray-900">4.7</p>
+                        <p className="text-xs text-gray-500">Based on 128 reviews</p>
+                        <div className="mt-2 h-1.5 bg-gray-100 rounded-full overflow-hidden">
                           <div className="h-full bg-yellow-400 rounded-full" style={{ width: "94%" }} />
                         </div>
                       </CardContent>
@@ -254,19 +254,19 @@ export default function SellerDashboardPage() {
             {/* Orders Tab */}
             {activeTab === "orders" && (
               <div>
-                <h2 className="text-xl font-bold text-white mb-5">Manage Orders</h2>
+                <h2 className="text-xl font-bold text-gray-900 mb-5">Manage Orders</h2>
                 {dashboard?.recentOrders?.length ? (
                   <div className="space-y-3">
-                    {dashboard.recentOrders.map((order: any) => {
+                    {dashboard.recentOrders.map(order => {
                       const s = STATUS_CONFIG[order.status as keyof typeof STATUS_CONFIG] || STATUS_CONFIG.pending;
                       const Icon = s.icon;
                       return (
-                        <Card key={order.id} className="border-white/8 shadow-sm">
+                        <Card key={order.id} className="border-gray-100 shadow-sm">
                           <CardContent className="p-4">
                             <div className="flex items-center justify-between">
                               <div>
-                                <p className="font-bold text-white">Order #{order.id}</p>
-                                <p className="text-xs text-white/45">{new Date(order.createdAt).toLocaleDateString("en-BD", { day: "numeric", month: "short", year: "numeric" })}</p>
+                                <p className="font-bold text-gray-900">Order #{order.id}</p>
+                                <p className="text-xs text-gray-500">{new Date(order.createdAt).toLocaleDateString("en-BD", { day: "numeric", month: "short", year: "numeric" })}</p>
                               </div>
                               <div className="flex items-center gap-3">
                                 <span className="font-bold text-green-700">৳{order.totalAmount.toLocaleString()}</span>
@@ -281,11 +281,11 @@ export default function SellerDashboardPage() {
                     })}
                   </div>
                 ) : (
-                  <Card className="border-white/8 shadow-sm">
+                  <Card className="border-gray-100 shadow-sm">
                     <CardContent className="py-16 text-center">
-                      <ShoppingBag className="h-16 w-16 text-white/15 mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold text-white/70">No orders yet</h3>
-                      <p className="text-white/45 text-sm">Orders from buyers will appear here</p>
+                      <ShoppingBag className="h-16 w-16 text-gray-200 mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold text-gray-700">No orders yet</h3>
+                      <p className="text-gray-500 text-sm">Orders from buyers will appear here</p>
                     </CardContent>
                   </Card>
                 )}
@@ -296,26 +296,26 @@ export default function SellerDashboardPage() {
             {activeTab === "products" && (
               <div>
                 <div className="flex items-center justify-between mb-5">
-                  <h2 className="text-xl font-bold text-white">My Products</h2>
+                  <h2 className="text-xl font-bold text-gray-900">My Products</h2>
                   <Button className="bg-green-600 hover:bg-green-700 h-9 text-sm" onClick={() => toast.info("Product creation form coming soon!")}>
                     <Plus className="h-4 w-4 mr-1" /> Add Product
                   </Button>
                 </div>
                 <div className="relative mb-4">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/35" />
-                  <Input placeholder="Search products..." value={searchProduct} onChange={e => setSearchProduct(e.target.value)} className="pl-9 border-white/10" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Input placeholder="Search products..." value={searchProduct} onChange={e => setSearchProduct(e.target.value)} className="pl-9 border-gray-200" />
                 </div>
                 {products.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {products.slice(0, 12).map((p: any) => (
-                      <Card key={p.id} className="border-white/8 shadow-sm hover:shadow-md transition-shadow">
+                    {products.slice(0, 12).map(p => (
+                      <Card key={p.id} className="border-gray-100 shadow-sm hover:shadow-md transition-shadow">
                         <CardContent className="p-4 flex gap-3">
-                          <div className="h-16 w-16 rounded-xl bg-white/5 overflow-hidden shrink-0">
-                            {p.images?.[0] ? <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover" /> : <Package className="h-8 w-8 text-white/25 m-auto mt-4" />}
+                          <div className="h-16 w-16 rounded-xl bg-gray-100 overflow-hidden shrink-0">
+                            {p.images?.[0] ? <img src={p.images[0]} alt={p.name} className="w-full h-full object-cover" /> : <Package className="h-8 w-8 text-gray-300 m-auto mt-4" />}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="font-semibold text-sm text-white/85 line-clamp-1">{p.name}</p>
-                            <p className="text-xs text-white/45 mb-1">{p.category}</p>
+                            <p className="font-semibold text-sm text-gray-800 line-clamp-1">{p.name}</p>
+                            <p className="text-xs text-gray-500 mb-1">{p.category}</p>
                             <div className="flex items-center justify-between">
                               <span className="font-bold text-green-700 text-sm">৳{p.price?.toLocaleString()}</span>
                               <Badge className={p.inStock ? "bg-green-50 text-green-700 border-green-100" : "bg-red-50 text-red-700 border-red-100"}>
@@ -328,11 +328,11 @@ export default function SellerDashboardPage() {
                     ))}
                   </div>
                 ) : (
-                  <Card className="border-white/8 shadow-sm">
+                  <Card className="border-gray-100 shadow-sm">
                     <CardContent className="py-16 text-center">
-                      <Package className="h-16 w-16 text-white/15 mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold text-white/70">No products yet</h3>
-                      <p className="text-white/45 text-sm mb-5">Add your first product to start selling</p>
+                      <Package className="h-16 w-16 text-gray-200 mx-auto mb-4" />
+                      <h3 className="text-lg font-semibold text-gray-700">No products yet</h3>
+                      <p className="text-gray-500 text-sm mb-5">Add your first product to start selling</p>
                       <Button className="bg-green-600 hover:bg-green-700" onClick={() => toast.info("Coming soon!")}>
                         <Plus className="h-4 w-4 mr-2" /> Add Your First Product
                       </Button>
@@ -345,24 +345,24 @@ export default function SellerDashboardPage() {
             {/* B2B Tab */}
             {activeTab === "b2b" && (
               <div>
-                <h2 className="text-xl font-bold text-white mb-2">B2B Marketplace</h2>
-                <p className="text-white/45 text-sm mb-6">Manage bulk orders and business-to-business inquiries</p>
+                <h2 className="text-xl font-bold text-gray-900 mb-2">B2B Marketplace</h2>
+                <p className="text-gray-500 text-sm mb-6">Manage bulk orders and business-to-business inquiries</p>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                   {[
-                    { label: "B2B Inquiries", value: 0, icon: Building2, color: "bg-blue-500/15 text-blue-400" },
-                    { label: "Active B2B Orders", value: 0, icon: ShoppingBag, color: "bg-emerald-500/15 text-emerald-400" },
-                    { label: "B2B Revenue", value: "৳0", icon: DollarSign, color: "bg-purple-500/15 text-purple-400" },
+                    { label: "B2B Inquiries", value: 0, icon: Building2, color: "bg-blue-50 text-blue-600" },
+                    { label: "Active B2B Orders", value: 0, icon: ShoppingBag, color: "bg-green-50 text-green-600" },
+                    { label: "B2B Revenue", value: "৳0", icon: DollarSign, color: "bg-purple-50 text-purple-600" },
                   ].map(s => {
                     const Icon = s.icon;
                     return (
-                      <Card key={s.label} className="border-white/8 shadow-sm">
+                      <Card key={s.label} className="border-gray-100 shadow-sm">
                         <CardContent className="p-4 flex items-center gap-3">
                           <div className={`h-10 w-10 rounded-xl ${s.color} flex items-center justify-center shrink-0`}>
                             <Icon className="h-5 w-5" />
                           </div>
                           <div>
-                            <p className="text-xl font-bold text-white">{s.value}</p>
-                            <p className="text-xs text-white/45">{s.label}</p>
+                            <p className="text-xl font-bold text-gray-900">{s.value}</p>
+                            <p className="text-xs text-gray-500">{s.label}</p>
                           </div>
                         </CardContent>
                       </Card>
@@ -370,7 +370,7 @@ export default function SellerDashboardPage() {
                   })}
                 </div>
 
-                <Card className="border-white/8 shadow-sm mb-4">
+                <Card className="border-gray-100 shadow-sm mb-4">
                   <CardHeader className="pb-3 pt-5 px-5">
                     <CardTitle className="text-base">B2B Configuration</CardTitle>
                   </CardHeader>
@@ -380,14 +380,14 @@ export default function SellerDashboardPage() {
                       { label: "Wholesale Price Tier", desc: "Discount for B2B buyers vs retail", value: "15% off" },
                       { label: "B2B Payment Terms", desc: "Net payment terms for businesses", value: "Net 30 days" },
                     ].map(c => (
-                      <div key={c.label} className="flex items-center justify-between p-3 bg-white/3 rounded-xl">
+                      <div key={c.label} className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
                         <div>
-                          <p className="text-sm font-semibold text-white/85">{c.label}</p>
-                          <p className="text-xs text-white/45">{c.desc}</p>
+                          <p className="text-sm font-semibold text-gray-800">{c.label}</p>
+                          <p className="text-xs text-gray-500">{c.desc}</p>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-bold text-green-700">{c.value}</span>
-                          <Button variant="ghost" size="sm" className="text-white/35 hover:text-green-600 h-7" onClick={() => toast.info("Edit feature coming soon")}>Edit</Button>
+                          <Button variant="ghost" size="sm" className="text-gray-400 hover:text-green-600 h-7" onClick={() => toast.info("Edit feature coming soon")}>Edit</Button>
                         </div>
                       </div>
                     ))}
@@ -416,9 +416,9 @@ export default function SellerDashboardPage() {
             {/* Analytics Tab */}
             {activeTab === "analytics" && (
               <div>
-                <h2 className="text-xl font-bold text-white mb-5">Analytics</h2>
+                <h2 className="text-xl font-bold text-gray-900 mb-5">Analytics</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <Card className="border-white/8 shadow-sm">
+                  <Card className="border-gray-100 shadow-sm">
                     <CardHeader className="pb-2 pt-5 px-5">
                       <CardTitle className="text-base flex items-center gap-2">
                         <BarChart2 className="h-4 w-4 text-green-600" /> Revenue Chart
@@ -430,13 +430,13 @@ export default function SellerDashboardPage() {
                           <div key={i} className="flex-1 bg-green-100 rounded-t-sm hover:bg-green-400 transition-colors cursor-pointer" style={{ height: `${v}%` }} />
                         ))}
                       </div>
-                      <div className="flex justify-between text-[9px] text-white/35 mt-1">
+                      <div className="flex justify-between text-[9px] text-gray-400 mt-1">
                         {["J","F","M","A","M","J","J","A","S","O","N","D"].map(m => <span key={m}>{m}</span>)}
                       </div>
-                      <p className="text-xs text-center text-white/35 mt-3">Real-time analytics • Coming Soon</p>
+                      <p className="text-xs text-center text-gray-400 mt-3">Real-time analytics • Coming Soon</p>
                     </CardContent>
                   </Card>
-                  <Card className="border-white/8 shadow-sm">
+                  <Card className="border-gray-100 shadow-sm">
                     <CardHeader className="pb-2 pt-5 px-5">
                       <CardTitle className="text-base flex items-center gap-2">
                         <Tag className="h-4 w-4 text-green-600" /> Top Categories
@@ -451,11 +451,11 @@ export default function SellerDashboardPage() {
                           { name: "Other", pct: 15 },
                         ].map(c => (
                           <div key={c.name}>
-                            <div className="flex justify-between text-xs text-white/60 mb-1">
+                            <div className="flex justify-between text-xs text-gray-600 mb-1">
                               <span>{c.name}</span>
                               <span className="font-bold">{c.pct}%</span>
                             </div>
-                            <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+                            <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                               <div className="h-full bg-green-500 rounded-full" style={{ width: `${c.pct}%` }} />
                             </div>
                           </div>
@@ -470,7 +470,7 @@ export default function SellerDashboardPage() {
             {/* Settings Tab */}
             {activeTab === "settings" && (
               <div>
-                <h2 className="text-xl font-bold text-white mb-5">Seller Settings</h2>
+                <h2 className="text-xl font-bold text-gray-900 mb-5">Seller Settings</h2>
                 <div className="space-y-4">
                   {[
                     { title: "Shop Information", desc: "Update your shop name, logo, and description", icon: Store },
@@ -480,18 +480,18 @@ export default function SellerDashboardPage() {
                   ].map(s => {
                     const Icon = s.icon;
                     return (
-                      <Card key={s.title} className="border-white/8 shadow-sm cursor-pointer hover:shadow-md transition-shadow" onClick={() => toast.info(`${s.title} settings coming soon!`)}>
+                      <Card key={s.title} className="border-gray-100 shadow-sm cursor-pointer hover:shadow-md transition-shadow" onClick={() => toast.info(`${s.title} settings coming soon!`)}>
                         <CardContent className="p-4 flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <div className="h-10 w-10 rounded-xl bg-green-50 flex items-center justify-center">
                               <Icon className="h-5 w-5 text-green-600" />
                             </div>
                             <div>
-                              <p className="font-semibold text-white/85 text-sm">{s.title}</p>
-                              <p className="text-xs text-white/45">{s.desc}</p>
+                              <p className="font-semibold text-gray-800 text-sm">{s.title}</p>
+                              <p className="text-xs text-gray-500">{s.desc}</p>
                             </div>
                           </div>
-                          <ChevronRight className="h-4 w-4 text-white/35" />
+                          <ChevronRight className="h-4 w-4 text-gray-400" />
                         </CardContent>
                       </Card>
                     );
