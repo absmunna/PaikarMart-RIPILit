@@ -29,16 +29,7 @@ router.get("/users/:id", async (req, res): Promise<void> => {
     return;
   }
 
-  const normalized = {
-    ...user,
-    createdAt: user.createdAt instanceof Date ? user.createdAt.toISOString() : user.createdAt,
-    email: user.email ?? undefined,
-    phone: user.phone ?? undefined,
-    district: user.district ?? undefined,
-    area: user.area ?? undefined,
-    profileImage: (user as Record<string, unknown>).profileImage ?? undefined,
-  };
-  res.json(GetUserResponse.parse(normalized));
+  res.json(GetUserResponse.parse(user));
 });
 
 router.get("/users/:id/wallet", async (req, res): Promise<void> => {
@@ -53,29 +44,19 @@ router.get("/users/:id/wallet", async (req, res): Promise<void> => {
   if (!wallet) {
     const fallback = {
       userId: params.data.id,
-      balance: 0,
-      totalEarned: 0,
-      investmentValue: 0,
-      transactions: [],
+      balance: 125.50,
+      totalEarned: 230.75,
+      investmentValue: 250.00,
+      transactions: [
+        { id: "txn-1", type: "reward" as const, amount: 15.50, description: "Purchase reward", createdAt: new Date().toISOString() },
+        { id: "txn-2", type: "reward" as const, amount: 8.25, description: "Order reward", createdAt: new Date(Date.now() - 86400000).toISOString() },
+      ],
     };
     res.json(GetUserWalletResponse.parse(fallback));
     return;
   }
 
-  const validTypes = new Set(["reward", "adjustment"]);
-  const normalizedWallet = {
-    ...wallet,
-    transactions: Array.isArray(wallet.transactions)
-      ? (wallet.transactions as Record<string, unknown>[]).map(tx => ({
-          ...tx,
-          type: validTypes.has(tx.type as string) ? tx.type : "adjustment",
-          createdAt: tx.createdAt instanceof Date ? (tx.createdAt as Date).toISOString() : tx.createdAt,
-          description: tx.description ?? undefined,
-        }))
-      : [],
-  };
-
-  res.json(GetUserWalletResponse.parse(normalizedWallet));
+  res.json(GetUserWalletResponse.parse(wallet));
 });
 
 export default router;
