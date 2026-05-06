@@ -35,7 +35,7 @@ function normalizeLink(l: Record<string, unknown>) {
 
 router.get("/affiliate", requireAuth, async (req, res): Promise<void> => {
   const params = ListAffiliateQuery.safeParse(req.query);
-  if (!params.success) { res.status(400).json({ error: params.error.issues }); return; }
+  if (!params.success) { res.status(400).json({ error: params.error.message }); return; }
 
   const conditions: SQL[] = [];
   const userId = params.data.user_id ?? req.user!.id;
@@ -50,7 +50,7 @@ router.get("/affiliate", requireAuth, async (req, res): Promise<void> => {
 
 router.post("/affiliate", requireAuth, async (req, res): Promise<void> => {
   const body = CreateAffiliateBody.safeParse(req.body);
-  if (!body.success) { res.status(400).json({ error: body.error.issues }); return; }
+  if (!body.success) { res.status(400).json({ error: body.error.message }); return; }
 
   const [link] = await db.insert(affiliateLinksTable).values({
     id: randomUUID(),

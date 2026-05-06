@@ -1,10 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import * as types from "@workspace/api-zod/src/generated/types";
+import { UserRole } from "@workspace/api-zod/src/generated/types";
 
 interface User {
   id: string;
   name: string;
-  role: types.UserRole;
+  role: UserRole;
   phone?: string;
   email?: string;
 }
@@ -14,7 +14,7 @@ interface AuthContextType {
   login: (user: User) => void;
   logout: () => void;
   isLoggedIn: boolean;
-  role: types.UserRole;
+  role: UserRole;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);

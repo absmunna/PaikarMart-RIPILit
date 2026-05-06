@@ -46,7 +46,7 @@ function normalizeDispute(d: Record<string, unknown>) {
 
 router.get("/disputes", requireAuth, async (req, res): Promise<void> => {
   const params = ListDisputesQuery.safeParse(req.query);
-  if (!params.success) { res.status(400).json({ error: params.error.issues }); return; }
+  if (!params.success) { res.status(400).json({ error: params.error.message }); return; }
 
   const conditions: SQL[] = [];
   if (params.data.user_id) conditions.push(eq(disputesTable.userId, params.data.user_id));
@@ -64,7 +64,7 @@ router.get("/disputes", requireAuth, async (req, res): Promise<void> => {
 
 router.post("/disputes", requireAuth, async (req, res): Promise<void> => {
   const body = CreateDisputeBody.safeParse(req.body);
-  if (!body.success) { res.status(400).json({ error: body.error.issues }); return; }
+  if (!body.success) { res.status(400).json({ error: body.error.message }); return; }
 
   const [dispute] = await db.insert(disputesTable).values({
     id: randomUUID(),
@@ -94,7 +94,7 @@ router.get("/disputes/:id", requireAuth, async (req, res): Promise<void> => {
 router.put("/disputes/:id/status", requireAdmin, async (req, res): Promise<void> => {
   const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const body = UpdateDisputeStatusBody.safeParse(req.body);
-  if (!body.success) { res.status(400).json({ error: body.error.issues }); return; }
+  if (!body.success) { res.status(400).json({ error: body.error.message }); return; }
 
   const updateData: Record<string, unknown> = { status: body.data.status };
   if (body.data.resolution) {

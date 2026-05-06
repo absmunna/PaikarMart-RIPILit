@@ -39,7 +39,7 @@ router.get("/commissions/:seller_type", async (req, res): Promise<void> => {
 router.put("/commissions/:seller_type", requireAdmin, async (req, res): Promise<void> => {
   const sellerType = Array.isArray(req.params.seller_type) ? req.params.seller_type[0] : req.params.seller_type;
   const body = UpdateCommissionBody.safeParse(req.body);
-  if (!body.success) { res.status(400).json({ error: body.error.issues }); return; }
+  if (!body.success) { res.status(400).json({ error: body.error.message }); return; }
 
   const [comm] = await db.update(commissionsConfigTable)
     .set({

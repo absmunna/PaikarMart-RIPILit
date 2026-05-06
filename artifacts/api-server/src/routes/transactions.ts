@@ -38,7 +38,7 @@ function normalizeTx(t: Record<string, unknown>) {
 
 router.get("/transactions", async (req, res): Promise<void> => {
   const params = ListTxQuery.safeParse(req.query);
-  if (!params.success) { res.status(400).json({ error: params.error.issues }); return; }
+  if (!params.success) { res.status(400).json({ error: params.error.message }); return; }
 
   const conditions: SQL[] = [];
   if (params.data.user_id) conditions.push(eq(transactionsTable.userId, params.data.user_id));
@@ -54,7 +54,7 @@ router.get("/transactions", async (req, res): Promise<void> => {
 
 router.post("/transactions", requireAuth, async (req, res): Promise<void> => {
   const body = CreateTxBody.safeParse(req.body);
-  if (!body.success) { res.status(400).json({ error: body.error.issues }); return; }
+  if (!body.success) { res.status(400).json({ error: body.error.message }); return; }
 
   const [wallet] = await db.select().from(walletsTable).where(eq(walletsTable.userId, body.data.userId));
   const balanceBefore = wallet?.balance ?? 0;

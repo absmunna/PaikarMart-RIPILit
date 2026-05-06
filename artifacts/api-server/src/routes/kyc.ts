@@ -35,7 +35,7 @@ function normalizeDoc(d: Record<string, unknown>) {
 
 router.get("/kyc", requireSeller, async (req, res): Promise<void> => {
   const params = ListKycQuery.safeParse(req.query);
-  if (!params.success) { res.status(400).json({ error: params.error.issues }); return; }
+  if (!params.success) { res.status(400).json({ error: params.error.message }); return; }
 
   const sellerId = params.data.seller_id ?? req.user!.id;
   if (req.user!.role === "seller" && sellerId !== req.user!.id) {
@@ -48,7 +48,11 @@ router.get("/kyc", requireSeller, async (req, res): Promise<void> => {
 
 router.post("/kyc", requireSeller, async (req, res): Promise<void> => {
   const body = SubmitKycBody.safeParse(req.body);
-  if (!body.success) { res.status(400).json({ error: body.error.issues }); return; }
+  if (!body.success) { res.status(400).json({ error: body.error.message }); return; }
+
+  if (req.user!.role === "seller" && body.data.sellerId !== req.user!.id) {
+    res.status(403).json({ error: "Sellers can only submit their own KYC documents" }); return;
+  }
 
   const [doc] = await db.insert(kycDocumentsTable).values({
     id: randomUUID(),
@@ -64,7 +68,7 @@ router.post("/kyc", requireSeller, async (req, res): Promise<void> => {
 router.put("/kyc/:id/review", requireAdmin, async (req, res): Promise<void> => {
   const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const body = ReviewKycBody.safeParse(req.body);
-  if (!body.success) { res.status(400).json({ error: body.error.issues }); return; }
+  if (!body.success) { res.status(400).json({ error: body.error.message }); return; }
 
   const [doc] = await db.update(kycDocumentsTable)
     .set({
