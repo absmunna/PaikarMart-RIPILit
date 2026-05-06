@@ -62,6 +62,28 @@ Express 5 API server. Routes live in `src/routes/` and use `@workspace/api-zod` 
 - `pnpm --filter @workspace/api-server run build` — production esbuild bundle (`dist/index.cjs`)
 - Build bundles an allowlist of deps (express, cors, pg, drizzle-orm, zod, etc.) and externalizes the rest
 
+**Phase 2 API Routes (May 2026):**
+
+Original routes (unchanged, no auth guards yet — Phase 3):
+`health`, `products`, `sellers`, `orders`, `users`, `notifications`, `admin`, `auth`
+
+New Phase 2 routes (all with inline Zod validation):
+- `GET /transactions?user_id=&type=` — list wallet transactions; `POST /transactions` (requireAuth) — create & update wallet balance
+- `GET /reviews?product_id=&vendor_id=&user_id=` — list reviews; `GET /reviews/:id`; `POST /reviews` (requireAuth) — auto-updates product avg rating; `DELETE /reviews/:id` (own or admin)
+- `GET /disputes` (requireAuth) — list; `POST /disputes` (requireAuth) — create; `GET /disputes/:id` (requireAuth, owner/admin); `PUT /disputes/:id/status` (requireAdmin) — resolve
+- `GET /kyc` (requireSeller) — list seller docs; `POST /kyc` (requireSeller) — submit doc; `PUT /kyc/:id/review` (requireAdmin) — approve/reject
+- `GET /commissions` — public list; `GET /commissions/:seller_type` — single; `PUT /commissions/:seller_type` (requireAdmin) — update rate
+- `GET /milestones/:seller_id` (requireAuth); `POST /milestones` (requireAdmin) — create; `PUT /milestones/:seller_id/progress` (requireAdmin) — bulk update
+- `GET /affiliate` (requireAuth) — list user links; `POST /affiliate` (requireAuth) — create with auto-generated code; `GET /affiliate/track/:code` — public click tracker
+
+**Auth middleware pattern:** `x-user-id` header → DB user lookup → role assertion. Frontend automatically sends this header via `customFetch` when user is logged in (wired through `use-auth.tsx` → `setUserId`).
+
+**Product CRUD routes (May 2026):**
+- `POST /products` (requireSeller) — create product; auto-resolves `vendorId`/`vendorName` from authenticated seller
+- `PUT /products/:id` (requireSeller) — update product (own or admin)
+- `DELETE /products/:id` (requireSeller) — delete product (own or admin)
+All routes use inline Zod validation and return `GetProductResponse` shape.
+
 ### `lib/db` (`@workspace/db`)
 
 Database layer using Drizzle ORM with PostgreSQL. Exports a Drizzle client instance and schema models.
@@ -91,6 +113,63 @@ Generated Zod schemas from the OpenAPI spec (e.g. `HealthCheckResponse`). Used b
 
 Generated React Query hooks and fetch client from the OpenAPI spec (e.g. `useHealthCheck`, `healthCheck`).
 
+**Auth wiring (May 2026):** `custom-fetch.ts` exports `setUserId(id)` which stores the current user ID and attaches it as an `x-user-id` header to every API request. Also exports `customFetch` for manual API calls. `use-auth.tsx` calls `setUserId` inside its `useEffect` whenever the user state changes (login/logout). This wires frontend auth state to backend auth middleware automatically.
+
 ### `scripts` (`@workspace/scripts`)
 
 Utility scripts package. Each script is a `.ts` file in `src/` with a corresponding npm script in `package.json`. Run scripts via `pnpm --filter @workspace/scripts run <script>`. Scripts can import any workspace package (e.g., `@workspace/db`) by adding it as a dependency in `scripts/package.json`.
+
+### `artifacts/paikarmart` (`@workspace/paikarmart`)
+
+React + Vite frontend. Dark-themed Bangladesh-focused multi-vendor marketplace.
+
+**Design tokens**: bg `hsl(160 28% 5%)`, primary `hsl(145 65% 38%)`, purple `hsl(265 55% 58%)`. CSS utilities: `.glass`, `.glass-card`, `.glow-green`, `.text-gradient-green`.
+
+**UI Audit complete (May 2026) — all pages dark glassmorphism:**
+- `orders/index.tsx` — filter tabs (All/Pending/Shipped/Delivered/Cancelled) + GlassCard order list + empty state
+- `notifications.tsx` — filter tabs + GlassCard divided list, unread dot, type icons (order/delivery/account/seller)
+- `faq.tsx` — hero + search + accordion categories (General/Buying/Selling/Account) + contact CTA
+- `terms.tsx` — hero + collapsible section accordion + date footer
+- `admin/dashboard.tsx` — 4 stat cards + seller applications panel + recent orders panel + mobile quick-nav
+- `register.tsx` — 3-step registration (info → OTP 6-digit → done/welcome)
+- STATUS_CONFIG in all pages: dark `bg-yellow-500/15 text-yellow-400` etc. (no more `bg-yellow-100 text-yellow-700`)
+- BUSINESS_TYPES in `seller/register.tsx`: dark selection colors (`bg-orange-500/10 text-orange-400`)
+- Profile toggle: `bg-white/10` unchecked, `bg-emerald-500` checked (was `bg-gray-200`/`bg-green-600`)
+
+**Responsive desktop layouts (completed):**
+- `index.tsx` — custom layout with CompactHeader + SideDrawer; 2-col desktop (feed + right sidebar with categories/trending shops/trust/app promo)
+- `feed.tsx` — 2-col desktop (posts + right sidebar: browse categories/trending shops/app promo)
+- `vendors/[id].tsx` — vendor storefront with desktop left sidebar (shop info/stats/contact/hours) + 4-tab main content
+- `products/index.tsx` — dark glassmorphism; desktop left filter sidebar (category/price range/vendor type/in-stock toggle) + 4-col product grid with active filter chips
+- `vendors/index.tsx` — dark glassmorphism; stats banner (4 tiles) + filter chips (All/Wholesale/Retail/Brand/Local/Service) + search + 4-col vendor cards with rating/sales stats
+- `cart.tsx` — dark glassmorphism; 2-col desktop (items left + sticky order summary/promo code/trust badges right)
+- `checkout.tsx` — dark glassmorphism; 2-col desktop (delivery info/delivery type/payment method left + sticky order summary right)
+- `categories.tsx` — dark glassmorphism; hero banner + product category grid + shop-by-type (4 tiles) + trending sections (3-col banners) + popular search tags
+- `login.tsx` — dark glassmorphism; role tabs (Customer/Seller/Admin) + OTP/password/forgot flows + demo quick-login buttons
+- `products/[id].tsx` — dark glassmorphism; 2-col desktop (image gallery left + product info/price/features/CTA right) + tabs (Description/Specifications/Reviews)
+- `profile.tsx` — desktop left sidebar nav + main content area (dashboard/orders/wishlist/reviews/wallet/settings tabs)
+
+**Key directories:**
+- `src/pages/` — route-level pages (products, cart, checkout, orders, vendors, feed, categories, profile, wallet, notifications, faq, terms)
+- `src/pages/seller/` — seller sub-pages (dashboard, products, product-form, profile, verification, analytics, orders, register)
+- `src/pages/admin/` — admin sub-pages (dashboard, settings, registry, changes, users)
+- `src/seller/` — SellerContext (local state, seed data) + types
+- `src/context/` — WishlistContext, LocationContext, PKCoinContext, VideoUnlockContext
+- `src/config/` — feature.flags.ts, delivery.config.ts, profitShare.config.ts, payment.config.ts
+- `src/features/registry/aiLogger.ts` — localStorage-backed admin change log
+- `src/hooks/` — useAuth (null default, clears "user-1"/"guest" legacy data), useCart
+- `src/components/ui/GlassCard.tsx` — shared glass-morphism card with optional hoverEffect
+- `src/lib/format.ts` — formatBDT, discountPercent utils
+- `src/routes/index.tsx` — AppRouter with RequireAuth/RequireSeller/RequireAdmin guards
+
+**Auth note:** `use-auth.tsx` clears legacy fake user IDs ("user-1", "guest") from localStorage on load. Default user is `null` (not logged in). Login page has quick demo buttons for Buyer/Seller/Admin roles.
+
+**Footer:** desktop-only; mobile uses BottomNav with `pb-20`.
+
+**Seller pages:** Use SellerContext (local state + seed data) for optimistic UI. `product-form.tsx` submit handler now ALSO calls the real API (`POST /products` or `PUT /products/:id`) in parallel, so products persist to DB. SellerContext keeps the immediate UI update; real API call runs in the background via `useMutation`.
+
+**CategoryListResponse** shape: `{ categories: Category[] }` — always destructure `.categories` before mapping.
+
+**Pre-existing TypeScript issues (safe to ignore):**
+- `TS6305` — lib dist files not built (resolved at runtime by Vite)
+- `TS7006` — implicit `any` in older pages (pre-existing)
