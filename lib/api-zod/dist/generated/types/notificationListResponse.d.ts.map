@@ -1,0 +1,1 @@
+{"version":3,"file":"notificationListResponse.d.ts","sourceRoot":"","sources":["../../../src/generated/types/notificationListResponse.ts"],"names":[],"mappings":"AAAA;;;;;;GAMG;AACH,OAAO,KAAK,EAAE,YAAY,EAAE,MAAM,gBAAgB,CAAC;AAEnD,MAAM,WAAW,wBAAwB;IACvC,aAAa,EAAE,YAAY,EAAE,CAAC;IAC9B,WAAW,EAAE,MAAM,CAAC;CACrB"}

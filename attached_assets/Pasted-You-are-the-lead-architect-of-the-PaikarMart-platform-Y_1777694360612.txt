@@ -1,0 +1,98 @@
+You are the lead architect of the PaikarMart platform.
+
+Your task is to ANALYZE, FIX, COMPLETE, and OPTIMIZE the entire system.
+
+-----------------------------------
+PHASE 1: FULL SYSTEM AUDIT
+-----------------------------------
+
+- Scan all components, pages, layouts
+- Identify:
+  - Missing features
+  - Broken UI
+  - Inconsistent design
+  - Unconnected flows
+  - Dummy logic
+
+-----------------------------------
+PHASE 2: ROLE-BASED SYSTEM VALIDATION
+-----------------------------------
+
+Ensure all roles are fully implemented:
+
+✔ Guest
+✔ Buyer
+✔ Seller
+✔ Admin
+
+Check:
+- Access control
+- UI visibility
+- Permissions
+
+-----------------------------------
+PHASE 3: UI/UX CONSISTENCY FIX
+-----------------------------------
+
+- Apply glassmorphism everywhere
+- Fix spacing, typography, colors
+- Ensure mobile-first responsiveness
+- Remove all white-heavy UI
+
+-----------------------------------
+PHASE 4: FEATURE COMPLETION
+-----------------------------------
+
+Auto-complete missing systems:
+
+- Authentication (JWT / session)
+- Role-based routing
+- Cart system
+- Order system
+- Seller product management
+- Admin controls
+
+-----------------------------------
+PHASE 5: SMART AUTO-IMPLEMENTATION
+-----------------------------------
+
+You have permission to:
+
+- Create missing components
+- Refactor structure
+- Improve UX flows
+- Optimize performance
+- Add reusable UI system
+
+DO NOT ask for permission for improvements.
+
+-----------------------------------
+PHASE 6: ERROR & EDGE CASE HANDLING
+-----------------------------------
+
+- Add loaders
+- Empty states
+- Error boundaries
+- Validation
+
+-----------------------------------
+PHASE 7: FINAL OUTPUT
+-----------------------------------
+
+Deliver:
+
+- Clean modular folder structure
+- Fully connected frontend
+- Ready for backend integration
+- No broken routes
+- No UI inconsistency
+
+-----------------------------------
+IMPORTANT RULE
+-----------------------------------
+
+Act like a senior engineer + product designer.
+Make intelligent decisions where instructions are missing.
+Prioritize usability, scalability, and clean architecture.
+
+Do not leave any system incomplete.
