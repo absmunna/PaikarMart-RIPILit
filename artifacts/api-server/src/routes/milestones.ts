@@ -48,7 +48,7 @@ router.get("/milestones/:seller_id", requireAuth, async (req, res): Promise<void
 
 router.post("/milestones", requireAdmin, async (req, res): Promise<void> => {
   const body = CreateMilestoneBody.safeParse(req.body);
-  if (!body.success) { res.status(400).json({ error: body.error.message }); return; }
+  if (!body.success) { res.status(400).json({ error: body.error.issues }); return; }
 
   const targetValue = MILESTONE_TARGETS[body.data.type] ?? 1;
 
@@ -68,7 +68,7 @@ router.post("/milestones", requireAdmin, async (req, res): Promise<void> => {
 router.put("/milestones/:seller_id/progress", requireAdmin, async (req, res): Promise<void> => {
   const sellerId = Array.isArray(req.params.seller_id) ? req.params.seller_id[0] : req.params.seller_id;
   const body = UpdateProgressBody.safeParse(req.body);
-  if (!body.success) { res.status(400).json({ error: body.error.message }); return; }
+  if (!body.success) { res.status(400).json({ error: body.error.issues }); return; }
 
   const milestones = await db.select().from(milestonesTable)
     .where(eq(milestonesTable.sellerId, sellerId));
@@ -78,8 +78,10 @@ router.put("/milestones/:seller_id/progress", requireAdmin, async (req, res): Pr
     if (m.achieved) continue;
     const newValue = body.data.currentValue;
     const achieved = m.targetValue !== null && newValue >= m.targetValue;
+    const updatePayload: Record<string, unknown> = { currentValue: newValue, achieved };
+    if (achieved) updatePayload.achievedAt = new Date();
     const [updatedM] = await db.update(milestonesTable)
-      .set({ currentValue: newValue, achieved, achievedAt: achieved ? new Date() : undefined })
+      .set(updatePayload)
       .where(eq(milestonesTable.id, m.id))
       .returning();
     if (updatedM) updated.push(normalizeMilestone(updatedM as unknown as Record<string, unknown>));
