@@ -1,108 +1,36 @@
-import React, { useState } from "react";
+import React from "react";
 import { Layout } from "@/components/layout/Layout";
-import { GlassCard } from "@/components/ui/GlassCard";
-import { FileText, ChevronDown } from "lucide-react";
-import { cn } from "@/lib/utils";
-
-const SECTIONS = [
-  {
-    title: "1. General Rules",
-    content: "Welcome to PaikarMart. By accessing or using our platform, you agree to be bound by these Terms and Conditions. If you do not agree with any part of these terms, you must not use our services. PaikarMart reserves the right to update these terms at any time.",
-  },
-  {
-    title: "2. Customer Rules",
-    bullets: [
-      "Customers must provide accurate information during registration and checkout.",
-      "Cash on Delivery orders must be paid in full upon receiving the items.",
-      "Fake orders or repeated refusal to accept Cash on Delivery orders may result in account suspension.",
-      "Customers must not attempt to circumvent platform fees or policies.",
-    ],
-  },
-  {
-    title: "3. Seller Rules",
-    bullets: [
-      "Sellers must provide valid business documents during registration.",
-      "Listing counterfeit, prohibited, or misleading items is strictly forbidden.",
-      "Sellers must fulfill confirmed orders within the stipulated timeframe.",
-      "Sellers are responsible for the quality and accuracy of product descriptions.",
-      "Sellers must not engage in price manipulation or deceptive trade practices.",
-    ],
-  },
-  {
-    title: "4. Platform Fees & Payments",
-    content: "PaikarMart reserves the right to charge platform fees or commissions on successful sales. Payment terms for sellers will be outlined in the Seller Dashboard upon approval. PaikarMart acts only as an intermediary — funds flow directly between buyer and seller.",
-  },
-  {
-    title: "5. Dispute Resolution",
-    content: "In case of disputes between buyers and sellers, PaikarMart acts as a neutral intermediary. Our support team will investigate and make a decision based on available evidence. Both parties agree to cooperate fully in any investigation.",
-  },
-  {
-    title: "6. Privacy & Data",
-    content: "PaikarMart collects and uses personal data only as necessary for platform operation. We do not sell personal information to third parties. All data is stored with industry-standard encryption. Users may request data deletion by contacting support.",
-  },
-  {
-    title: "7. Limitation of Liability",
-    content: "PaikarMart is not liable for any indirect, incidental, or consequential damages arising from the use of our platform. Our total liability shall not exceed the value of the transaction in dispute. Users assume responsibility for their own actions on the platform.",
-  },
-];
-
-function Section({ title, content, bullets }: { title: string; content?: string; bullets?: string[] }) {
-  const [open, setOpen] = useState(true);
-  return (
-    <div className="border-b last:border-0" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
-      <button
-        onClick={() => setOpen(v => !v)}
-        className="w-full flex items-center justify-between gap-3 px-5 py-4 text-left hover:bg-white/3 transition-colors"
-      >
-        <span className="text-sm font-semibold text-white">{title}</span>
-        <ChevronDown className={cn("h-4 w-4 shrink-0 text-white/30 transition-transform", open && "rotate-180")} />
-      </button>
-      {open && (
-        <div className="px-5 pb-5">
-          {content && <p className="text-sm text-white/50 leading-relaxed">{content}</p>}
-          {bullets && (
-            <ul className="space-y-2">
-              {bullets.map((b, i) => (
-                <li key={i} className="flex items-start gap-2 text-sm text-white/50">
-                  <span className="text-emerald-500 mt-1 shrink-0">•</span> {b}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
 
 export default function TermsPage() {
   return (
     <Layout>
-      {/* Hero */}
-      <div className="border-b border-white/5 mb-8">
-        <div className="container mx-auto px-4 py-10">
-          <div className="max-w-2xl">
-            <div className="h-12 w-12 rounded-2xl bg-purple-500/15 border border-purple-500/20 flex items-center justify-center mb-4">
-              <FileText className="h-6 w-6 text-purple-400" />
-            </div>
-            <h1 className="text-3xl font-extrabold text-white mb-2">Terms & Conditions</h1>
-            <p className="text-white/40">Last updated: {new Date().toLocaleDateString("en-BD", { day: "numeric", month: "long", year: "numeric" })}</p>
-          </div>
-        </div>
-      </div>
+      <div className="container mx-auto px-4 py-12 max-w-4xl prose prose-slate dark:prose-invert">
+        <h1>Terms and Conditions</h1>
+        <p className="lead">Last updated: {new Date().toLocaleDateString()}</p>
+        
+        <h2>1. General Rules</h2>
+        <p>Welcome to PaikarMart. By accessing or using our platform, you agree to be bound by these Terms and Conditions. If you do not agree with any part of these terms, you must not use our services.</p>
+        
+        <h2>2. Customer Rules</h2>
+        <ul>
+          <li>Customers must provide accurate information during registration and checkout.</li>
+          <li>Cash on Delivery orders must be paid in full upon receiving the items.</li>
+          <li>Fake orders or repeated refusal to accept Cash on Delivery orders may result in account suspension.</li>
+        </ul>
+        
+        <h2>3. Seller Rules</h2>
+        <ul>
+          <li>Sellers must provide valid business documents during registration.</li>
+          <li>Listing counterfeit or prohibited items is strictly forbidden.</li>
+          <li>Sellers must fulfill confirmed orders within the stipulated timeframe.</li>
+          <li>Sellers are responsible for the quality and accuracy of their product descriptions.</li>
+        </ul>
 
-      <div className="container mx-auto px-4 pb-12 max-w-3xl">
-        <GlassCard className="overflow-hidden mb-6">
-          {SECTIONS.map(s => <Section key={s.title} {...s} />)}
-        </GlassCard>
+        <h2>4. Platform Fees and Payments</h2>
+        <p>PaikarMart reserves the right to charge platform fees or commissions on successful sales. Payment terms for sellers will be outlined in the Seller Dashboard upon approval.</p>
 
-        <GlassCard className="p-5">
-          <p className="text-xs text-white/35 leading-relaxed">
-            These terms were last updated on {new Date().toLocaleDateString("en-BD", { day: "numeric", month: "long", year: "numeric" })}.
-            By using PaikarMart, you acknowledge that you have read, understood, and agreed to these terms.
-            For questions, contact <span className="text-emerald-400">support@paikarmart.com</span>.
-          </p>
-        </GlassCard>
+        <h2>5. Dispute Resolution</h2>
+        <p>In case of disputes between buyers and sellers, PaikarMart acts as an intermediary. Our support team will investigate the issue and make a binding decision based on available evidence.</p>
       </div>
     </Layout>
   );
