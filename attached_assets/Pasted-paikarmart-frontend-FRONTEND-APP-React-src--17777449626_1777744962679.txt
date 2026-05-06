@@ -1,0 +1,87 @@
+paikarmart/
+│
+├── frontend/                        # 🎨 FRONTEND APP (React)
+│   └── src/
+│       ├── app/
+│       │   ├── App.tsx
+│       │   ├── providers.tsx
+│       │   └── config.ts
+│       │
+│       ├── routes/                 # 🔥 ONLY ROUTING
+│       │   ├── index.tsx
+│       │   ├── public.routes.tsx
+│       │   ├── user.routes.tsx
+│       │   ├── seller.routes.tsx
+│       │   └── guards/
+│       │
+│       ├── modules/                # FEATURES
+│       │   ├── feed/
+│       │   ├── product/
+│       │   ├── cart/
+│       │   ├── order/
+│       │   ├── seller/
+│       │   ├── user/
+│       │   └── auth/
+│       │
+│       ├── services/               # 🔌 API CALLS
+│       │   ├── apiClient.ts
+│       │   └── endpoints/
+│       │
+│       ├── features/               # BUSINESS CONFIG
+│       ├── components/
+│       ├── store/
+│       ├── hooks/
+│       ├── styles/
+│       └── utils/
+│
+│
+├── backend/                        # ⚙️ SERVER (Node/Nest/Express)
+│   └── src/
+│       ├── main.ts
+│       │
+│       ├── routes/                # 🔥 API ROUTES
+│       │   ├── auth.routes.ts
+│       │   ├── product.routes.ts
+│       │   ├── cart.routes.ts
+│       │   ├── order.routes.ts
+│       │   ├── seller.routes.ts
+│       │   └── user.routes.ts
+│       │
+│       ├── controllers/           # REQUEST HANDLER
+│       │   ├── auth.controller.ts
+│       │   ├── product.controller.ts
+│       │   └── ...
+│       │
+│       ├── services/              # BUSINESS LOGIC
+│       │   ├── product.service.ts
+│       │   ├── order.service.ts
+│       │   └── ...
+│       │
+│       ├── models/                # DB MODELS
+│       │   ├── user.model.ts
+│       │   ├── product.model.ts
+│       │   └── order.model.ts
+│       │
+│       ├── middleware/
+│       ├── utils/
+│       └── config/
+│
+│
+├── database/                      # 🗄️ DATABASE LAYER
+│   ├── schema/
+│   │   ├── user.schema.sql
+│   │   ├── product.schema.sql
+│   │   └── order.schema.sql
+│   │
+│   ├── migrations/
+│   └── seed/
+│
+│
+├── shared/                        # 🔄 COMMON (FRONT+BACK)
+│   ├── types/
+│   ├── constants/
+│   └── utils/
+│
+├── .env
+├── README.md
+└── package.json

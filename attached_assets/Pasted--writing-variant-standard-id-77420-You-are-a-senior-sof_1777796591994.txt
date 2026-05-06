@@ -1,0 +1,174 @@
+শুরু করার আগে
+
+:::writing{variant="standard" id="77420"}
+You are a senior software auditor and system stability engineer.
+
+Your task is to perform a full root-level audit of the entire PaikarMart project, compare it with the master architecture prompt, detect any mismatch, fix critical issues, and then generate a safe backup snapshot.
+
+IMPORTANT:
+Do NOT start Phase 1 yet.
+First audit → then fix → then backup → then stop.
+
+---
+
+# 🔍 STEP 1 — FULL PROJECT ANALYSIS
+
+Scan from root folder:
+
+- frontend/
+- backend/
+- api/
+- uiux/
+- configs/
+- database schema
+- OpenAPI specs
+
+Check:
+
+1. Folder structure correctness (modular separation)
+2. Duplicate files/components
+3. Broken imports / unused files
+4. Inconsistent naming
+5. Missing environment variables
+6. Type errors (TypeScript / Zod)
+7. API mismatch (frontend vs backend)
+8. Config usage correctness (feature flags, payment, delivery)
+
+---
+
+# 🧠 STEP 2 — MATCH WITH MASTER SYSTEM
+
+Compare current system with requirements:
+
+- Multi-seller system
+- Dynamic product type engine
+- Role-based system
+- Wallet system (audit-safe)
+- Order flow (physical / digital / service)
+- KYC system
+- Dispute system
+- Commission system
+- Moderator system
+
+Mark each as:
+
+- ✅ Fully implemented
+- ⚠️ Partially implemented
+- ❌ Missing
+
+---
+
+# 🐛 STEP 3 — BUG & RISK DETECTION
+
+Identify:
+
+- Fake data usage (e.g., SellerContext local state)
+- Security gaps (no auth token, unsafe API)
+- Database design risks (JSONB misuse)
+- Hardcoded logic (non-dynamic system)
+- Broken UI flows
+- Dead routes / unused endpoints
+
+Classify:
+
+- 🔴 Critical (must fix now)
+- 🟡 Medium
+- 🟢 Low
+
+---
+
+# 🔧 STEP 4 — FIX CRITICAL ISSUES ONLY
+
+Fix ONLY critical issues that may:
+
+- Break future development
+- Cause data inconsistency
+- Cause security risks
+
+Examples:
+
+- Broken API route → fix
+- Type errors → fix
+- Missing null checks → fix
+
+DO NOT:
+
+- Refactor entire system
+- Start new features
+- Change database structure (Phase 1 will do that)
+
+---
+
+# 🧪 STEP 5 — SYSTEM VALIDATION
+
+After fixes:
+
+- Run backend server
+- Run frontend app
+- Test:
+  - Auth (login/register)
+  - Product listing
+  - Seller dashboard (even if mock)
+  - Order flow basic
+
+Ensure:
+
+- No crash
+- No console error
+- No API failure
+
+---
+
+# 📦 STEP 6 — EXPORT BACKUP SNAPSHOT
+
+Create:
+
+1. Full project ZIP:
+   - Include frontend, backend, api, configs
+   - Exclude:
+     - node_modules
+     - dist/build
+     - .cache
+
+2. Save as:
+   paikarmart_pre_phase1_backup.zip
+
+3. Also generate:
+
+- README_BACKUP.md:
+  - Current system state
+  - Known limitations
+  - Next planned phase (Phase 1)
+
+---
+
+# 📊 STEP 7 — FINAL AUDIT REPORT
+
+Generate a structured report:
+
+1. System Health Score (0–100)
+2. Critical issues found & fixed
+3. Remaining gaps (Phase 1 related)
+4. Safe to proceed? (YES/NO)
+
+---
+
+# 🚫 STOP CONDITION
+
+After backup + report:
+
+STOP.
+
+Wait for next instruction:
+“Start Phase 1”
+
+---
+
+# ⚠️ STRICT RULES
+
+- Do NOT break working system
+- Do NOT remove existing features
+- Do NOT modify database schema yet
+- Keep everything backward-compatible
+
+-
