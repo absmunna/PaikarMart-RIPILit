@@ -1,27 +1,38 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useLocation } from "wouter";
-import { useListProducts, useListSellers } from "@workspace/api-client-react";
-import { Layout } from "@/components/layout/Layout";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import {
-  Store, Tag, TrendingUp, Package, HeadphonesIcon, Building2,
-  Star, ShoppingCart, Zap, ChevronLeft, ChevronRight,
-  ShieldCheck, CreditCard, Truck, Award, MapPin
-} from "lucide-react";
+import { useListProducts } from "@workspace/api-client-react";
+import { BottomNav } from "@/components/layout/BottomNav";
+import { GlassCard } from "@/components/ui/GlassCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCart } from "@/hooks/use-cart";
+import { useWishlist } from "@/context/WishlistContext";
+import { useUserLocation } from "@/context/LocationContext";
+import { useAuth } from "@/hooks/use-auth";
+import { formatBDT } from "@/lib/format";
 import { toast } from "sonner";
-import { Product } from "@workspace/api-zod/src/generated/types";
+import type { Product } from "@workspace/api-zod/src/generated/types";
+import {
+  Menu, Search, MapPin, ShoppingCart, X, ChevronRight,
+  Home, Package, Store, Tag, TrendingUp, HeadphonesIcon,
+  Building2, ShoppingBag, HelpCircle, Star, Heart,
+  MessageCircle, Share2, Bookmark, Zap, BadgeCheck,
+  Sun, Moon, Globe, ChevronLeft, ChevronDown, Plus,
+  ShieldCheck, CreditCard, Truck, Award, Sparkles, ArrowRight,
+  User, Flame,
+} from "lucide-react";
+
+/* ═══════════════════════════════════════════════════════════════
+   STATIC DATA
+═══════════════════════════════════════════════════════════════ */
 
 const HERO_SLIDES = [
   {
     id: 1,
-    gradient: "from-green-800 via-green-700 to-emerald-600",
+    gradient: "from-emerald-900 via-teal-900 to-[hsl(160_28%_5%)]",
+    glow: "rgba(16,185,129,0.28)",
     eyebrow: "Welcome to PaikarMart",
-    headline: "The Premium Market for Bangladesh",
-    sub: "Connect with wholesalers, brands, and local shops. Get the best prices with reliable delivery.",
+    headline: "Bangladesh's Premium Marketplace",
+    sub: "Connect with wholesalers, brands & local shops.",
     cta1: { label: "Start Shopping", href: "/products" },
     cta2: { label: "Become a Seller", href: "/seller/register" },
     badge: "🚀 10,000+ Products Listed",
@@ -29,10 +40,11 @@ const HERO_SLIDES = [
   },
   {
     id: 2,
-    gradient: "from-blue-900 via-blue-800 to-blue-700",
+    gradient: "from-violet-900 via-purple-900 to-[hsl(160_28%_5%)]",
+    glow: "rgba(139,92,246,0.28)",
     eyebrow: "Wholesale Marketplace",
     headline: "Buy in Bulk, Save More",
-    sub: "Access thousands of wholesale suppliers across Bangladesh. MOQ as low as 10 units.",
+    sub: "Access thousands of wholesale suppliers. MOQ as low as 10 units.",
     cta1: { label: "Browse Wholesale", href: "/vendors?type=wholesale" },
     cta2: { label: "Register as Seller", href: "/seller/register" },
     badge: "💰 Up to 60% Wholesale Savings",
@@ -40,10 +52,11 @@ const HERO_SLIDES = [
   },
   {
     id: 3,
-    gradient: "from-purple-900 via-purple-800 to-violet-700",
+    gradient: "from-slate-900 via-emerald-950 to-[hsl(160_28%_5%)]",
+    glow: "rgba(20,184,166,0.28)",
     eyebrow: "Digital & Services",
-    headline: "Software, Services & Digital Products",
-    sub: "Find professional services, digital downloads, and software licenses all in one place.",
+    headline: "Software, Services & Digital",
+    sub: "Professional services, digital downloads — all in one place.",
     cta1: { label: "Explore Services", href: "/vendors?type=service" },
     cta2: { label: "List Your Service", href: "/seller/register" },
     badge: "⚡ Instant Digital Delivery",
@@ -51,369 +64,1225 @@ const HERO_SLIDES = [
   },
 ];
 
-const CATEGORIES = [
-  { name: "Wholesale", icon: Package, desc: "Bulk orders at lowest prices", href: "/vendors?type=wholesale", color: "bg-orange-100 text-orange-600" },
-  { name: "Retail", icon: Tag, desc: "Single items, personal use", href: "/vendors?type=retail", color: "bg-blue-100 text-blue-600" },
-  { name: "Brand Seller", icon: Building2, desc: "Official brand stores", href: "/vendors?type=brand_seller", color: "bg-purple-100 text-purple-600" },
-  { name: "Dropship", icon: TrendingUp, desc: "Sell with zero inventory", href: "/vendors?type=dropship", color: "bg-teal-100 text-teal-600" },
-  { name: "Service", icon: HeadphonesIcon, desc: "Professional services", href: "/vendors?type=service", color: "bg-pink-100 text-pink-600" },
-  { name: "Local Shop", icon: Store, desc: "Stores near you", href: "/vendors?type=local_shop", color: "bg-yellow-100 text-yellow-600" },
+const STORIES = [
+  { id: "s1", name: "TechZone", emoji: "📱", ring: "from-emerald-400 to-teal-500" },
+  { id: "s2", name: "Fashion", emoji: "👗", ring: "from-purple-400 to-pink-500" },
+  { id: "s3", name: "Grocery", emoji: "🛒", ring: "from-orange-400 to-red-500" },
+  { id: "s4", name: "HomeDeco", emoji: "🏡", ring: "from-blue-400 to-cyan-500" },
+  { id: "s5", name: "Sports", emoji: "⚽", ring: "from-green-400 to-emerald-500" },
+  { id: "s6", name: "Beauty", emoji: "💄", ring: "from-pink-400 to-rose-500" },
+  { id: "s7", name: "Books", emoji: "📚", ring: "from-yellow-400 to-amber-500" },
 ];
 
-const PROMO_BANNERS_1 = [
-  { title: "Flash Sale", sub: "Electronics up to 40% off", color: "from-orange-500 to-red-500", href: "/products?category=Electronics" },
-  { title: "New Arrivals", sub: "Fresh fashion collections", color: "from-pink-500 to-purple-500", href: "/products?category=Fashion" },
-  { title: "Wholesale Hub", sub: "MOQ deals for resellers", color: "from-blue-500 to-cyan-500", href: "/vendors?type=wholesale" },
+const CATEGORIES = [
+  { name: "Electronics", emoji: "📱", href: "/products?category=Electronics", color: "from-blue-500/20 to-blue-600/5", border: "border-blue-500/20", text: "text-blue-400" },
+  { name: "Fashion", emoji: "👗", href: "/products?category=Fashion", color: "from-purple-500/20 to-purple-600/5", border: "border-purple-500/20", text: "text-purple-400" },
+  { name: "Grocery", emoji: "🛒", href: "/products?category=Grocery", color: "from-green-500/20 to-green-600/5", border: "border-green-500/20", text: "text-green-400" },
+  { name: "Home", emoji: "🏡", href: "/products?category=Home", color: "from-orange-500/20 to-orange-600/5", border: "border-orange-500/20", text: "text-orange-400" },
+  { name: "Services", emoji: "🔧", href: "/products?category=Services", color: "from-pink-500/20 to-pink-600/5", border: "border-pink-500/20", text: "text-pink-400" },
+  { name: "Wholesale", emoji: "📦", href: "/vendors?type=wholesale", color: "from-teal-500/20 to-teal-600/5", border: "border-teal-500/20", text: "text-teal-400" },
 ];
+
+const SIDEBAR_LINKS = [
+  { href: "/", label: "Home", icon: Home },
+  { href: "/products", label: "All Products", icon: ShoppingBag },
+  { href: "/vendors", label: "All Vendors", icon: Store },
+  { href: "/vendors?type=wholesale", label: "Wholesale Hub", icon: Package },
+  { href: "/vendors?type=retail", label: "Retail Shops", icon: Tag },
+  { href: "/vendors?type=brand_seller", label: "Brand Shops", icon: Building2 },
+  { href: "/vendors?type=dropship", label: "Dropship", icon: TrendingUp },
+  { href: "/vendors?type=service", label: "Services", icon: HeadphonesIcon },
+  { href: "/orders", label: "My Orders", icon: Package },
+  { href: "/faq", label: "Help & FAQ", icon: HelpCircle },
+];
+
+const FEED_POSTS = [
+  { id: "f1", shopName: "TechZone BD", shopVerified: true, shopEmoji: "📱", timeAgo: "2m", tag: "Wholesale", tagColor: "bg-orange-500", productName: "Samsung 65W USB-C Super Fast Charger", price: 1250, compareAt: 1800, image: "https://images.unsplash.com/photo-1604671368394-2240d0b1bb6c?w=600&q=80", rating: 4.8, sold: 312, location: "Mirpur, Dhaka", likes: 148, comments: 23, distance: "1.2 km" },
+  { id: "f2", shopName: "Fashion Hub", shopVerified: true, shopEmoji: "👗", timeAgo: "15m", tag: "Retail", tagColor: "bg-blue-500", productName: "Premium Linen Kurta Set — Navy Blue", price: 890, compareAt: 1400, image: "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=600&q=80", rating: 4.6, sold: 87, location: "Gulshan, Dhaka", likes: 89, comments: 11, distance: "3.4 km" },
+  { id: "f3", shopName: "HomeDeco BD", shopVerified: false, shopEmoji: "🏡", timeAgo: "42m", tag: "Retail", tagColor: "bg-blue-500", productName: "Handwoven Cotton Throw Blanket – Artisan", price: 2100, compareAt: 2900, image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=80", rating: 4.9, sold: 56, location: "Dhanmondi, Dhaka", likes: 213, comments: 34, distance: "5.1 km" },
+  { id: "f4", shopName: "Grocery King", shopVerified: true, shopEmoji: "🛒", timeAgo: "1h", tag: "Service", tagColor: "bg-purple-500", productName: "Organic Basmati Rice 5kg – Farm Direct", price: 650, compareAt: 850, image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&q=80", rating: 4.7, sold: 1243, location: "Uttara, Dhaka", likes: 67, comments: 8, distance: "2.7 km" },
+  { id: "f5", shopName: "BeautyShop BD", shopVerified: true, shopEmoji: "💄", timeAgo: "3h", tag: "Retail", tagColor: "bg-blue-500", productName: "Korean Skin Care Bundle – 5 Step Routine", price: 1890, compareAt: 2800, image: "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=600&q=80", rating: 4.9, sold: 445, location: "Tejgaon, Dhaka", likes: 302, comments: 51, distance: "6.2 km" },
+];
+
+const DISTRICTS = [
+  "Dhaka", "Chittagong", "Sylhet", "Rajshahi", "Khulna",
+  "Barisal", "Rangpur", "Mymensingh", "Comilla", "Gazipur",
+];
+
+/* ═══════════════════════════════════════════════════════════════
+   COMPACT HEADER
+═══════════════════════════════════════════════════════════════ */
+
+const DESKTOP_NAV = [
+  { href: "/", label: "Home", icon: Home },
+  { href: "/products", label: "Market", icon: ShoppingBag },
+  { href: "/feed", label: "Feed", icon: Flame },
+  { href: "/vendors", label: "Vendors", icon: Store },
+  { href: "/categories", label: "Categories", icon: Tag },
+];
+
+function CompactHeader({
+  onMenuOpen,
+  lang,
+  onLangToggle,
+  darkMode,
+  onDarkToggle,
+}: {
+  onMenuOpen: () => void;
+  lang: "EN" | "বাং";
+  onLangToggle: () => void;
+  darkMode: boolean;
+  onDarkToggle: () => void;
+}) {
+  const { totalItems } = useCart();
+  const { location: userLoc } = useUserLocation();
+  const { user } = useAuth();
+  const [loc, navigate] = useLocation();
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showLocPicker, setShowLocPicker] = useState(false);
+  const [locInput, setLocInput] = useState(() => localStorage.getItem("pm_district") || "");
+  const mobileInputRef = useRef<HTMLInputElement>(null);
+  const desktopInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (searchOpen) mobileInputRef.current?.focus();
+  }, [searchOpen]);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/products?q=${encodeURIComponent(searchQuery)}`);
+      setSearchOpen(false);
+      setSearchQuery("");
+    }
+  };
+
+  const saveLocation = (district: string) => {
+    localStorage.setItem("pm_district", district);
+    setLocInput(district);
+    setShowLocPicker(false);
+    toast.success(`Location set to ${district}`);
+  };
+
+  const locLabel = locInput || userLoc.city || "Dhaka";
+  const firstName = user?.name?.split(" ")[0] ?? null;
+
+  const headerBg = {
+    background: "rgba(6,18,14,0.95)",
+    backdropFilter: "blur(24px)",
+  } as React.CSSProperties;
+
+  return (
+    <header className="sticky top-0 z-40 w-full" style={{ borderBottom: "1px solid rgba(16,185,129,0.1)" }}>
+
+      {/* ══════════════════════════════════════════
+          DESKTOP HEADER  (lg+)
+      ══════════════════════════════════════════ */}
+      <div className="hidden lg:block" style={headerBg}>
+
+        {/* Row 1 — Logo · Location · Search · Profile · Cart */}
+        <div className="flex items-center gap-3 h-[60px] px-6 max-w-[1400px] mx-auto">
+
+          {/* Logo — left */}
+          <Link href="/">
+            <span className="font-extrabold text-xl tracking-tight cursor-pointer select-none shrink-0">
+              <span className="text-gradient-green">Paikar</span>
+              <span style={{ color: "#9B1942" }}>Mart</span>
+            </span>
+          </Link>
+
+          {/* Location chip */}
+          <button
+            onClick={() => setShowLocPicker(v => !v)}
+            className="shrink-0 flex items-center gap-1.5 h-9 px-3 rounded-xl border transition-all text-white/60 hover:text-emerald-400"
+            style={{ background: "rgba(255,255,255,0.04)", borderColor: "rgba(255,255,255,0.08)" }}
+          >
+            <MapPin className="h-3.5 w-3.5 text-emerald-400" />
+            <span className="text-xs font-medium max-w-[96px] truncate">{locLabel}</span>
+            <ChevronDown className="h-3 w-3 opacity-40" />
+          </button>
+
+          {/* Search bar — always visible, stretches */}
+          <form onSubmit={handleSearch} className="flex-1 flex items-center gap-2.5 h-9 px-4 rounded-xl transition-all"
+            style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.08)" }}
+            onFocus={e => (e.currentTarget.style.borderColor = "rgba(16,185,129,0.35)")}
+            onBlur={e => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)")}
+          >
+            <Search className="h-4 w-4 text-white/30 shrink-0" />
+            <input
+              ref={desktopInputRef}
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Search products, sellers, brands..."
+              className="flex-1 bg-transparent text-sm text-white placeholder:text-white/30 outline-none"
+            />
+            {searchQuery && (
+              <button type="submit"
+                className="shrink-0 text-[11px] font-bold text-white px-3 py-1 rounded-lg transition-all"
+                style={{ background: "linear-gradient(135deg,hsl(145 65% 30%),hsl(265 55% 38%))" }}>
+                Search
+              </button>
+            )}
+          </form>
+
+          {/* Profile */}
+          <Link href={firstName ? "/profile" : "/login"}>
+            <button className="flex items-center gap-2 h-9 px-3 rounded-xl border transition-all text-white/60 hover:text-white"
+              style={{ background: "rgba(255,255,255,0.04)", borderColor: "rgba(255,255,255,0.08)" }}>
+              <div className="h-5 w-5 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+                <User className="h-3 w-3 text-emerald-400" />
+              </div>
+              <span className="text-xs font-medium">{firstName ?? "Login"}</span>
+            </button>
+          </Link>
+
+          {/* Cart */}
+          <Link href="/cart">
+            <button className="relative flex items-center gap-2 h-9 px-3 rounded-xl border transition-all text-white/60 hover:text-white"
+              style={{ background: "rgba(255,255,255,0.04)", borderColor: "rgba(255,255,255,0.08)" }}>
+              <ShoppingCart className="h-4 w-4" />
+              <span className="text-xs font-medium">Cart</span>
+              {totalItems > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center shadow">
+                  {totalItems > 9 ? "9+" : totalItems}
+                </span>
+              )}
+            </button>
+          </Link>
+        </div>
+
+        {/* Row 2 — Nav tabs */}
+        <div className="flex items-center px-6 max-w-[1400px] mx-auto" style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}>
+          {DESKTOP_NAV.map(item => {
+            const active = loc === item.href || (item.href !== "/" && loc.startsWith(item.href));
+            return (
+              <Link key={item.href} href={item.href}>
+                <div className={`flex items-center gap-1.5 px-4 py-2.5 text-xs font-semibold transition-all cursor-pointer border-b-2 ${
+                  active
+                    ? "text-emerald-400 border-emerald-400"
+                    : "text-white/45 border-transparent hover:text-white/80 hover:border-white/20"
+                }`}>
+                  <item.icon className="h-3.5 w-3.5" />
+                  {item.label}
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ══════════════════════════════════════════
+          MOBILE HEADER  (< lg)
+      ══════════════════════════════════════════ */}
+      <div className="lg:hidden" style={headerBg}>
+        <div className="flex items-center h-[52px] px-3 gap-2">
+
+          {/* Hamburger */}
+          <button onClick={onMenuOpen}
+            className="h-8 w-8 rounded-xl flex items-center justify-center text-white/60 hover:text-white hover:bg-white/8 transition-all shrink-0">
+            <Menu className="h-5 w-5" />
+          </button>
+
+          {/* Logo — left */}
+          <div className="flex-1 flex justify-start">
+            <Link href="/">
+              <span className="font-extrabold text-2xl tracking-tight cursor-pointer select-none">
+                <span className="text-gradient-green">Paikar</span>
+                <span style={{ color: "#9B1942" }}>Mart</span>
+              </span>
+            </Link>
+          </div>
+
+          {/* Right: Location · Search · Cart */}
+          <div className="flex items-center gap-1 shrink-0">
+            <button onClick={() => setShowLocPicker(v => !v)}
+              className="h-8 px-2 rounded-xl flex items-center gap-1 text-white/50 hover:text-emerald-400 hover:bg-white/5 transition-all">
+              <MapPin className="h-3.5 w-3.5" />
+              <span className="text-[10px] max-w-[52px] truncate hidden sm:inline">{locLabel}</span>
+            </button>
+            <button onClick={() => setSearchOpen(v => !v)}
+              className="h-8 w-8 rounded-xl flex items-center justify-center text-white/50 hover:text-white hover:bg-white/8 transition-all">
+              <Search className="h-4 w-4" />
+            </button>
+            <Link href="/cart">
+              <button className="relative h-8 w-8 rounded-xl flex items-center justify-center text-white/50 hover:text-white hover:bg-white/8 transition-all">
+                <ShoppingCart className="h-4 w-4" />
+                {totalItems > 0 && (
+                  <span className="absolute top-0.5 right-0.5 h-4 w-4 rounded-full bg-red-500 text-white text-[9px] font-bold flex items-center justify-center">
+                    {totalItems > 9 ? "9+" : totalItems}
+                  </span>
+                )}
+              </button>
+            </Link>
+          </div>
+        </div>
+
+        {/* Mobile slide-down search */}
+        <div className="overflow-hidden transition-all duration-300 ease-in-out"
+          style={{ maxHeight: searchOpen ? "56px" : "0px", borderTop: searchOpen ? "1px solid rgba(16,185,129,0.08)" : "none" }}>
+          <form onSubmit={handleSearch} className="flex items-center gap-2 px-3 py-2">
+            <Search className="h-4 w-4 text-white/30 shrink-0" />
+            <input ref={mobileInputRef} value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Search products, sellers, brands..."
+              className="flex-1 bg-transparent text-sm text-white placeholder:text-white/30 outline-none" />
+            {searchQuery
+              ? <button type="submit" className="text-[10px] font-semibold text-emerald-400 px-2">Go</button>
+              : <button type="button" onClick={() => setSearchOpen(false)} className="text-white/30 hover:text-white/60 transition-colors"><X className="h-4 w-4" /></button>
+            }
+          </form>
+        </div>
+      </div>
+
+      {/* ══════════════════════════════════════════
+          LOCATION PICKER  (shared)
+      ══════════════════════════════════════════ */}
+      {showLocPicker && (
+        <div className="absolute top-full left-0 right-0 z-50 mx-3 mt-1 rounded-2xl shadow-2xl overflow-hidden lg:left-auto lg:right-auto lg:mx-0 lg:w-72"
+          style={{ background: "rgba(8,22,16,0.98)", border: "1px solid rgba(16,185,129,0.15)", left: undefined }}
+          onClick={e => e.stopPropagation()}>
+          <div className="p-3 border-b border-white/5 flex items-center justify-between">
+            <p className="text-xs text-white/40 font-medium">Select District</p>
+            <button onClick={() => setShowLocPicker(false)} className="text-white/30 hover:text-white/60 transition-colors"><X className="h-3.5 w-3.5" /></button>
+          </div>
+          <div className="grid grid-cols-2 gap-1 p-2 max-h-52 overflow-y-auto">
+            {DISTRICTS.map(d => (
+              <button key={d} onClick={() => saveLocation(d)}
+                className={`text-left px-3 py-2 rounded-xl text-xs transition-all ${locInput === d ? "bg-emerald-500/20 text-emerald-400 font-semibold" : "text-white/60 hover:bg-white/5 hover:text-white"}`}>
+                {d}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </header>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   HAMBURGER SIDE DRAWER
+═══════════════════════════════════════════════════════════════ */
+
+function SideDrawer({
+  open,
+  onClose,
+  lang,
+  onLangToggle,
+  darkMode,
+  onDarkToggle,
+}: {
+  open: boolean;
+  onClose: () => void;
+  lang: "EN" | "বাং";
+  onLangToggle: () => void;
+  darkMode: boolean;
+  onDarkToggle: () => void;
+}) {
+  const { user, logout } = useAuth();
+  const [, navigate] = useLocation();
+
+  /* close on route change */
+  const handleLink = (href: string) => {
+    onClose();
+    navigate(href);
+  };
+
+  /* trap scroll when open */
+  useEffect(() => {
+    if (open) document.body.style.overflow = "hidden";
+    else document.body.style.overflow = "";
+    return () => { document.body.style.overflow = ""; };
+  }, [open]);
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div
+        onClick={onClose}
+        className="fixed inset-0 z-50 transition-all duration-300"
+        style={{
+          background: open ? "rgba(0,0,0,0.6)" : "transparent",
+          backdropFilter: open ? "blur(4px)" : "none",
+          pointerEvents: open ? "auto" : "none",
+        }}
+      />
+
+      {/* Drawer panel */}
+      <div
+        className="fixed top-0 left-0 bottom-0 z-50 w-72 flex flex-col transition-transform duration-300 ease-out"
+        style={{
+          background: "rgba(6,18,14,0.97)",
+          backdropFilter: "blur(24px)",
+          borderRight: "1px solid rgba(16,185,129,0.12)",
+          transform: open ? "translateX(0)" : "translateX(-100%)",
+        }}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/5">
+          <span className="font-extrabold text-xl tracking-tight">
+            <span className="text-gradient-green">Paikar</span>
+            <span style={{ color: "#9B1942" }}>Mart</span>
+          </span>
+          <button onClick={onClose} className="h-8 w-8 rounded-xl flex items-center justify-center text-white/40 hover:text-white hover:bg-white/8 transition-all">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        {/* User greeting */}
+        {user && user.id !== "guest" ? (
+          <div className="px-5 py-4 border-b border-white/5">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-500/30 to-purple-500/20 border border-white/10 flex items-center justify-center text-lg">
+                {user.name?.[0]?.toUpperCase() ?? "U"}
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-white">{user.name}</p>
+                <p className="text-[10px] text-white/40 capitalize">{user.role}</p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="px-5 py-4 border-b border-white/5 flex gap-2">
+            <button onClick={() => handleLink("/login")}
+              className="flex-1 py-2 rounded-xl border border-emerald-500/30 text-emerald-400 text-xs font-semibold hover:bg-emerald-500/10 transition-all">
+              Login
+            </button>
+            <button onClick={() => handleLink("/register")}
+              className="flex-1 py-2 rounded-xl bg-emerald-500/20 text-emerald-400 text-xs font-semibold hover:bg-emerald-500/30 transition-all">
+              Sign Up
+            </button>
+          </div>
+        )}
+
+        {/* Nav links */}
+        <nav className="flex-1 overflow-y-auto py-3 px-3">
+          {SIDEBAR_LINKS.map(item => (
+            <button key={item.href} onClick={() => handleLink(item.href)}
+              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-white/60 hover:text-white hover:bg-white/5 transition-all text-left group">
+              <item.icon className="h-4 w-4 text-white/30 group-hover:text-emerald-400 transition-colors" />
+              {item.label}
+              <ChevronRight className="h-3.5 w-3.5 ml-auto text-white/20 group-hover:text-white/40" />
+            </button>
+          ))}
+
+          {/* Become a seller */}
+          <div className="mt-3 mx-1">
+            <button onClick={() => handleLink("/seller/register")}
+              className="w-full flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white transition-all"
+              style={{ background: "linear-gradient(135deg, hsl(145 65% 28%), hsl(265 55% 38%))" }}>
+              <Sparkles className="h-4 w-4" /> Become a Seller
+            </button>
+          </div>
+        </nav>
+
+        {/* Bottom toggles */}
+        <div className="px-5 py-4 border-t border-white/5 space-y-3">
+          {/* Language toggle */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm text-white/50">
+              <Globe className="h-4 w-4" /> Language
+            </div>
+            <button onClick={onLangToggle}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-white/10 text-xs font-semibold text-white/70 hover:border-emerald-500/30 hover:text-emerald-400 transition-all bg-white/5">
+              {lang === "EN" ? "🇬🇧 English" : "🇧🇩 বাংলা"}
+            </button>
+          </div>
+
+          {/* Dark/Light mode */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-sm text-white/50">
+              {darkMode ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+              {darkMode ? "Dark Mode" : "Light Mode"}
+            </div>
+            <button onClick={onDarkToggle}
+              className={`relative h-6 w-11 rounded-full border transition-all ${darkMode ? "bg-emerald-500/30 border-emerald-500/40" : "bg-white/10 border-white/20"}`}>
+              <span className={`absolute top-0.5 h-5 w-5 rounded-full transition-all duration-300 flex items-center justify-center text-[10px] ${darkMode ? "left-5 bg-emerald-400" : "left-0.5 bg-white/50"}`}>
+                {darkMode ? "🌙" : "☀️"}
+              </span>
+            </button>
+          </div>
+
+          {/* Logout */}
+          {user && user.id !== "guest" && (
+            <button onClick={() => { logout(); onClose(); }}
+              className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-xs text-red-400/70 hover:text-red-400 hover:bg-red-500/10 transition-all">
+              <X className="h-3.5 w-3.5" /> Sign Out
+            </button>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   HERO SLIDER (compact)
+═══════════════════════════════════════════════════════════════ */
 
 function HeroSlider() {
   const [current, setCurrent] = useState(0);
   const [, navigate] = useLocation();
 
   useEffect(() => {
-    const timer = setInterval(() => setCurrent(c => (c + 1) % HERO_SLIDES.length), 5000);
-    return () => clearInterval(timer);
+    const t = setInterval(() => setCurrent(c => (c + 1) % HERO_SLIDES.length), 5000);
+    return () => clearInterval(t);
   }, []);
 
-  const slide = HERO_SLIDES[current];
+  const s = HERO_SLIDES[current];
 
   return (
-    <section className={`relative bg-gradient-to-r ${slide.gradient} text-white overflow-hidden transition-all duration-700`} style={{ minHeight: 420 }}>
-      <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_70%_50%,white,transparent)]" />
-      <div className="container mx-auto px-4 py-14 lg:py-20 flex flex-col lg:flex-row items-center justify-between gap-8 relative z-10">
-        <div className="flex-1 text-center lg:text-left">
-          <div className="inline-block bg-white/20 backdrop-blur-sm text-white text-xs font-semibold px-4 py-1.5 rounded-full mb-4 border border-white/30">
-            {slide.badge}
+    <section className={`relative bg-gradient-to-br ${s.gradient} text-white overflow-hidden`}>
+      <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse 70% 80% at 75% 50%, ${s.glow}, transparent)` }} />
+
+      {/* Desktop layout */}
+      <div className="hidden lg:flex items-center gap-8 px-10 py-12 relative z-10 min-h-[300px]">
+        <div className="flex-1 max-w-xl">
+          <div className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-sm text-white text-xs font-semibold px-3 py-1 rounded-full mb-4 border border-white/20">
+            <Sparkles className="h-3 w-3" /> {s.badge}
           </div>
-          <p className="text-white/70 font-medium text-sm mb-2 uppercase tracking-widest">{slide.eyebrow}</p>
-          <h1 className="text-3xl lg:text-5xl font-extrabold mb-4 leading-tight">{slide.headline}</h1>
-          <p className="text-white/80 text-base lg:text-lg mb-8 max-w-lg">{slide.sub}</p>
-          <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3">
-            <Button size="lg" variant="secondary" onClick={() => navigate(slide.cta1.href)} className="w-full sm:w-auto font-bold">
-              {slide.cta1.label}
-            </Button>
-            <Button size="lg" onClick={() => navigate(slide.cta2.href)} className="w-full sm:w-auto bg-white/20 border border-white/40 hover:bg-white/30 text-white backdrop-blur-sm">
-              {slide.cta2.label}
-            </Button>
+          <p className="text-white/50 text-sm font-medium mb-1.5">{s.eyebrow}</p>
+          <h2 className="text-4xl font-extrabold mb-3 leading-tight">{s.headline}</h2>
+          <p className="text-white/60 text-base mb-6 leading-relaxed">{s.sub}</p>
+          <div className="flex gap-3">
+            <button onClick={() => navigate(s.cta1.href)}
+              className="px-6 py-2.5 rounded-xl font-bold text-sm bg-white text-gray-900 hover:bg-white/90 transition-all shadow-lg flex items-center gap-1.5">
+              {s.cta1.label} <ArrowRight className="h-4 w-4" />
+            </button>
+            <button onClick={() => navigate(s.cta2.href)}
+              className="px-6 py-2.5 rounded-xl font-semibold text-sm bg-white/12 border border-white/25 hover:bg-white/20 text-white backdrop-blur-sm transition-all">
+              {s.cta2.label}
+            </button>
           </div>
         </div>
-        <div className="hidden lg:block w-80 h-64 rounded-2xl overflow-hidden shadow-2xl border-4 border-white/20 shrink-0">
-          <img src={slide.img} alt={slide.headline} className="w-full h-full object-cover" />
+        <div className="w-80 h-56 rounded-2xl overflow-hidden border border-white/15 shrink-0 shadow-2xl">
+          <img src={s.img} alt={s.headline} className="w-full h-full object-cover" />
         </div>
       </div>
 
-      {/* Slide Navigation */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-3 z-20">
-        <button onClick={() => setCurrent(c => (c - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)}
-          className="h-8 w-8 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center border border-white/30 transition-colors">
-          <ChevronLeft className="h-4 w-4 text-white" />
-        </button>
+      {/* Mobile layout — Reel-style horizontal scroll */}
+      <div className="lg:hidden overflow-x-auto scrollbar-hide relative z-10">
+        <div className="flex gap-3 px-3 py-3" style={{ width: "max-content" }}>
+          {HERO_SLIDES.map((slide, i) => (
+            <div
+              key={slide.id}
+              onClick={() => { setCurrent(i); navigate(slide.cta1.href); }}
+              className={`relative rounded-2xl overflow-hidden shrink-0 cursor-pointer transition-all duration-300 ${i === current ? "ring-2 ring-white/60 scale-[1.02]" : "opacity-85"}`}
+              style={{ width: "160px", height: "240px" }}
+            >
+              {/* BG image */}
+              <img src={slide.img} alt={slide.headline}
+                className="absolute inset-0 w-full h-full object-cover" />
+
+              {/* gradient overlay */}
+              <div className={`absolute inset-0 bg-gradient-to-br ${slide.gradient} opacity-80`} />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+
+              {/* glow */}
+              <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse 80% 60% at 50% 30%, ${slide.glow}, transparent)` }} />
+
+              {/* Top badge */}
+              <div className="absolute top-3 left-3 right-3 z-10">
+                <span className="inline-flex items-center gap-1 bg-white/15 backdrop-blur-md text-white text-[9px] font-bold px-2 py-0.5 rounded-full border border-white/20">
+                  <Sparkles className="h-2 w-2" /> {slide.badge.split(" ").slice(0, 3).join(" ")}
+                </span>
+              </div>
+
+              {/* Bottom text */}
+              <div className="absolute bottom-0 left-0 right-0 p-3 z-10">
+                <p className="text-white font-extrabold text-sm leading-tight line-clamp-2 mb-2">
+                  {slide.headline}
+                </p>
+                <div className="flex items-center gap-1.5">
+                  <div className="flex-1 h-0.5 rounded-full bg-white/20 overflow-hidden">
+                    <div
+                      className="h-full bg-white rounded-full transition-all duration-300"
+                      style={{ width: i === current ? "100%" : "0%" }}
+                    />
+                  </div>
+                  <ArrowRight className="h-3.5 w-3.5 text-white/70 shrink-0" />
+                </div>
+              </div>
+
+              {/* Active play indicator */}
+              {i === current && (
+                <div className="absolute top-3 right-3 h-5 w-5 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                  <div className="h-1.5 w-1.5 rounded-full bg-white" />
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Desktop dots only */}
+      <div className="hidden lg:flex justify-center gap-1.5 pb-3 relative z-10">
         {HERO_SLIDES.map((_, i) => (
           <button key={i} onClick={() => setCurrent(i)}
-            className={`rounded-full transition-all duration-300 ${i === current ? "w-8 h-2.5 bg-white" : "w-2.5 h-2.5 bg-white/50"}`} />
+            className={`rounded-full transition-all duration-300 ${i === current ? "w-5 h-1 bg-white" : "w-1 h-1 bg-white/35"}`} />
         ))}
-        <button onClick={() => setCurrent(c => (c + 1) % HERO_SLIDES.length)}
-          className="h-8 w-8 rounded-full bg-white/20 hover:bg-white/40 flex items-center justify-center border border-white/30 transition-colors">
-          <ChevronRight className="h-4 w-4 text-white" />
-        </button>
       </div>
     </section>
   );
 }
 
-function ProductCard({ product }: { product: Product }) {
-  const { addToCart } = useCart();
-  const [, navigate] = useLocation();
-  const [adding, setAdding] = useState(false);
+/* ═══════════════════════════════════════════════════════════════
+   STORIES ROW
+═══════════════════════════════════════════════════════════════ */
 
-  const handleAdd = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setAdding(true);
-    addToCart({
-      productId: product.id,
-      productName: product.name,
-      vendorId: product.vendorId,
-      vendorName: product.vendorName,
-      price: product.price || 0,
-      quantity: 1,
-      image: product.images?.[0] || "",
-    });
-    toast.success("Added to cart!");
-    setTimeout(() => setAdding(false), 800);
-  };
-
-  const handleBuyNow = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    addToCart({
-      productId: product.id,
-      productName: product.name,
-      vendorId: product.vendorId,
-      vendorName: product.vendorName,
-      price: product.price || 0,
-      quantity: 1,
-      image: product.images?.[0] || "",
-    });
-    navigate("/checkout");
-  };
-
-  const originalPrice = product.price ? Math.round(product.price * 1.15) : 0;
-
+function StoriesRow() {
+  const [viewed, setViewed] = useState<Set<string>>(new Set());
   return (
-    <Link href={`/products/${product.id}`}>
-      <Card className="group cursor-pointer overflow-hidden transition-all duration-200 hover:shadow-xl hover:-translate-y-1 border-gray-100 h-full flex flex-col">
-        <div className="aspect-square bg-gray-50 relative overflow-hidden">
-          {product.images?.[0] ? (
-            <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center text-gray-300">
-              <Package className="h-12 w-12" />
+    <div className="flex gap-3 overflow-x-auto scrollbar-hide py-3 px-4">
+      <div className="flex flex-col items-center gap-1 shrink-0 cursor-pointer">
+        <div className="h-11 w-11 rounded-xl border-2 border-dashed border-emerald-500/30 bg-emerald-500/5 flex items-center justify-center hover:border-emerald-400/60 transition-colors">
+          <Plus className="h-4 w-4 text-emerald-500/60" />
+        </div>
+        <span className="text-[9px] text-white/35 font-medium">Add</span>
+      </div>
+      {STORIES.map(s => {
+        const seen = viewed.has(s.id);
+        return (
+          <div key={s.id} onClick={() => setViewed(v => new Set([...v, s.id]))}
+            className="flex flex-col items-center gap-1 shrink-0 cursor-pointer group">
+            <div className={`p-[2px] rounded-xl bg-gradient-to-br ${s.ring} transition-opacity ${seen ? "opacity-40" : ""}`}>
+              <div className="h-10 w-10 rounded-[10px] flex items-center justify-center text-xl"
+                style={{ background: "hsl(160 28% 7%)" }}>
+                {s.emoji}
+              </div>
             </div>
-          )}
-          {product.inStock === false && (
-            <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-              <Badge variant="destructive">Out of Stock</Badge>
-            </div>
-          )}
-          {product.type === "digital" && (
-            <div className="absolute top-2 left-2">
-              <Badge className="bg-blue-600 text-white text-[10px]">Digital</Badge>
-            </div>
+            <span className="text-[9px] text-white/50 group-hover:text-white/80 font-medium w-11 text-center truncate transition-colors">{s.name}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CATEGORY NAV
+═══════════════════════════════════════════════════════════════ */
+
+function CategoryNav() {
+  return (
+    <div className="flex gap-2 overflow-x-auto scrollbar-hide py-2 px-4">
+      {CATEGORIES.map(cat => (
+        <Link key={cat.name} href={cat.href}>
+          <div className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl border bg-gradient-to-br ${cat.color} ${cat.border} hover:opacity-90 transition-all cursor-pointer`}>
+            <span className="text-sm">{cat.emoji}</span>
+            <span className={`text-[11px] font-semibold whitespace-nowrap ${cat.text}`}>{cat.name}</span>
+          </div>
+        </Link>
+      ))}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   COMPACT PRODUCT CARD (1:1)
+═══════════════════════════════════════════════════════════════ */
+
+interface CardProps {
+  id: string;
+  image: string;
+  tag: string;
+  tagColor: string;
+  name: string;
+  shopName: string;
+  shopVerified?: boolean;
+  price: number;
+  compareAt?: number;
+  rating: number;
+  sold: number;
+  distance?: string;
+  inStock?: boolean;
+  moq?: number;
+  priceOnInquiry?: boolean;
+  onCart?: (e: React.MouseEvent) => void;
+  href?: string;
+}
+
+function CompactCard(props: CardProps) {
+  const { has, toggle } = useWishlist();
+  const isWishlisted = has(props.id);
+  const discount = props.compareAt && props.compareAt > props.price
+    ? Math.round(((props.compareAt - props.price) / props.compareAt) * 100)
+    : null;
+
+  const inner = (
+    <div className="glass-card rounded-xl overflow-hidden group cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/10 h-full flex flex-col">
+      {/* Image 1:1 */}
+      <div className="relative overflow-hidden bg-white/5" style={{ aspectRatio: "1/1" }}>
+        {props.image ? (
+          <img src={props.image} alt={props.name}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-400" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-white/15">
+            <Package className="h-8 w-8" />
+          </div>
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent" />
+
+        {/* Top-left: type badge + discount */}
+        <div className="absolute top-1.5 left-1.5 flex flex-col gap-1">
+          <span className={`text-[8px] font-bold px-1.5 py-0.5 rounded-md text-white ${props.tagColor}`}>{props.tag}</span>
+          {discount !== null && (
+            <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-md bg-red-500 text-white">-{discount}%</span>
           )}
         </div>
-        <CardContent className="p-3 flex flex-col flex-1">
-          <div className="text-[10px] text-green-600 font-semibold uppercase tracking-wide mb-1">{product.category}</div>
-          <h3 className="font-medium text-sm line-clamp-2 mb-1.5 group-hover:text-green-700 transition-colors text-gray-800 flex-1">{product.name}</h3>
-          <p className="text-xs text-gray-500 mb-2 line-clamp-1 flex items-center gap-1">
-            <Store className="h-3 w-3 shrink-0" /> {product.vendorName}
-          </p>
-          <div className="flex items-center gap-1 mb-3">
-            {[1, 2, 3, 4, 5].map(s => (
-              <Star key={s} className={`h-3 w-3 ${s <= Math.round(product.rating || 4) ? "text-yellow-400 fill-yellow-400" : "text-gray-200 fill-gray-200"}`} />
+
+        {/* Top-right: wishlist */}
+        <button
+          onClick={e => {
+            e.preventDefault(); e.stopPropagation();
+            toggle({ productId: props.id, title: props.name, price: props.price, imageUrl: props.image });
+            toast(isWishlisted ? "Removed" : "Saved ❤️");
+          }}
+          className="absolute top-1.5 right-1.5 h-6 w-6 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center border border-white/15 transition-all hover:scale-110">
+          <Heart className={`h-3 w-3 ${isWishlisted ? "fill-rose-400 text-rose-400" : "text-white/70"}`} />
+        </button>
+
+        {/* Bottom-right: distance */}
+        {props.distance && (
+          <div className="absolute bottom-1.5 right-1.5 flex items-center gap-0.5 bg-black/60 backdrop-blur-sm px-1.5 py-0.5 rounded-full border border-white/10">
+            <MapPin className="h-2 w-2 text-emerald-400" />
+            <span className="text-[8px] text-white/80 font-medium">{props.distance}</span>
+          </div>
+        )}
+
+        {!props.inStock && (
+          <div className="absolute inset-0 bg-black/55 backdrop-blur-[2px] flex items-center justify-center">
+            <span className="text-[10px] font-semibold text-white/80 border border-white/20 px-2 py-0.5 rounded-full">Out of Stock</span>
+          </div>
+        )}
+      </div>
+
+      {/* Content */}
+      <div className="p-2.5 flex flex-col flex-1 gap-1">
+        {/* Shop */}
+        <div className="flex items-center gap-1">
+          <span className="text-[9px] text-white/40 truncate flex-1">{props.shopName}</span>
+          {props.shopVerified && <BadgeCheck className="h-2.5 w-2.5 text-emerald-400 shrink-0" />}
+        </div>
+
+        {/* Name */}
+        <h3 className="font-semibold text-[11px] text-white/90 line-clamp-2 leading-snug flex-1 group-hover:text-emerald-300 transition-colors">
+          {props.name}
+        </h3>
+
+        {/* Rating */}
+        <div className="flex items-center gap-1">
+          <div className="flex">
+            {[1,2,3,4,5].map(s => (
+              <Star key={s} className={`h-2 w-2 ${s <= Math.round(props.rating) ? "text-yellow-400 fill-yellow-400" : "text-white/15"}`} />
             ))}
-            <span className="text-[10px] text-gray-500 ml-0.5">({product.reviewCount || 0})</span>
           </div>
-          <div className="mb-3">
-            {product.priceOnInquiry ? (
-              <span className="text-sm font-bold text-orange-600">Price on Request</span>
-            ) : (
-              <div className="flex items-baseline gap-2">
-                <span className="font-bold text-base text-gray-900">৳{product.price?.toLocaleString()}</span>
-                {originalPrice > 0 && (
-                  <span className="text-xs text-gray-400 line-through">৳{originalPrice.toLocaleString()}</span>
-                )}
-              </div>
-            )}
-            {product.moq && <p className="text-[10px] text-orange-500 mt-0.5">MOQ: {product.moq} units</p>}
-          </div>
-          <div className="flex gap-1.5">
-            <Button
-              size="sm"
-              variant="outline"
-              className="flex-1 h-8 text-xs border-green-200 hover:border-green-500 hover:text-green-600"
-              onClick={handleAdd}
-              disabled={adding || product.inStock === false}
-            >
-              <ShoppingCart className="h-3 w-3 mr-1" />
-              {adding ? "Added!" : "Add"}
-            </Button>
-            <Button
-              size="sm"
-              className="flex-1 h-8 text-xs bg-green-600 hover:bg-green-700"
-              onClick={handleBuyNow}
-              disabled={product.priceOnInquiry || product.inStock === false}
-            >
-              <Zap className="h-3 w-3 mr-1" /> Buy Now
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    </Link>
-  );
-}
-
-function VendorCard({ seller }: { seller: any }) {
-  return (
-    <Link href={`/vendors/${seller.id}`}>
-      <Card className="hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 cursor-pointer overflow-hidden h-full">
-        <div className="h-28 bg-gradient-to-br from-green-100 to-emerald-50 relative overflow-hidden">
-          {seller.image && <img src={seller.image} alt={seller.shopName} className="w-full h-full object-cover opacity-60" />}
-          <div className="absolute bottom-2 left-2">
-            <Badge className="bg-green-600 text-white text-[10px] capitalize">{seller.businessType?.replace("_", " ")}</Badge>
-          </div>
+          <span className="text-[9px] text-white/35">{props.sold >= 1000 ? `${(props.sold/1000).toFixed(1)}k` : props.sold} sold</span>
         </div>
-        <CardContent className="p-3">
-          <h3 className="font-semibold text-sm line-clamp-1 mb-1">{seller.shopName}</h3>
-          <div className="flex items-center gap-1 text-xs text-gray-500 mb-2">
-            <MapPin className="h-3 w-3 text-green-600" /> {seller.district || seller.location || "Bangladesh"}
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-0.5">
-              <Star className="h-3 w-3 text-yellow-400 fill-yellow-400" />
-              <span className="text-xs font-medium">{seller.rating?.toFixed(1) || "4.0"}</span>
+
+        {/* Price */}
+        <div className="flex items-center justify-between gap-1">
+          {props.priceOnInquiry ? (
+            <span className="text-[10px] font-bold text-orange-400">On Request</span>
+          ) : (
+            <div className="flex items-baseline gap-1">
+              <span className="font-bold text-sm text-emerald-400">{formatBDT(props.price)}</span>
+              {props.compareAt && props.compareAt > props.price && (
+                <span className="text-[9px] text-white/30 line-through">{formatBDT(props.compareAt)}</span>
+              )}
             </div>
-            <Button size="sm" variant="outline" className="h-6 text-[10px] border-green-200 text-green-700 hover:bg-green-50 px-2">Visit Store</Button>
+          )}
+          {props.onCart && (
+            <button onClick={props.onCart} disabled={props.inStock === false}
+              className="h-6 w-6 rounded-lg bg-primary/20 hover:bg-primary/30 border border-primary/30 text-primary flex items-center justify-center transition-all disabled:opacity-40 shrink-0">
+              <ShoppingCart className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+
+        {props.moq && props.moq > 1 && (
+          <p className="text-[9px] text-orange-400">MOQ: {props.moq} units</p>
+        )}
+      </div>
+    </div>
+  );
+
+  return props.href ? <Link href={props.href}>{inner}</Link> : inner;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   FEED POST CARD
+═══════════════════════════════════════════════════════════════ */
+
+type FeedPost = typeof FEED_POSTS[0];
+
+function FeedPostCard({ post }: { post: FeedPost }) {
+  const [liked, setLiked] = useState(false);
+  const [likes, setLikes] = useState(post.likes);
+  const [saved, setSaved] = useState(false);
+  const { has, toggle } = useWishlist();
+  const { addToCart } = useCart();
+  const isWishlisted = has(post.id);
+
+  const discount = post.compareAt > post.price
+    ? Math.round(((post.compareAt - post.price) / post.compareAt) * 100)
+    : null;
+
+  return (
+    <GlassCard className="overflow-hidden rounded-2xl">
+      {/* ── DESKTOP: horizontal card ── */}
+      <div className="hidden lg:flex gap-0">
+        {/* Image — fixed width landscape */}
+        <div className="relative w-64 shrink-0" style={{ aspectRatio: "4/3" }}>
+          <img src={post.image} alt={post.productName} className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/20" />
+          {discount && (
+            <div className="absolute top-2.5 left-2.5">
+              <span className="text-[9px] font-bold px-2 py-0.5 rounded-lg bg-red-500 text-white">-{discount}% OFF</span>
+            </div>
+          )}
+          <div className="absolute bottom-2.5 left-2.5 flex items-center gap-1 bg-black/60 backdrop-blur-sm px-1.5 py-0.5 rounded-full border border-white/10">
+            <MapPin className="h-2.5 w-2.5 text-emerald-400" />
+            <span className="text-[9px] text-white/80 font-medium">{post.distance}</span>
           </div>
-        </CardContent>
-      </Card>
-    </Link>
+        </div>
+
+        {/* Content */}
+        <div className="flex-1 flex flex-col justify-between p-4 min-w-0">
+          {/* Header */}
+          <div className="flex items-start justify-between gap-2 mb-2">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="h-9 w-9 rounded-xl bg-white/8 border border-white/10 flex items-center justify-center text-lg shrink-0">{post.shopEmoji}</div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-semibold text-white truncate">{post.shopName}</span>
+                  {post.shopVerified && <BadgeCheck className="h-3 w-3 text-emerald-400 shrink-0" />}
+                </div>
+                <div className="flex items-center gap-1.5 text-[9px] text-white/35">
+                  <MapPin className="h-2 w-2" />{post.location} · {post.timeAgo} ago
+                </div>
+              </div>
+            </div>
+            <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full text-white shrink-0 ${post.tagColor}`}>{post.tag}</span>
+          </div>
+
+          {/* Product name */}
+          <p className="text-sm font-semibold text-white/90 line-clamp-2 mb-2 leading-snug">{post.productName}</p>
+
+          {/* Rating */}
+          <div className="flex items-center gap-1 mb-3">
+            {[1,2,3,4,5].map(s => (
+              <Star key={s} className={`h-2.5 w-2.5 ${s <= Math.round(post.rating) ? "text-yellow-400 fill-yellow-400" : "text-white/15"}`} />
+            ))}
+            <span className="text-[10px] text-white/40 ml-1">{post.rating} · {post.sold} sold</span>
+          </div>
+
+          {/* Price row */}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-base font-bold text-emerald-400">{formatBDT(post.price)}</span>
+              {post.compareAt > post.price && (
+                <span className="text-[10px] text-white/30 line-through">{formatBDT(post.compareAt)}</span>
+              )}
+            </div>
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => { toggle({ productId: post.id, title: post.productName, price: post.price, imageUrl: post.image }); toast(isWishlisted ? "Removed" : "Saved ❤️"); }}
+                className="h-8 w-8 rounded-xl border border-white/10 bg-white/5 flex items-center justify-center hover:border-rose-400/30 transition-all">
+                <Heart className={`h-3.5 w-3.5 ${isWishlisted ? "fill-rose-400 text-rose-400" : "text-white/50"}`} />
+              </button>
+              <button
+                onClick={() => { addToCart({ productId: post.id, productName: post.productName, vendorId: post.id, vendorName: post.shopName, price: post.price, quantity: 1, image: post.image }); toast.success("Added to cart!"); }}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold text-white transition-all hover:opacity-90"
+                style={{ background: "linear-gradient(135deg, hsl(145 65% 32%), hsl(265 55% 44%))" }}>
+                <Zap className="h-3 w-3" /> Buy Now
+              </button>
+            </div>
+          </div>
+
+          {/* Social actions */}
+          <div className="flex items-center gap-0.5 border-t border-white/5 pt-2.5 mt-2.5">
+            <button onClick={() => { setLiked(l => { setLikes(c => l ? c - 1 : c + 1); return !l; }); }}
+              className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-all ${liked ? "text-rose-400 bg-rose-500/10" : "text-white/45 hover:text-white/70 hover:bg-white/5"}`}>
+              <Heart className={`h-3 w-3 ${liked ? "fill-rose-400" : ""}`} /> {likes}
+            </button>
+            <button className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium text-white/45 hover:text-white/70 hover:bg-white/5 transition-all">
+              <MessageCircle className="h-3 w-3" /> {post.comments}
+            </button>
+            <button className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium text-white/45 hover:text-white/70 hover:bg-white/5 transition-all">
+              <Share2 className="h-3 w-3" /> Share
+            </button>
+            <button onClick={() => setSaved(s => !s)}
+              className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-all ml-auto ${saved ? "text-emerald-400 bg-emerald-500/10" : "text-white/45 hover:text-white/70 hover:bg-white/5"}`}>
+              <Bookmark className={`h-3 w-3 ${saved ? "fill-emerald-400" : ""}`} />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── MOBILE: vertical card ── */}
+      <div className="lg:hidden">
+        {/* Post header */}
+        <div className="px-3.5 pt-3.5 pb-2.5 flex items-center gap-2.5">
+          <div className="h-9 w-9 rounded-xl bg-white/8 border border-white/10 flex items-center justify-center text-lg shrink-0">{post.shopEmoji}</div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-semibold text-white truncate">{post.shopName}</span>
+              {post.shopVerified && <BadgeCheck className="h-3 w-3 text-emerald-400 shrink-0" />}
+            </div>
+            <div className="flex items-center gap-1.5 text-[9px] text-white/35">
+              <MapPin className="h-2 w-2" />{post.location} · {post.timeAgo} ago
+            </div>
+          </div>
+          <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full text-white ${post.tagColor}`}>{post.tag}</span>
+        </div>
+
+        {/* Image 4:3 on mobile (instead of 1:1) */}
+        <div className="relative" style={{ aspectRatio: "4/3" }}>
+          <img src={post.image} alt={post.productName} className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent" />
+          {discount && (
+            <div className="absolute top-2.5 left-2.5">
+              <span className="text-[9px] font-bold px-2 py-0.5 rounded-lg bg-red-500 text-white">-{discount}% OFF</span>
+            </div>
+          )}
+          <button
+            onClick={() => { toggle({ productId: post.id, title: post.productName, price: post.price, imageUrl: post.image }); toast(isWishlisted ? "Removed" : "Saved ❤️"); }}
+            className="absolute top-2.5 right-2.5 h-7 w-7 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center border border-white/15 transition-all hover:scale-110">
+            <Heart className={`h-3.5 w-3.5 ${isWishlisted ? "fill-rose-400 text-rose-400" : "text-white/70"}`} />
+          </button>
+          <div className="absolute bottom-2.5 right-2.5 flex items-center gap-1 bg-black/60 backdrop-blur-sm px-1.5 py-0.5 rounded-full border border-white/10">
+            <MapPin className="h-2.5 w-2.5 text-emerald-400" />
+            <span className="text-[9px] text-white/80 font-medium">{post.distance}</span>
+          </div>
+          <div className="absolute bottom-2.5 left-2.5 right-14">
+            <p className="text-white font-semibold text-xs line-clamp-1 drop-shadow">{post.productName}</p>
+          </div>
+        </div>
+
+        {/* Price + Buy */}
+        <div className="px-3.5 py-2.5 flex items-center justify-between gap-2">
+          <div>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-base font-bold text-emerald-400">{formatBDT(post.price)}</span>
+              {post.compareAt > post.price && (
+                <span className="text-[10px] text-white/30 line-through">{formatBDT(post.compareAt)}</span>
+              )}
+            </div>
+            <div className="flex items-center gap-1 mt-0.5">
+              {[1,2,3,4,5].map(s => (
+                <Star key={s} className={`h-2 w-2 ${s <= Math.round(post.rating) ? "text-yellow-400 fill-yellow-400" : "text-white/15"}`} />
+              ))}
+              <span className="text-[9px] text-white/35 ml-0.5">{post.rating} · {post.sold} sold</span>
+            </div>
+          </div>
+          <button
+            onClick={() => { addToCart({ productId: post.id, productName: post.productName, vendorId: post.id, vendorName: post.shopName, price: post.price, quantity: 1, image: post.image }); toast.success("Added to cart!"); }}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white transition-all hover:opacity-90 shrink-0"
+            style={{ background: "linear-gradient(135deg, hsl(145 65% 32%), hsl(265 55% 44%))" }}>
+            <Zap className="h-3 w-3" /> Buy Now
+          </button>
+        </div>
+
+        {/* Social actions */}
+        <div className="px-3.5 pb-3 flex items-center gap-0.5 border-t border-white/5 pt-2.5">
+          <button onClick={() => { setLiked(l => { setLikes(c => l ? c - 1 : c + 1); return !l; }); }}
+            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-all ${liked ? "text-rose-400 bg-rose-500/10" : "text-white/45 hover:text-white/70 hover:bg-white/5"}`}>
+            <Heart className={`h-3 w-3 ${liked ? "fill-rose-400" : ""}`} /> {likes}
+          </button>
+          <button className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium text-white/45 hover:text-white/70 hover:bg-white/5 transition-all">
+            <MessageCircle className="h-3 w-3" /> {post.comments}
+          </button>
+          <button className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium text-white/45 hover:text-white/70 hover:bg-white/5 transition-all">
+            <Share2 className="h-3 w-3" /> Share
+          </button>
+          <button onClick={() => setSaved(s => !s)}
+            className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-[10px] font-medium transition-all ml-auto ${saved ? "text-emerald-400 bg-emerald-500/10" : "text-white/45 hover:text-white/70 hover:bg-white/5"}`}>
+            <Bookmark className={`h-3 w-3 ${saved ? "fill-emerald-400" : ""}`} />
+          </button>
+        </div>
+      </div>
+    </GlassCard>
   );
 }
 
-export default function Home() {
-  const { data: productsData, isLoading: productsLoading } = useListProducts({ limit: 8 });
-  const { data: sellersData, isLoading: sellersLoading } = useListSellers({ status: "active" });
+/* ═══════════════════════════════════════════════════════════════
+   PRODUCT GRID SECTION
+═══════════════════════════════════════════════════════════════ */
 
-  const products = productsData?.products || [];
-  const sellers = sellersData?.sellers?.slice(0, 4) || [];
+function ProductGrid() {
+  const { addToCart } = useCart();
+  const { data, isLoading } = useListProducts({});
+  const products = (data as any)?.products ?? [];
+
+  const typeLabel = (t?: string) => t === "service" ? "Service" : t === "digital" ? "Digital" : "Retail";
+  const typeColor = (t?: string) => t === "service" ? "bg-purple-500" : "bg-blue-500";
+
+  const handleCart = useCallback((p: Product) => (e: React.MouseEvent) => {
+    e.preventDefault(); e.stopPropagation();
+    addToCart({ productId: p.id, productName: p.name, vendorId: p.vendorId, vendorName: p.vendorName, price: p.price ?? 0, quantity: 1, image: p.images?.[0] ?? "" });
+    toast.success("Added to cart!");
+  }, [addToCart]);
+
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 px-4">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="glass-card rounded-xl overflow-hidden">
+            <Skeleton className="aspect-square w-full" />
+            <div className="p-2.5 space-y-1.5">
+              <Skeleton className="h-2.5 w-2/3" />
+              <Skeleton className="h-3.5 w-full" />
+              <Skeleton className="h-3 w-1/2" />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (!products.length) return null;
 
   return (
-    <Layout>
-      <HeroSlider />
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-2.5 px-4 lg:px-0">
+      {products.map((p: Product) => (
+        <CompactCard
+          key={p.id}
+          id={p.id}
+          image={p.images?.[0] ?? ""}
+          tag={p.moq && p.moq > 1 ? "Wholesale" : typeLabel(p.type)}
+          tagColor={p.moq && p.moq > 1 ? "bg-orange-500" : typeColor(p.type)}
+          name={p.name}
+          shopName={p.vendorName}
+          shopVerified={true}
+          price={p.price ?? 0}
+          compareAt={p.price ? Math.round(p.price * 1.2) : undefined}
+          rating={p.rating ?? 4.5}
+          sold={p.reviewCount ? p.reviewCount * 3 : 12}
+          distance={p.location ? `${(Math.random() * 8 + 0.5).toFixed(1)} km` : undefined}
+          inStock={p.inStock}
+          moq={p.moq}
+          priceOnInquiry={p.priceOnInquiry}
+          onCart={handleCart(p)}
+          href={`/products/${p.id}`}
+        />
+      ))}
+    </div>
+  );
+}
 
-      {/* Promo Banners */}
-      <section className="container mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          {PROMO_BANNERS_1.map(b => (
-            <Link key={b.title} href={b.href}>
-              <div className={`bg-gradient-to-r ${b.color} rounded-xl p-5 text-white cursor-pointer hover:opacity-90 transition-opacity`}>
-                <h3 className="font-bold text-base">{b.title}</h3>
-                <p className="text-white/80 text-sm mt-1">{b.sub}</p>
-                <span className="text-xs mt-3 inline-block bg-white/20 px-3 py-1 rounded-full">Shop Now →</span>
+/* ═══════════════════════════════════════════════════════════════
+   TRUST STRIP
+═══════════════════════════════════════════════════════════════ */
+
+const TRUST = [
+  { icon: ShieldCheck, label: "Verified Sellers", color: "text-emerald-400" },
+  { icon: CreditCard, label: "Secure Payments", color: "text-blue-400" },
+  { icon: Truck, label: "Fast Delivery", color: "text-orange-400" },
+  { icon: Award, label: "Quality Assured", color: "text-purple-400" },
+];
+
+function TrustStrip() {
+  return (
+    <div className="flex gap-3 overflow-x-auto scrollbar-hide px-4 py-4">
+      {TRUST.map(t => (
+        <div key={t.label} className="shrink-0 flex items-center gap-2 px-3.5 py-2 rounded-xl glass-card">
+          <t.icon className={`h-4 w-4 ${t.color} shrink-0`} />
+          <span className="text-[11px] font-medium text-white/70 whitespace-nowrap">{t.label}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SECTION HEADER
+═══════════════════════════════════════════════════════════════ */
+
+function SectionHeader({ title, href }: { title: string; href?: string }) {
+  return (
+    <div className="flex items-center justify-between px-4 pt-5 pb-2">
+      <h2 className="text-sm font-bold text-white">{title}</h2>
+      {href && (
+        <Link href={href}>
+          <span className="text-[11px] text-emerald-400 font-medium flex items-center gap-0.5 hover:text-emerald-300 transition-colors cursor-pointer">
+            See all <ChevronRight className="h-3 w-3" />
+          </span>
+        </Link>
+      )}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MAIN PAGE
+═══════════════════════════════════════════════════════════════ */
+
+export default function HomePage() {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [lang, setLang] = useState<"EN" | "বাং">("EN");
+  const [darkMode, setDarkMode] = useState(true);
+
+  return (
+    <div className="min-h-[100dvh] flex flex-col bg-background">
+      {/* Custom compact header */}
+      <CompactHeader
+        onMenuOpen={() => setMenuOpen(true)}
+        lang={lang}
+        onLangToggle={() => setLang(l => l === "EN" ? "বাং" : "EN")}
+        darkMode={darkMode}
+        onDarkToggle={() => setDarkMode(d => !d)}
+      />
+
+      {/* Hamburger drawer */}
+      <SideDrawer
+        open={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        lang={lang}
+        onLangToggle={() => setLang(l => l === "EN" ? "বাং" : "EN")}
+        darkMode={darkMode}
+        onDarkToggle={() => setDarkMode(d => !d)}
+      />
+
+      {/* Scrollable main content */}
+      <main className="flex-1 pb-24 overflow-y-auto">
+        {/* Hero */}
+        <HeroSlider />
+
+        {/* Stories + Categories */}
+        <div className="border-b border-white/5">
+          <StoriesRow />
+          <CategoryNav />
+        </div>
+
+        {/* Desktop 2-col layout for feed + marketplace */}
+        <div className="max-w-7xl mx-auto lg:grid lg:grid-cols-[1fr_300px] lg:gap-6 lg:px-6 lg:pt-2 lg:items-start">
+
+          {/* Main column */}
+          <div>
+            {/* Social Feed */}
+            <SectionHeader title="🔥 Live Feed" />
+            <div className="px-4 lg:px-0 flex flex-col gap-3 max-w-lg mx-auto lg:max-w-none">
+              {FEED_POSTS.map(post => (
+                <FeedPostCard key={post.id} post={post} />
+              ))}
+              <Link href="/feed">
+                <div className="py-3 rounded-xl text-center text-xs font-medium text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/5 transition-all cursor-pointer glass-card">
+                  See all posts in Feed →
+                </div>
+              </Link>
+            </div>
+
+            {/* Marketplace Grid */}
+            <SectionHeader title="🛍️ Marketplace" href="/products" />
+            <div className="lg:px-0">
+              <ProductGrid />
+            </div>
+          </div>
+
+          {/* Desktop right sidebar */}
+          <aside className="hidden lg:flex flex-col gap-4 sticky top-[70px] pt-2">
+
+            {/* Quick categories */}
+            <div className="glass-card rounded-2xl p-4">
+              <h3 className="text-sm font-bold text-white mb-3">🗂️ Shop by Category</h3>
+              <div className="flex flex-col gap-0.5">
+                {CATEGORIES.map(cat => (
+                  <Link key={cat.name} href={cat.href}>
+                    <div className={`flex items-center gap-2.5 px-3 py-2 rounded-xl cursor-pointer hover:bg-white/5 transition-all group`}>
+                      <span className="text-base leading-none">{cat.emoji}</span>
+                      <span className={`text-xs font-medium ${cat.text} group-hover:text-white transition-colors`}>{cat.name}</span>
+                      <ChevronRight className="h-3 w-3 text-white/20 ml-auto group-hover:text-white/50 transition-colors" />
+                    </div>
+                  </Link>
+                ))}
               </div>
-            </Link>
-          ))}
-        </div>
-      </section>
+            </div>
 
-      {/* Category Grid */}
-      <section className="py-12 container mx-auto px-4">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Shop by Vendor Type</h2>
-          <Link href="/vendors"><Button variant="ghost" size="sm" className="text-green-600">View All</Button></Link>
-        </div>
-        <div className="grid grid-cols-3 md:grid-cols-6 gap-3">
-          {CATEGORIES.map(cat => {
-            const Icon = cat.icon;
-            return (
-              <Link key={cat.name} href={cat.href}>
-                <Card className="hover:border-green-400 hover:shadow-md transition-all cursor-pointer h-full group">
-                  <CardContent className="p-4 flex flex-col items-center text-center gap-3">
-                    <div className={`h-11 w-11 rounded-full ${cat.color} flex items-center justify-center group-hover:scale-110 transition-transform`}>
-                      <Icon className="h-5 w-5" />
+            {/* Featured vendors */}
+            <div className="glass-card rounded-2xl p-4">
+              <h3 className="text-sm font-bold text-white mb-3">⭐ Top Vendors</h3>
+              <div className="flex flex-col gap-3">
+                {[
+                  { name: "TechZone BD", emoji: "📱", tag: "Electronics", rating: 4.9, sellers: "Wholesale" },
+                  { name: "Fashion Hub", emoji: "👗", tag: "Fashion", rating: 4.7, sellers: "Retail" },
+                  { name: "Grocery King", emoji: "🛒", tag: "Grocery", rating: 4.8, sellers: "Retail" },
+                ].map(v => (
+                  <Link href="/vendors" key={v.name}>
+                    <div className="flex items-center gap-3 group cursor-pointer">
+                      <div className="h-9 w-9 rounded-xl bg-white/8 border border-white/10 flex items-center justify-center text-lg shrink-0 group-hover:border-emerald-500/30 transition-all">
+                        {v.emoji}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-semibold text-white/80 group-hover:text-white truncate transition-colors">{v.name}</p>
+                        <p className="text-[10px] text-white/35">{v.tag} · ⭐ {v.rating}</p>
+                      </div>
+                      <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-white/6 text-white/40 shrink-0">{v.sellers}</span>
+                    </div>
+                  </Link>
+                ))}
+                <Link href="/vendors">
+                  <span className="text-[11px] text-emerald-400 hover:text-emerald-300 transition-colors cursor-pointer inline-block mt-1">
+                    Browse all vendors →
+                  </span>
+                </Link>
+              </div>
+            </div>
+
+            {/* Trust badges */}
+            <div className="glass-card rounded-2xl p-4">
+              <h3 className="text-xs font-bold text-white/50 uppercase tracking-wider mb-3">Why PaikarMart?</h3>
+              <div className="space-y-3">
+                {[
+                  { icon: ShieldCheck, label: "Verified Sellers", sub: "Every seller is vetted", color: "text-emerald-400" },
+                  { icon: CreditCard, label: "Secure Payments", sub: "SSL encrypted checkout", color: "text-blue-400" },
+                  { icon: Truck, label: "Fast Delivery", sub: "Nationwide coverage", color: "text-orange-400" },
+                  { icon: Award, label: "Quality Assured", sub: "Buyer protection policy", color: "text-purple-400" },
+                ].map(t => (
+                  <div key={t.label} className="flex items-center gap-3">
+                    <div className={`h-8 w-8 rounded-xl bg-white/5 flex items-center justify-center shrink-0`}>
+                      <t.icon className={`h-4 w-4 ${t.color}`} />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-sm text-gray-800 group-hover:text-green-700">{cat.name}</h3>
-                      <p className="text-[10px] text-gray-500 hidden sm:block mt-0.5">{cat.desc}</p>
+                      <p className="text-xs font-semibold text-white/70">{t.label}</p>
+                      <p className="text-[10px] text-white/35">{t.sub}</p>
                     </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* Featured Products */}
-      <section className="py-12 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">Featured Products</h2>
-            <Link href="/products"><Button variant="ghost" size="sm" className="text-green-600">View All →</Button></Link>
-          </div>
-          {productsLoading ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {[1, 2, 3, 4].map(i => (
-                <div key={i} className="space-y-3">
-                  <Skeleton className="aspect-square w-full rounded-xl" />
-                  <Skeleton className="h-4 w-3/4" />
-                  <Skeleton className="h-4 w-1/2" />
-                  <Skeleton className="h-8 w-full" />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {products.map(product => <ProductCard key={product.id} product={product} />)}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Promo Ad Section 2 */}
-      <section className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="bg-gradient-to-r from-green-700 to-emerald-600 rounded-2xl p-8 text-white flex items-center justify-between overflow-hidden relative">
-            <div className="absolute right-0 top-0 h-full w-48 opacity-10 bg-[radial-gradient(circle,white,transparent)]" />
-            <div>
-              <p className="text-white/70 text-sm mb-1">For Sellers</p>
-              <h3 className="text-2xl font-bold mb-2">Start Selling Today</h3>
-              <p className="text-white/80 text-sm mb-4">Join 500+ active sellers on PaikarMart</p>
-              <Link href="/seller/register">
-                <Button variant="secondary" size="sm" className="font-semibold">Register as Seller</Button>
-              </Link>
-            </div>
-            <Store className="h-24 w-24 text-white/20 shrink-0" />
-          </div>
-          <div className="bg-gradient-to-r from-slate-800 to-slate-700 rounded-2xl p-8 text-white flex items-center justify-between overflow-hidden relative">
-            <div>
-              <p className="text-white/70 text-sm mb-1">Wholesale Hub</p>
-              <h3 className="text-2xl font-bold mb-2">B2B Marketplace</h3>
-              <p className="text-white/80 text-sm mb-4">Bulk deals for business buyers</p>
-              <Link href="/vendors?type=wholesale">
-                <Button variant="outline" size="sm" className="text-white border-white/40 hover:bg-white/10">Explore Wholesale</Button>
-              </Link>
-            </div>
-            <Package className="h-24 w-24 text-white/20 shrink-0" />
-          </div>
-        </div>
-      </section>
-
-      {/* Vendors Section */}
-      {sellers.length > 0 && (
-        <section className="py-12 bg-gray-50">
-          <div className="container mx-auto px-4">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">Featured Vendors</h2>
-              <Link href="/vendors"><Button variant="ghost" size="sm" className="text-green-600">View All →</Button></Link>
-            </div>
-            {sellersLoading ? (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-40 rounded-xl" />)}
+                  </div>
+                ))}
               </div>
-            ) : (
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {sellers.map(s => <VendorCard key={s.id} seller={s} />)}
-              </div>
-            )}
-          </div>
-        </section>
-      )}
+            </div>
 
-      {/* Trust Section */}
-      <section className="py-16 container mx-auto px-4">
-        <h2 className="text-2xl font-bold text-center mb-10 text-gray-900">Why Choose PaikarMart?</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {[
-            { icon: ShieldCheck, title: "Verified Sellers", desc: "Every seller is verified for your safety.", color: "bg-green-100 text-green-600" },
-            { icon: CreditCard, title: "Secure Payments", desc: "Multiple secure payment methods.", color: "bg-blue-100 text-blue-600" },
-            { icon: Truck, title: "Fast Delivery", desc: "Delivery across all Bangladesh.", color: "bg-orange-100 text-orange-600" },
-            { icon: Award, title: "Quality Assured", desc: "Products meet quality standards.", color: "bg-purple-100 text-purple-600" },
-          ].map(f => {
-            const Icon = f.icon;
-            return (
-              <div key={f.title} className="flex flex-col items-center text-center p-6 rounded-2xl bg-white border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
-                <div className={`h-14 w-14 rounded-full ${f.color} flex items-center justify-center mb-4`}>
-                  <Icon className="h-7 w-7" />
-                </div>
-                <h3 className="font-bold mb-2 text-gray-800">{f.title}</h3>
-                <p className="text-sm text-gray-500">{f.desc}</p>
-              </div>
-            );
-          })}
+            {/* Download app */}
+            <div
+              className="rounded-2xl p-4 text-center"
+              style={{
+                background: "linear-gradient(135deg,hsl(145 65% 10%),hsl(265 55% 14%))",
+                border: "1px solid rgba(16,185,129,0.18)",
+              }}
+            >
+              <p className="text-2xl mb-1.5">📱</p>
+              <p className="text-sm font-bold text-white mb-1">Get the App</p>
+              <p className="text-[11px] text-white/45 mb-3">Exclusive deals & instant alerts</p>
+              <button
+                className="w-full py-2 rounded-xl text-xs font-bold text-white hover:opacity-90 transition-all"
+                style={{ background: "linear-gradient(135deg,hsl(145 65% 30%),hsl(265 55% 38%))" }}
+              >
+                Download Free
+              </button>
+            </div>
+          </aside>
         </div>
-      </section>
-    </Layout>
+
+        {/* Mobile: Trust strip */}
+        <div className="lg:hidden mt-4 border-t border-white/5">
+          <TrustStrip />
+        </div>
+
+        {/* Bottom spacer */}
+        <div className="h-4" />
+      </main>
+
+      {/* Bottom nav */}
+      <BottomNav />
+    </div>
   );
 }
