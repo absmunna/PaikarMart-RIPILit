@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, and, sql, type SQL } from "drizzle-orm";
+import { eq, and, type SQL } from "drizzle-orm";
 import { db, ordersTable, productsTable } from "@workspace/db";
 import {
   ListOrdersQueryParams,
@@ -37,9 +37,10 @@ function normalizeOrder(o: Record<string, unknown>) {
     updatedAt: o.updatedAt instanceof Date ? (o.updatedAt as Date).toISOString() : o.updatedAt,
     trackingCode: o.trackingCode ?? undefined,
     estimatedDelivery: o.estimatedDelivery ?? undefined,
+    cancelReason: o.cancelReason ?? undefined,
     customerName: o.customerName ?? undefined,
     customerPhone: o.customerPhone ?? undefined,
-    customerAddress: o.customerAddress ?? undefined,
+    customerAddress: o.customerAddress ?? (o.address as string | null) ?? undefined,
     district: o.district ?? undefined,
     area: o.area ?? undefined,
   };
@@ -58,11 +59,6 @@ router.get("/orders", async (req, res): Promise<void> => {
   }
   if (params.data.status) {
     conditions.push(eq(ordersTable.status, params.data.status as "pending" | "confirmed" | "processing" | "shipped" | "completed" | "incomplete"));
-  }
-  if (params.data.seller_id) {
-    conditions.push(
-      sql`${ordersTable.items} @> ${JSON.stringify([{ vendorId: params.data.seller_id }])}::jsonb`
-    );
   }
 
   const query = db.select().from(ordersTable);

@@ -50,9 +50,10 @@ function normalizeOrder(o: Record<string, unknown>) {
     updatedAt: o.updatedAt instanceof Date ? (o.updatedAt as Date).toISOString() : o.updatedAt,
     trackingCode: o.trackingCode ?? undefined,
     estimatedDelivery: o.estimatedDelivery ?? undefined,
+    cancelReason: o.cancelReason ?? undefined,
     customerName: o.customerName ?? undefined,
     customerPhone: o.customerPhone ?? undefined,
-    customerAddress: o.customerAddress ?? undefined,
+    customerAddress: o.customerAddress ?? (o.address as string | null) ?? undefined,
     district: o.district ?? undefined,
     area: o.area ?? undefined,
   };

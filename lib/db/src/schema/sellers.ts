@@ -9,10 +9,6 @@ export const sellerTypeEnum = pgEnum("seller_type", [
   "local_shop",
   "dropship",
   "service",
-  "b2b_seller",
-  "content_creator",
-  "logistic_courier",
-  "booking_agent",
 ]);
 
 export const sellerStatusEnum = pgEnum("seller_status", [
@@ -39,8 +35,6 @@ export const sellersTable = pgTable("sellers", {
   description: text("description"),
   deliveryTypes: text("delivery_types").array(),
   coverageAreas: text("coverage_areas").array(),
-  kycStatus: text("kyc_status"),
-  commissionRate: real("commission_rate"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
