@@ -10,7 +10,7 @@ import { useUserLocation } from "@/context/LocationContext";
 import { useAuth } from "@/hooks/use-auth";
 import { formatBDT } from "@/lib/format";
 import { toast } from "sonner";
-import type { Product } from "@workspace/api-zod/src/generated/types";
+import type { Product } from "@workspace/api-zod";
 import {
   Menu, Search, MapPin, ShoppingCart, X, ChevronRight,
   Home, Package, Store, Tag, TrendingUp, HeadphonesIcon,

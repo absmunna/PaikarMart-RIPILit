@@ -335,4 +335,9 @@ export type ListOrdersParams = {
 export type ListNotificationsParams = {
   user_id?: string;
   unread_only?: boolean;
+  /**
+   * @minimum 1
+   * @maximum 100
+   */
+  limit?: number;
 };

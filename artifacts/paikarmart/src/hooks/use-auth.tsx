@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { UserRole } from "@workspace/api-zod/src/generated/types";
+import type { UserRole } from "@workspace/api-zod";
 
 interface User {
   id: string;

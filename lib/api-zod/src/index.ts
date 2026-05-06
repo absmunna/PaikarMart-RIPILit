@@ -1,2 +1,41 @@
 export * from "./generated/api";
-export * from "./generated/types";
+
+export type { CreateOrderBody as CreateOrderBodyType } from "./generated/types/createOrderBody";
+export type { UpdateOrderStatusBody as UpdateOrderStatusBodyType } from "./generated/types/updateOrderStatusBody";
+
+export type {
+  AdminDashboard,
+  Category,
+  CategoryListResponse,
+  CreateOrderBodyItemsItem,
+  HealthStatus,
+  ListNotificationsParams,
+  ListOrdersParams,
+  ListProductsParams,
+  ListSellersParams,
+  MarketStats,
+  MarketStatsMonthlyItem,
+  MarketStatsTrend,
+  Notification,
+  NotificationListResponse,
+  NotificationType,
+  Order,
+  OrderDeliveryType,
+  OrderItem,
+  OrderListResponse,
+  OrderStatus,
+  Product,
+  ProductListResponse,
+  ProductType,
+  Seller,
+  SellerBusinessType,
+  SellerDashboard,
+  SellerListResponse,
+  SellerRegistrationBody,
+  SellerStatus,
+  User,
+  UserRole,
+  Wallet,
+  WalletTransaction,
+  WalletTransactionType,
+} from "./generated/types";
