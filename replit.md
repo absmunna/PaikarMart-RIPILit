@@ -57,10 +57,9 @@ Express 5 API server. Routes live in `src/routes/` and use `@workspace/api-zod` 
 - Entry: `src/index.ts` — reads `PORT`, starts Express
 - App setup: `src/app.ts` — mounts CORS, JSON/urlencoded parsing, routes at `/api`
 - Routes: `src/routes/index.ts` mounts sub-routers; `src/routes/health.ts` exposes `GET /health` (full path: `/api/health`)
-- Auth: `src/middleware/auth.ts` — `requireAuth`, `requireSeller`, `requireAdmin` middleware (x-user-id header → DB lookup → role check)
-- Depends on: `@workspace/db`, `@workspace/api-zod`, `zod`
+- Depends on: `@workspace/db`, `@workspace/api-zod`
 - `pnpm --filter @workspace/api-server run dev` — run the dev server
-- `pnpm --filter @workspace/api-server run build` — production esbuild bundle (`dist/index.mjs`)
+- `pnpm --filter @workspace/api-server run build` — production esbuild bundle (`dist/index.cjs`)
 - Build bundles an allowlist of deps (express, cors, pg, drizzle-orm, zod, etc.) and externalizes the rest
 
 **Phase 2 API Routes (May 2026):**
@@ -91,30 +90,9 @@ Database layer using Drizzle ORM with PostgreSQL. Exports a Drizzle client insta
 
 - `src/index.ts` — creates a `Pool` + Drizzle instance, exports schema
 - `src/schema/index.ts` — barrel re-export of all models
-- `src/schema/<modelname>.ts` — table definitions with `drizzle-zod` insert schemas
+- `src/schema/<modelname>.ts` — table definitions with `drizzle-zod` insert schemas (no models definitions exist right now)
 - `drizzle.config.ts` — Drizzle Kit config (requires `DATABASE_URL`, automatically provided by Replit)
-- `migrations/phase1_down.sql` — reversible down-migration for Phase 1 changes
 - Exports: `.` (pool, db, schema), `./schema` (schema only)
-
-**Phase 1 DB Schema (May 2026) — 13 tables total:**
-
-Original 6 tables (unchanged):
-- `users` — +`otp_verified` (bool, nullable), +`moderator` role in enum
-- `sellers` — +`kyc_status` (text, nullable), +`commission_rate` (real, nullable), +4 new seller types in enum
-- `orders` — +`cancel_reason` (text, nullable), +`refund_status` (text, nullable); JSONB `items` untouched
-- `products`, `notifications`, `wallets` — unchanged
-
-New Phase 1 tables (all nullable-safe):
-- `transactions` — proper wallet transaction ledger (parallel to JSONB, non-replacing)
-- `reviews` — product reviews with verified-purchase flag
-- `disputes` — order dispute tracking with resolution workflow
-- `kyc_documents` — seller KYC document upload & review
-- `commissions_config` — per-seller-type commission % (pre-seeded 10 rows)
-- `milestones` — seller achievement milestones
-- `affiliate_links` — referral/affiliate code tracking
-
-New enums: `transaction_type`, `transaction_status`, `dispute_type`, `dispute_status`, `kyc_doc_type`, `kyc_doc_status`, `milestone_type`, `affiliate_target_type`
-Extended enums: `seller_type` (+b2b_seller, content_creator, logistic_courier, booking_agent), `user_role` (+moderator)
 
 Production migrations are handled by Replit when publishing. In development, we just use `pnpm --filter @workspace/db run push`, and we fallback to `pnpm --filter @workspace/db run push-force`.
 

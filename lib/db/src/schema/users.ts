@@ -1,8 +1,8 @@
-import { pgTable, text, timestamp, boolean, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, text, timestamp, pgEnum } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
-export const userRoleEnum = pgEnum("user_role", ["buyer", "seller", "admin", "moderator"]);
+export const userRoleEnum = pgEnum("user_role", ["buyer", "seller", "admin"]);
 
 export const usersTable = pgTable("users", {
   id: text("id").primaryKey(),
@@ -12,7 +12,6 @@ export const usersTable = pgTable("users", {
   role: userRoleEnum("role").notNull().default("buyer"),
   district: text("district"),
   area: text("area"),
-  otpVerified: boolean("otp_verified"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
