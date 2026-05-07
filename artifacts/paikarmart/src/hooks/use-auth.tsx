@@ -1,11 +1,10 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { UserRole } from "@workspace/api-zod/src/generated/types";
-import { setUserId } from "@workspace/api-client-react";
+import * as types from "@workspace/api-zod/src/generated/types";
 
 interface User {
   id: string;
   name: string;
-  role: UserRole;
+  role: types.UserRole;
   phone?: string;
   email?: string;
 }
@@ -15,7 +14,7 @@ interface AuthContextType {
   login: (user: User) => void;
   logout: () => void;
   isLoggedIn: boolean;
-  role: UserRole;
+  role: types.UserRole;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -32,10 +31,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (user) {
       localStorage.setItem("paikarmart_user", JSON.stringify(user));
-      setUserId(user.id);
     } else {
       localStorage.removeItem("paikarmart_user");
-      setUserId(null);
     }
   }, [user]);
 

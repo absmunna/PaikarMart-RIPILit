@@ -57,9 +57,10 @@ Express 5 API server. Routes live in `src/routes/` and use `@workspace/api-zod` 
 - Entry: `src/index.ts` — reads `PORT`, starts Express
 - App setup: `src/app.ts` — mounts CORS, JSON/urlencoded parsing, routes at `/api`
 - Routes: `src/routes/index.ts` mounts sub-routers; `src/routes/health.ts` exposes `GET /health` (full path: `/api/health`)
-- Depends on: `@workspace/db`, `@workspace/api-zod`
+- Auth: `src/middleware/auth.ts` — `requireAuth`, `requireSeller`, `requireAdmin` middleware (x-user-id header → DB lookup → role check)
+- Depends on: `@workspace/db`, `@workspace/api-zod`, `zod`
 - `pnpm --filter @workspace/api-server run dev` — run the dev server
-- `pnpm --filter @workspace/api-server run build` — production esbuild bundle (`dist/index.cjs`)
+- `pnpm --filter @workspace/api-server run build` — production esbuild bundle (`dist/index.mjs`)
 - Build bundles an allowlist of deps (express, cors, pg, drizzle-orm, zod, etc.) and externalizes the rest
 
 **Phase 2 API Routes (May 2026):**
@@ -76,13 +77,7 @@ New Phase 2 routes (all with inline Zod validation):
 - `GET /milestones/:seller_id` (requireAuth); `POST /milestones` (requireAdmin) — create; `PUT /milestones/:seller_id/progress` (requireAdmin) — bulk update
 - `GET /affiliate` (requireAuth) — list user links; `POST /affiliate` (requireAuth) — create with auto-generated code; `GET /affiliate/track/:code` — public click tracker
 
-**Auth middleware pattern:** `x-user-id` header → DB user lookup → role assertion. Frontend automatically sends this header via `customFetch` when user is logged in (wired through `use-auth.tsx` → `setUserId`).
-
-**Product CRUD routes (May 2026):**
-- `POST /products` (requireSeller) — create product; auto-resolves `vendorId`/`vendorName` from authenticated seller
-- `PUT /products/:id` (requireSeller) — update product (own or admin)
-- `DELETE /products/:id` (requireSeller) — delete product (own or admin)
-All routes use inline Zod validation and return `GetProductResponse` shape.
+**Auth middleware pattern:** `x-user-id` header → DB user lookup → role assertion. Frontend must send header on authenticated requests. Existing routes NOT yet guarded (backward-compatible). Phase 3 will add JWT + guard existing admin/seller routes.
 
 ### `lib/db` (`@workspace/db`)
 
@@ -90,9 +85,30 @@ Database layer using Drizzle ORM with PostgreSQL. Exports a Drizzle client insta
 
 - `src/index.ts` — creates a `Pool` + Drizzle instance, exports schema
 - `src/schema/index.ts` — barrel re-export of all models
-- `src/schema/<modelname>.ts` — table definitions with `drizzle-zod` insert schemas (no models definitions exist right now)
+- `src/schema/<modelname>.ts` — table definitions with `drizzle-zod` insert schemas
 - `drizzle.config.ts` — Drizzle Kit config (requires `DATABASE_URL`, automatically provided by Replit)
+- `migrations/phase1_down.sql` — reversible down-migration for Phase 1 changes
 - Exports: `.` (pool, db, schema), `./schema` (schema only)
+
+**Phase 1 DB Schema (May 2026) — 13 tables total:**
+
+Original 6 tables (unchanged):
+- `users` — +`otp_verified` (bool, nullable), +`moderator` role in enum
+- `sellers` — +`kyc_status` (text, nullable), +`commission_rate` (real, nullable), +4 new seller types in enum
+- `orders` — +`cancel_reason` (text, nullable), +`refund_status` (text, nullable); JSONB `items` untouched
+- `products`, `notifications`, `wallets` — unchanged
+
+New Phase 1 tables (all nullable-safe):
+- `transactions` — proper wallet transaction ledger (parallel to JSONB, non-replacing)
+- `reviews` — product reviews with verified-purchase flag
+- `disputes` — order dispute tracking with resolution workflow
+- `kyc_documents` — seller KYC document upload & review
+- `commissions_config` — per-seller-type commission % (pre-seeded 10 rows)
+- `milestones` — seller achievement milestones
+- `affiliate_links` — referral/affiliate code tracking
+
+New enums: `transaction_type`, `transaction_status`, `dispute_type`, `dispute_status`, `kyc_doc_type`, `kyc_doc_status`, `milestone_type`, `affiliate_target_type`
+Extended enums: `seller_type` (+b2b_seller, content_creator, logistic_courier, booking_agent), `user_role` (+moderator)
 
 Production migrations are handled by Replit when publishing. In development, we just use `pnpm --filter @workspace/db run push`, and we fallback to `pnpm --filter @workspace/db run push-force`.
 
@@ -112,8 +128,6 @@ Generated Zod schemas from the OpenAPI spec (e.g. `HealthCheckResponse`). Used b
 ### `lib/api-client-react` (`@workspace/api-client-react`)
 
 Generated React Query hooks and fetch client from the OpenAPI spec (e.g. `useHealthCheck`, `healthCheck`).
-
-**Auth wiring (May 2026):** `custom-fetch.ts` exports `setUserId(id)` which stores the current user ID and attaches it as an `x-user-id` header to every API request. Also exports `customFetch` for manual API calls. `use-auth.tsx` calls `setUserId` inside its `useEffect` whenever the user state changes (login/logout). This wires frontend auth state to backend auth middleware automatically.
 
 ### `scripts` (`@workspace/scripts`)
 
@@ -166,7 +180,7 @@ React + Vite frontend. Dark-themed Bangladesh-focused multi-vendor marketplace.
 
 **Footer:** desktop-only; mobile uses BottomNav with `pb-20`.
 
-**Seller pages:** Use SellerContext (local state + seed data) for optimistic UI. `product-form.tsx` submit handler now ALSO calls the real API (`POST /products` or `PUT /products/:id`) in parallel, so products persist to DB. SellerContext keeps the immediate UI update; real API call runs in the background via `useMutation`.
+**Seller pages:** Use SellerContext (local state, no backend yet). SellerContext is seeded with 3 sample products and 4 sample orders. Phase 3 will migrate to real API calls.
 
 **CategoryListResponse** shape: `{ categories: Category[] }` — always destructure `.categories` before mapping.
 
