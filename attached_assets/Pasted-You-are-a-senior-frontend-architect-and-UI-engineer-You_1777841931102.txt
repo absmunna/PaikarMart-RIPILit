@@ -1,0 +1,283 @@
+You are a senior frontend architect and UI engineer.
+
+Your task is to build a "PaikarMart Super App Home Interface" that EXACTLY matches the provided design style and works across:
+
+* Mobile (Primary)
+* Tablet
+* Desktop
+
+IMPORTANT:
+The UI look, colors, layout style must remain visually consistent across all devices.
+ONLY layout adaptation is allowed — NOT design changes.
+
+---
+
+# 🎯 DESIGN GOAL
+
+Create a premium dark glassmorphism UI similar to a modern mobile super app dashboard.
+
+The homepage must include:
+
+1. Top Header
+2. Welcome + Wallet Card
+3. Banner Carousel
+4. App Module Grid (icon-based navigation)
+5. Featured Categories
+6. Product Feed
+7. Bottom Navigation (mobile only)
+
+---
+
+# 🎨 DESIGN SYSTEM
+
+* Dark theme (black / deep navy)
+* Glassmorphism cards (blur + transparency)
+* Soft neon gradient icons
+* Rounded corners (16px–24px)
+* Smooth hover + tap animations
+* Glow effects (purple / blue / orange)
+
+---
+
+# 🧩 CORE SECTIONS
+
+## 1. HEADER
+
+* Left: Menu icon + Logo (PaikarMart)
+* Center: Search bar
+* Right: Notification + Profile avatar
+
+---
+
+## 2. USER CARD
+
+* Welcome text (dynamic name)
+* Location
+* Wallet balance card (glass style)
+
+---
+
+## 3. BANNER
+
+* Gradient promotional banner
+* Carousel (auto slide ready)
+* CTA button (Shop Now)
+
+---
+
+## 4. APP MODULE GRID (VERY IMPORTANT)
+
+Modules must look like app icons:
+
+Examples:
+
+* Marketplace
+* Wholesale
+* Retail
+* Services
+* Digital Products
+* Nearby Shops
+* Brand Stores
+* Deals
+* Feed
+* Live
+* Orders
+* Wallet
+* Profile
+* Notifications
+* Support
+
+RULES:
+
+* Max 4–6 per row (responsive)
+* Rounded glass cards
+* Icon + title + subtitle
+
+---
+
+## 5. FEATURED CATEGORIES
+
+Horizontal scroll cards:
+
+* Electronics
+* Fashion
+* Home & Living
+* Beauty
+* Sports
+
+Each card:
+
+* Image
+* Product count
+
+---
+
+## 6. PRODUCT FEED
+
+Grid layout:
+
+* Product image
+* Name
+* Price
+* Rating
+
+Responsive grid:
+
+* Mobile: 2 columns
+* Tablet: 3 columns
+* Desktop: 4–5 columns
+
+---
+
+## 7. BOTTOM NAVIGATION (MOBILE ONLY)
+
+* Home
+* Categories
+* Add (+ center button)
+* Cart
+* Account
+
+Sticky bottom
+
+---
+
+# 👥 ROLE-BASED UI (CRITICAL)
+
+The UI must change based on user role:
+
+### Guest:
+
+* Show limited modules
+* Show Login CTA
+
+### Buyer:
+
+* Focus on shopping modules
+* Show Orders, Wallet
+
+### Seller:
+
+* Replace modules with:
+
+  * Products
+  * Orders
+  * Earnings
+  * Analytics
+
+DO NOT show buyer UI to seller.
+
+---
+
+# 📐 RESPONSIVE RULES
+
+Breakpoints:
+
+* Mobile: < 768px
+* Tablet: 768–1024px
+* Desktop: > 1024px
+
+---
+
+## MOBILE
+
+* 2-column grid
+* Bottom nav visible
+* Full width cards
+
+---
+
+## TABLET
+
+* 3–4 column grid
+* More spacing
+* No bottom nav (optional)
+
+---
+
+## DESKTOP
+
+* Add LEFT SIDEBAR
+* Main content centered
+* Grid: 5–6 columns
+* Show more data
+
+---
+
+# ⚛️ TECH STACK
+
+* React + Vite
+* Tailwind CSS
+* Framer Motion
+* Zustand
+
+---
+
+# 🧠 ARCHITECTURE RULES
+
+* Use reusable components
+* No duplicate layouts
+* Single codebase for all devices
+* Use responsive Tailwind classes
+* Keep UI modular
+
+---
+
+# 🔗 ROUTING
+
+Each module must navigate:
+
+/marketplace
+/wholesale
+/services
+/feed
+/orders
+/wallet
+etc.
+
+---
+
+# ⚡ ADVANCED FEATURES (PREPARE STRUCTURE)
+
+* Dynamic module system (config-based)
+* Drag & rearrange (future)
+* Feature flags support
+
+---
+
+# 🧪 VALIDATION
+
+Ensure:
+
+* Looks EXACTLY like mobile design reference
+* Works smoothly on tablet
+* Desktop layout usable (not stretched)
+* No overflow or broken layout
+
+---
+
+# 🚫 STRICT RULES
+
+* Do NOT redesign UI
+* Do NOT change colors
+* Do NOT simplify layout
+* Do NOT remove sections
+* Only adapt layout responsively
+
+---
+
+# 🎯 OUTPUT
+
+Deliver:
+
+1. Complete HomePage UI
+2. All reusable components
+3. Fully responsive layout
+4. Clean structured code
+
+Start step-by-step:
+
+Step 1: Build Mobile UI EXACTLY like design
+Step 2: Make it responsive for tablet
+Step 3: Adapt for desktop (add sidebar)
+
+Do not skip steps.

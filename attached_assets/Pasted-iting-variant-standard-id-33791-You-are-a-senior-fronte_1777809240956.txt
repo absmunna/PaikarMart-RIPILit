@@ -1,0 +1,157 @@
+iting{variant="standard" id="33791"}
+You are a senior frontend architect.
+
+Your task is to build a "Super App Dashboard UI" for PaikarMart that works across:
+
+- Mobile App (Primary)
+- Web App (Responsive)
+- Desktop Screen (Adaptive Layout)
+
+IMPORTANT:
+Do NOT create separate UI systems.
+Use ONE unified component system with responsive/adaptive layout.
+
+---
+
+# 🎯 GOAL
+
+Create an app-like home interface where:
+
+- Each feature/module appears as an app icon
+- Users tap/click to enter modules
+- UI feels like a mobile OS home screen but for eCommerce
+
+---
+
+# 🧩 CORE COMPONENTS
+
+Build reusable components:
+
+1. AppGrid
+2. AppIconCard
+3. TopHeader (search + profile + notification)
+4. BottomNav (mobile only)
+5. Sidebar (desktop only)
+6. BannerCarousel
+7. FeedSection
+
+---
+
+# 📱 MOBILE DESIGN (PRIMARY)
+
+- Grid: 2–4 columns
+- Full screen scroll
+- Bottom navigation fixed
+- Touch-friendly spacing
+
+Modules to show as icons:
+
+- Marketplace
+- Wholesale
+- Retail
+- Services
+- Digital Products
+- Feed
+- Live
+- Orders
+- Wallet
+- Profile
+
+---
+
+# 📲 TABLET DESIGN
+
+- Grid: 4–6 columns
+- Larger cards
+- Keep mobile structure but more space
+
+---
+
+# 💻 DESKTOP DESIGN
+
+- Add LEFT SIDEBAR navigation
+- Keep AppGrid in main content
+- Use 6–8 column layout
+- Show more data (analytics, quick stats)
+
+---
+
+# 🎨 DESIGN SYSTEM
+
+- Dark theme + glassmorphism
+- Soft glow icons
+- Rounded cards (16px–24px)
+- Smooth hover + tap animations
+
+---
+
+# ⚛️ TECH STACK
+
+- React + Vite
+- Tailwind CSS
+- Framer Motion (animations)
+- Zustand (state)
+
+---
+
+# 📐 RESPONSIVE RULES
+
+Use breakpoints:
+
+- mobile: < 768px
+- tablet: 768px – 1024px
+- desktop: > 1024px
+
+DO NOT duplicate components.
+Use responsive classes.
+
+---
+
+# 🔗 ROUTING
+
+Each AppIconCard must navigate to:
+
+- /marketplace
+- /wholesale
+- /services
+- etc.
+
+---
+
+# ⚡ EXTRA (ADVANCED)
+
+- Add drag & rearrange (future-ready)
+- Add dynamic modules (config-based)
+
+---
+
+# 🧪 VALIDATION
+
+Ensure:
+
+- Works on mobile perfectly
+- No layout break on tablet
+- Desktop layout usable and clean
+
+---
+
+# 🚫 STRICT RULES
+
+- No duplicate UI code
+- No hardcoded layout per device
+- No separate pages per device
+
+---
+
+# 🎯 OUTPUT
+
+Deliver:
+
+1. Full component structure
+2. Responsive UI
+3. Clean code
+4. Ready to integrate into existing project
+
+Start step-by-step:
+First build AppGrid + AppIconCard for mobile.
+Then expand to ta

@@ -57,10 +57,27 @@ Express 5 API server. Routes live in `src/routes/` and use `@workspace/api-zod` 
 - Entry: `src/index.ts` — reads `PORT`, starts Express
 - App setup: `src/app.ts` — mounts CORS, JSON/urlencoded parsing, routes at `/api`
 - Routes: `src/routes/index.ts` mounts sub-routers; `src/routes/health.ts` exposes `GET /health` (full path: `/api/health`)
-- Depends on: `@workspace/db`, `@workspace/api-zod`
+- Auth: `src/middleware/auth.ts` — `requireAuth`, `requireSeller`, `requireAdmin` middleware (x-user-id header → DB lookup → role check)
+- Depends on: `@workspace/db`, `@workspace/api-zod`, `zod`
 - `pnpm --filter @workspace/api-server run dev` — run the dev server
-- `pnpm --filter @workspace/api-server run build` — production esbuild bundle (`dist/index.cjs`)
+- `pnpm --filter @workspace/api-server run build` — production esbuild bundle (`dist/index.mjs`)
 - Build bundles an allowlist of deps (express, cors, pg, drizzle-orm, zod, etc.) and externalizes the rest
+
+**Phase 2 API Routes (May 2026):**
+
+Original routes (unchanged, no auth guards yet — Phase 3):
+`health`, `products`, `sellers`, `orders`, `users`, `notifications`, `admin`, `auth`
+
+New Phase 2 routes (all with inline Zod validation):
+- `GET /transactions?user_id=&type=` — list wallet transactions; `POST /transactions` (requireAuth) — create & update wallet balance
+- `GET /reviews?product_id=&vendor_id=&user_id=` — list reviews; `GET /reviews/:id`; `POST /reviews` (requireAuth) — auto-updates product avg rating; `DELETE /reviews/:id` (own or admin)
+- `GET /disputes` (requireAuth) — list; `POST /disputes` (requireAuth) — create; `GET /disputes/:id` (requireAuth, owner/admin); `PUT /disputes/:id/status` (requireAdmin) — resolve
+- `GET /kyc` (requireSeller) — list seller docs; `POST /kyc` (requireSeller) — submit doc; `PUT /kyc/:id/review` (requireAdmin) — approve/reject
+- `GET /commissions` — public list; `GET /commissions/:seller_type` — single; `PUT /commissions/:seller_type` (requireAdmin) — update rate
+- `GET /milestones/:seller_id` (requireAuth); `POST /milestones` (requireAdmin) — create; `PUT /milestones/:seller_id/progress` (requireAdmin) — bulk update
+- `GET /affiliate` (requireAuth) — list user links; `POST /affiliate` (requireAuth) — create with auto-generated code; `GET /affiliate/track/:code` — public click tracker
+
+**Auth middleware pattern:** `x-user-id` header → DB user lookup → role assertion. Frontend must send header on authenticated requests. Existing routes NOT yet guarded (backward-compatible). Phase 3 will add JWT + guard existing admin/seller routes.
 
 ### `lib/db` (`@workspace/db`)
 
@@ -68,9 +85,30 @@ Database layer using Drizzle ORM with PostgreSQL. Exports a Drizzle client insta
 
 - `src/index.ts` — creates a `Pool` + Drizzle instance, exports schema
 - `src/schema/index.ts` — barrel re-export of all models
-- `src/schema/<modelname>.ts` — table definitions with `drizzle-zod` insert schemas (no models definitions exist right now)
+- `src/schema/<modelname>.ts` — table definitions with `drizzle-zod` insert schemas
 - `drizzle.config.ts` — Drizzle Kit config (requires `DATABASE_URL`, automatically provided by Replit)
+- `migrations/phase1_down.sql` — reversible down-migration for Phase 1 changes
 - Exports: `.` (pool, db, schema), `./schema` (schema only)
+
+**Phase 1 DB Schema (May 2026) — 13 tables total:**
+
+Original 6 tables (unchanged):
+- `users` — +`otp_verified` (bool, nullable), +`moderator` role in enum
+- `sellers` — +`kyc_status` (text, nullable), +`commission_rate` (real, nullable), +4 new seller types in enum
+- `orders` — +`cancel_reason` (text, nullable), +`refund_status` (text, nullable); JSONB `items` untouched
+- `products`, `notifications`, `wallets` — unchanged
+
+New Phase 1 tables (all nullable-safe):
+- `transactions` — proper wallet transaction ledger (parallel to JSONB, non-replacing)
+- `reviews` — product reviews with verified-purchase flag
+- `disputes` — order dispute tracking with resolution workflow
+- `kyc_documents` — seller KYC document upload & review
+- `commissions_config` — per-seller-type commission % (pre-seeded 10 rows)
+- `milestones` — seller achievement milestones
+- `affiliate_links` — referral/affiliate code tracking
+
+New enums: `transaction_type`, `transaction_status`, `dispute_type`, `dispute_status`, `kyc_doc_type`, `kyc_doc_status`, `milestone_type`, `affiliate_target_type`
+Extended enums: `seller_type` (+b2b_seller, content_creator, logistic_courier, booking_agent), `user_role` (+moderator)
 
 Production migrations are handled by Replit when publishing. In development, we just use `pnpm --filter @workspace/db run push`, and we fallback to `pnpm --filter @workspace/db run push-force`.
 
@@ -100,6 +138,17 @@ Utility scripts package. Each script is a `.ts` file in `src/` with a correspond
 React + Vite frontend. Dark-themed Bangladesh-focused multi-vendor marketplace.
 
 **Design tokens**: bg `hsl(160 28% 5%)`, primary `hsl(145 65% 38%)`, purple `hsl(265 55% 58%)`. CSS utilities: `.glass`, `.glass-card`, `.glow-green`, `.text-gradient-green`.
+
+**UI Audit complete (May 2026) — all pages dark glassmorphism:**
+- `orders/index.tsx` — filter tabs (All/Pending/Shipped/Delivered/Cancelled) + GlassCard order list + empty state
+- `notifications.tsx` — filter tabs + GlassCard divided list, unread dot, type icons (order/delivery/account/seller)
+- `faq.tsx` — hero + search + accordion categories (General/Buying/Selling/Account) + contact CTA
+- `terms.tsx` — hero + collapsible section accordion + date footer
+- `admin/dashboard.tsx` — 4 stat cards + seller applications panel + recent orders panel + mobile quick-nav
+- `register.tsx` — 3-step registration (info → OTP 6-digit → done/welcome)
+- STATUS_CONFIG in all pages: dark `bg-yellow-500/15 text-yellow-400` etc. (no more `bg-yellow-100 text-yellow-700`)
+- BUSINESS_TYPES in `seller/register.tsx`: dark selection colors (`bg-orange-500/10 text-orange-400`)
+- Profile toggle: `bg-white/10` unchecked, `bg-emerald-500` checked (was `bg-gray-200`/`bg-green-600`)
 
 **Responsive desktop layouts (completed):**
 - `index.tsx` — custom layout with CompactHeader + SideDrawer; 2-col desktop (feed + right sidebar with categories/trending shops/trust/app promo)
@@ -131,7 +180,7 @@ React + Vite frontend. Dark-themed Bangladesh-focused multi-vendor marketplace.
 
 **Footer:** desktop-only; mobile uses BottomNav with `pb-20`.
 
-**Seller pages:** Use SellerContext (local state, no backend yet). SellerContext is seeded with 3 sample products and 4 sample orders.
+**Seller pages:** Use SellerContext (local state, no backend yet). SellerContext is seeded with 3 sample products and 4 sample orders. Phase 3 will migrate to real API calls.
 
 **CategoryListResponse** shape: `{ categories: Category[] }` — always destructure `.categories` before mapping.
 
