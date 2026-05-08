@@ -33,11 +33,14 @@ router.get("/notifications", async (req, res): Promise<void> => {
   }
 
   const query = db.select().from(notificationsTable);
-  const notifications = conditions.length > 0
+  const filteredNotifications = conditions.length > 0
     ? await query.where(and(...conditions))
     : await query;
+  const notifications = params.data.limit
+    ? filteredNotifications.slice(0, params.data.limit)
+    : filteredNotifications;
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = filteredNotifications.filter(n => !n.read).length;
   res.json(ListNotificationsResponse.parse({ notifications: notifications.map(n => normalizeNotif(n as unknown as Record<string, unknown>)), unreadCount }));
 });
 
