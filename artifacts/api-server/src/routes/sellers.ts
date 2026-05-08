@@ -15,6 +15,7 @@ import {
   GetSellerDashboardResponse,
 } from "@workspace/api-zod";
 import { randomUUID } from "crypto";
+import { requireAdmin } from "../middleware/auth";
 
 const router: IRouter = Router();
 
@@ -152,7 +153,7 @@ router.post("/sellers/:id/register", async (req, res): Promise<void> => {
   res.status(201).json(GetSellerResponse.parse(normalizeSeller(seller as unknown as Record<string, unknown>)));
 });
 
-router.put("/sellers/:id/approve", async (req, res): Promise<void> => {
+router.put("/sellers/:id/approve", requireAdmin, async (req, res): Promise<void> => {
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const params = ApproveSellerParams.safeParse({ id: raw });
   if (!params.success) {
@@ -162,6 +163,27 @@ router.put("/sellers/:id/approve", async (req, res): Promise<void> => {
 
   const [seller] = await db.update(sellersTable)
     .set({ status: "approved" })
+    .where(eq(sellersTable.id, params.data.id))
+    .returning();
+
+  if (!seller) {
+    res.status(404).json({ error: "Seller not found" });
+    return;
+  }
+
+  res.json(ApproveSellerResponse.parse(normalizeSeller(seller as unknown as Record<string, unknown>)));
+});
+
+router.put("/sellers/:id/suspend", requireAdmin, async (req, res): Promise<void> => {
+  const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+  const params = ApproveSellerParams.safeParse({ id: raw });
+  if (!params.success) {
+    res.status(400).json({ error: params.error.message });
+    return;
+  }
+
+  const [seller] = await db.update(sellersTable)
+    .set({ status: "suspended" })
     .where(eq(sellersTable.id, params.data.id))
     .returning();
 
