@@ -1,6 +1,6 @@
 {
   "buildCommand": "pnpm --filter @workspace/paikarmart run build",
-  "outputDirectory": "artifacts/paikarmart/dist",
+  "outputDirectory": "dist",
   "routes": [
     {
       "src": "/(.*)",
@@ -8,4 +8,3 @@
     }
   ]
 }
-
