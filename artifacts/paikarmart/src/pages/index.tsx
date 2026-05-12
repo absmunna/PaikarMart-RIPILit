@@ -9,7 +9,7 @@ import { useWishlist } from "@/context/WishlistContext";
 import { useAuth } from "@/hooks/use-auth";
 import { formatBDT } from "@/lib/format";
 import { toast } from "sonner";
-import type { Product } from "@workspace/api-zod/src/generated/types";
+import type { Product } from "@workspace/api-zod";
 import {
   MapPin, ShoppingCart, X, ChevronRight,
   Store, Tag, Star, Heart,

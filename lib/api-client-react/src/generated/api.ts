@@ -50,6 +50,13 @@ type Awaited<O> = O extends AwaitedInput<infer T> ? T : never;
 
 type SecondParameter<T extends (...args: never) => unknown> = Parameters<T>[1];
 
+type QueryOptionsWithoutKeys<TQueryFnData, TError, TData> = Omit<
+  UseQueryOptions<TQueryFnData, TError, TData>,
+  "queryKey" | "queryFn"
+> & {
+  queryKey?: QueryKey;
+};
+
 /**
  * @summary Health check
  */
@@ -74,7 +81,7 @@ export const getHealthCheckQueryOptions = <
   TData = Awaited<ReturnType<typeof healthCheck>>,
   TError = ErrorType<unknown>,
 >(options?: {
-  query?: UseQueryOptions<
+  query?: QueryOptionsWithoutKeys<
     Awaited<ReturnType<typeof healthCheck>>,
     TError,
     TData
@@ -109,7 +116,7 @@ export function useHealthCheck<
   TData = Awaited<ReturnType<typeof healthCheck>>,
   TError = ErrorType<unknown>,
 >(options?: {
-  query?: UseQueryOptions<
+  query?: QueryOptionsWithoutKeys<
     Awaited<ReturnType<typeof healthCheck>>,
     TError,
     TData
@@ -164,7 +171,7 @@ export const getListProductsQueryOptions = <
 >(
   params?: ListProductsParams,
   options?: {
-    query?: UseQueryOptions<
+    query?: QueryOptionsWithoutKeys<
       Awaited<ReturnType<typeof listProducts>>,
       TError,
       TData
@@ -202,7 +209,7 @@ export function useListProducts<
 >(
   params?: ListProductsParams,
   options?: {
-    query?: UseQueryOptions<
+    query?: QueryOptionsWithoutKeys<
       Awaited<ReturnType<typeof listProducts>>,
       TError,
       TData
@@ -246,7 +253,7 @@ export const getGetProductQueryOptions = <
 >(
   id: string,
   options?: {
-    query?: UseQueryOptions<
+    query?: QueryOptionsWithoutKeys<
       Awaited<ReturnType<typeof getProduct>>,
       TError,
       TData
@@ -289,7 +296,7 @@ export function useGetProduct<
 >(
   id: string,
   options?: {
-    query?: UseQueryOptions<
+    query?: QueryOptionsWithoutKeys<
       Awaited<ReturnType<typeof getProduct>>,
       TError,
       TData
@@ -330,7 +337,7 @@ export const getGetFeaturedProductsQueryOptions = <
   TData = Awaited<ReturnType<typeof getFeaturedProducts>>,
   TError = ErrorType<unknown>,
 >(options?: {
-  query?: UseQueryOptions<
+  query?: QueryOptionsWithoutKeys<
     Awaited<ReturnType<typeof getFeaturedProducts>>,
     TError,
     TData
@@ -365,7 +372,7 @@ export function useGetFeaturedProducts<
   TData = Awaited<ReturnType<typeof getFeaturedProducts>>,
   TError = ErrorType<unknown>,
 >(options?: {
-  query?: UseQueryOptions<
+  query?: QueryOptionsWithoutKeys<
     Awaited<ReturnType<typeof getFeaturedProducts>>,
     TError,
     TData
@@ -405,7 +412,7 @@ export const getGetCategoriesQueryOptions = <
   TData = Awaited<ReturnType<typeof getCategories>>,
   TError = ErrorType<unknown>,
 >(options?: {
-  query?: UseQueryOptions<
+  query?: QueryOptionsWithoutKeys<
     Awaited<ReturnType<typeof getCategories>>,
     TError,
     TData
@@ -440,7 +447,7 @@ export function useGetCategories<
   TData = Awaited<ReturnType<typeof getCategories>>,
   TError = ErrorType<unknown>,
 >(options?: {
-  query?: UseQueryOptions<
+  query?: QueryOptionsWithoutKeys<
     Awaited<ReturnType<typeof getCategories>>,
     TError,
     TData
@@ -495,7 +502,7 @@ export const getListSellersQueryOptions = <
 >(
   params?: ListSellersParams,
   options?: {
-    query?: UseQueryOptions<
+    query?: QueryOptionsWithoutKeys<
       Awaited<ReturnType<typeof listSellers>>,
       TError,
       TData
@@ -533,7 +540,7 @@ export function useListSellers<
 >(
   params?: ListSellersParams,
   options?: {
-    query?: UseQueryOptions<
+    query?: QueryOptionsWithoutKeys<
       Awaited<ReturnType<typeof listSellers>>,
       TError,
       TData
@@ -577,7 +584,7 @@ export const getGetSellerQueryOptions = <
 >(
   id: string,
   options?: {
-    query?: UseQueryOptions<
+    query?: QueryOptionsWithoutKeys<
       Awaited<ReturnType<typeof getSeller>>,
       TError,
       TData
@@ -618,7 +625,7 @@ export function useGetSeller<
 >(
   id: string,
   options?: {
-    query?: UseQueryOptions<
+    query?: QueryOptionsWithoutKeys<
       Awaited<ReturnType<typeof getSeller>>,
       TError,
       TData
@@ -662,7 +669,7 @@ export const getGetSellerProductsQueryOptions = <
 >(
   id: string,
   options?: {
-    query?: UseQueryOptions<
+    query?: QueryOptionsWithoutKeys<
       Awaited<ReturnType<typeof getSellerProducts>>,
       TError,
       TData
@@ -705,7 +712,7 @@ export function useGetSellerProducts<
 >(
   id: string,
   options?: {
-    query?: UseQueryOptions<
+    query?: QueryOptionsWithoutKeys<
       Awaited<ReturnType<typeof getSellerProducts>>,
       TError,
       TData
@@ -920,7 +927,7 @@ export const getGetSellerDashboardQueryOptions = <
 >(
   id: string,
   options?: {
-    query?: UseQueryOptions<
+    query?: QueryOptionsWithoutKeys<
       Awaited<ReturnType<typeof getSellerDashboard>>,
       TError,
       TData
@@ -963,7 +970,7 @@ export function useGetSellerDashboard<
 >(
   id: string,
   options?: {
-    query?: UseQueryOptions<
+    query?: QueryOptionsWithoutKeys<
       Awaited<ReturnType<typeof getSellerDashboard>>,
       TError,
       TData
@@ -1019,7 +1026,7 @@ export const getListOrdersQueryOptions = <
 >(
   params?: ListOrdersParams,
   options?: {
-    query?: UseQueryOptions<
+    query?: QueryOptionsWithoutKeys<
       Awaited<ReturnType<typeof listOrders>>,
       TError,
       TData
@@ -1057,7 +1064,7 @@ export function useListOrders<
 >(
   params?: ListOrdersParams,
   options?: {
-    query?: UseQueryOptions<
+    query?: QueryOptionsWithoutKeys<
       Awaited<ReturnType<typeof listOrders>>,
       TError,
       TData
@@ -1187,7 +1194,7 @@ export const getGetOrderQueryOptions = <
 >(
   id: string,
   options?: {
-    query?: UseQueryOptions<
+    query?: QueryOptionsWithoutKeys<
       Awaited<ReturnType<typeof getOrder>>,
       TError,
       TData
@@ -1228,7 +1235,7 @@ export function useGetOrder<
 >(
   id: string,
   options?: {
-    query?: UseQueryOptions<
+    query?: QueryOptionsWithoutKeys<
       Awaited<ReturnType<typeof getOrder>>,
       TError,
       TData
@@ -1359,7 +1366,7 @@ export const getGetUserQueryOptions = <
 >(
   id: string,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getUser>>, TError, TData>;
+    query?: QueryOptionsWithoutKeys<Awaited<ReturnType<typeof getUser>>, TError, TData>;
     request?: SecondParameter<typeof customFetch>;
   },
 ) => {
@@ -1396,7 +1403,7 @@ export function useGetUser<
 >(
   id: string,
   options?: {
-    query?: UseQueryOptions<Awaited<ReturnType<typeof getUser>>, TError, TData>;
+    query?: QueryOptionsWithoutKeys<Awaited<ReturnType<typeof getUser>>, TError, TData>;
     request?: SecondParameter<typeof customFetch>;
   },
 ): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
@@ -1436,7 +1443,7 @@ export const getGetUserWalletQueryOptions = <
 >(
   id: string,
   options?: {
-    query?: UseQueryOptions<
+    query?: QueryOptionsWithoutKeys<
       Awaited<ReturnType<typeof getUserWallet>>,
       TError,
       TData
@@ -1479,7 +1486,7 @@ export function useGetUserWallet<
 >(
   id: string,
   options?: {
-    query?: UseQueryOptions<
+    query?: QueryOptionsWithoutKeys<
       Awaited<ReturnType<typeof getUserWallet>>,
       TError,
       TData
@@ -1540,7 +1547,7 @@ export const getListNotificationsQueryOptions = <
 >(
   params?: ListNotificationsParams,
   options?: {
-    query?: UseQueryOptions<
+    query?: QueryOptionsWithoutKeys<
       Awaited<ReturnType<typeof listNotifications>>,
       TError,
       TData
@@ -1579,7 +1586,7 @@ export function useListNotifications<
 >(
   params?: ListNotificationsParams,
   options?: {
-    query?: UseQueryOptions<
+    query?: QueryOptionsWithoutKeys<
       Awaited<ReturnType<typeof listNotifications>>,
       TError,
       TData
@@ -1704,7 +1711,7 @@ export const getGetAdminDashboardQueryOptions = <
   TData = Awaited<ReturnType<typeof getAdminDashboard>>,
   TError = ErrorType<unknown>,
 >(options?: {
-  query?: UseQueryOptions<
+  query?: QueryOptionsWithoutKeys<
     Awaited<ReturnType<typeof getAdminDashboard>>,
     TError,
     TData
@@ -1739,7 +1746,7 @@ export function useGetAdminDashboard<
   TData = Awaited<ReturnType<typeof getAdminDashboard>>,
   TError = ErrorType<unknown>,
 >(options?: {
-  query?: UseQueryOptions<
+  query?: QueryOptionsWithoutKeys<
     Awaited<ReturnType<typeof getAdminDashboard>>,
     TError,
     TData
@@ -1779,7 +1786,7 @@ export const getGetMarketStatsQueryOptions = <
   TData = Awaited<ReturnType<typeof getMarketStats>>,
   TError = ErrorType<unknown>,
 >(options?: {
-  query?: UseQueryOptions<
+  query?: QueryOptionsWithoutKeys<
     Awaited<ReturnType<typeof getMarketStats>>,
     TError,
     TData
@@ -1814,7 +1821,7 @@ export function useGetMarketStats<
   TData = Awaited<ReturnType<typeof getMarketStats>>,
   TError = ErrorType<unknown>,
 >(options?: {
-  query?: UseQueryOptions<
+  query?: QueryOptionsWithoutKeys<
     Awaited<ReturnType<typeof getMarketStats>>,
     TError,
     TData

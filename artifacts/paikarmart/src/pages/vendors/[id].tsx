@@ -8,7 +8,7 @@ import { useCart } from "@/hooks/use-cart";
 import { useWishlist } from "@/context/WishlistContext";
 import { formatBDT } from "@/lib/format";
 import { toast } from "sonner";
-import type { Product } from "@workspace/api-zod/src/generated/types";
+import type { Product } from "@workspace/api-zod";
 import { cn } from "@/lib/utils";
 import {
   MapPin, Star, Store, Mail, Phone, Calendar, BadgeCheck,

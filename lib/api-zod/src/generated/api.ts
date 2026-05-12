@@ -577,9 +577,16 @@ export const GetUserWalletResponse = zod.object({
 /**
  * @summary List notifications
  */
+export const listNotificationsQueryLimitMax = 100;
+
 export const ListNotificationsQueryParams = zod.object({
   user_id: zod.coerce.string().optional(),
   unread_only: zod.coerce.boolean().optional(),
+  limit: zod.coerce
+    .number()
+    .min(1)
+    .max(listNotificationsQueryLimitMax)
+    .optional(),
 });
 
 export const ListNotificationsResponse = zod.object({

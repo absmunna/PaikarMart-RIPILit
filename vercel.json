@@ -1,0 +1,10 @@
+{
+  "buildCommand": "pnpm --filter @workspace/paikarmart run build",
+  "outputDirectory": "dist",
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}
